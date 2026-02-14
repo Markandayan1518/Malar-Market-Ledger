@@ -4,8 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
 import { useTheme } from '../context/ThemeContext';
-import Button from '../components/form/Button';
-import Input from '../components/form/Input';
+import Button from '../components/forms/Button';
+import Input from '../components/forms/Input';
 import { Wifi, WifiOff } from 'lucide-react';
 
 const LoginPage = () => {
