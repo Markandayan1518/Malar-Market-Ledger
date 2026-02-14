@@ -3,7 +3,7 @@
 from functools import lru_cache
 from typing import List
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import AnyHttpUrl, validator
+from pydantic import field_validator
 
 
 class Settings(BaseSettings):
@@ -34,6 +34,7 @@ class Settings(BaseSettings):
 
     # JWT Authentication
     secret_key: str
+    jwt_secret_key: str = ""
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 15
     refresh_token_expire_days: int = 7
@@ -76,13 +77,15 @@ class Settings(BaseSettings):
     max_upload_size: int = 10485760  # 10MB
     allowed_file_types: List[str] = ["image/jpeg", "image/png", "application/pdf"]
 
-    @validator("cors_origins", pre=True)
+    @field_validator("cors_origins", mode="before")
+    @classmethod
     def parse_cors_origins(cls, v):
         if isinstance(v, str):
             return [origin.strip() for origin in v.split(",")]
         return v
 
-    @validator("allowed_file_types", pre=True)
+    @field_validator("allowed_file_types", mode="before")
+    @classmethod
     def parse_allowed_file_types(cls, v):
         if isinstance(v, str):
             return [file_type.strip() for file_type in v.split(",")]

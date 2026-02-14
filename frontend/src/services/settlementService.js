@@ -31,3 +31,16 @@ export const deleteSettlement = async (id) => {
 export const generateSettlement = async (farmerId, startDate, endDate) => {
   return handleApiResponse(api.post('/settlements/generate', { farmer_id: farmerId, start_date: startDate, end_date: endDate }));
 };
+
+const settlementService = {
+  getAll: getSettlements,
+  getById: getSettlement,
+  create: createSettlement,
+  update: updateSettlement,
+  approve: approveSettlement,
+  markPaid: markSettlementPaid,
+  delete: deleteSettlement,
+  generate: generateSettlement
+};
+
+export default settlementService;

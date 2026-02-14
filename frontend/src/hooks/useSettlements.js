@@ -88,3 +88,4 @@ const useSettlements = () => {
 };
 
 export default useSettlements;
+export { useSettlements };

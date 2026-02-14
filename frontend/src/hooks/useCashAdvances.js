@@ -102,3 +102,4 @@ const useCashAdvances = () => {
 };
 
 export default useCashAdvances;
+export { useCashAdvances };

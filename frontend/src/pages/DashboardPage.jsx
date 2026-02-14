@@ -108,7 +108,7 @@ const DashboardPage = () => {
     { key: 'farmer', label: 'Farmer', sortable: false },
     { key: 'weight', label: 'Weight', sortable: false },
     { key: 'amount', label: 'Amount', sortable: false },
-    { key: 'adjustments', label: 'Adjustments', sortable: false }
+    { key: 'adjustments', label: 'Adjustments', sortable: false },
     { key: 'actions', label: '', sortable: false }
   ];
 

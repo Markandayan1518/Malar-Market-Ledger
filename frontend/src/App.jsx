@@ -1,10 +1,11 @@
 import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { I18nextProvider } from 'react-i18next';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { OfflineProvider } from './context/OfflineContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { NotificationProvider } from './context/NotificationContext';
-import { I18nextProvider } from './i18n/i18n';
+import i18n from './i18n/i18n';
 
 // Pages
 import LoginPage from './pages/LoginPage';

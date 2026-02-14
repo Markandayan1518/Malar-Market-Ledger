@@ -3,7 +3,8 @@
 from datetime import timedelta
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Body
+from pydantic import Field
 from sqlalchemy import select, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -14,16 +15,17 @@ from app.core.auth import (
     get_password_hash
 )
 from app.dependencies import get_current_user, CurrentUser, DatabaseSession
+from app.database import get_db
+from app.models.user import User
 from app.schemas.all_schemas import (
     LoginRequest,
     LoginResponse,
     RefreshTokenRequest,
     RefreshTokenResponse,
     SuccessResponse,
-    ErrorResponse,
-    create_success_response,
-    create_error_response
+    ErrorResponse
 )
+from app.schemas.common import create_success_response, create_error_response
 from app.services.audit_service import AuditService
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
@@ -189,8 +191,8 @@ async def refresh_token(
 
 @router.post("/logout", response_model=SuccessResponse)
 async def logout(
-    current_user: CurrentUser = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
+    current_user: CurrentUser,
+    db: DatabaseSession
 ) -> SuccessResponse:
     """
     Logout current user.
@@ -269,7 +271,7 @@ async def forgot_password(
 @router.post("/reset-password", response_model=SuccessResponse)
 async def reset_password(
     token: str,
-    new_password: str = Field(..., min_length=8),
+    new_password: str = Body(..., min_length=8),
     db: AsyncSession = Depends(get_db)
 ) -> SuccessResponse:
     """

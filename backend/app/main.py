@@ -30,18 +30,17 @@ app = FastAPI(
 
 # CORS middleware
 app.add_middleware(
-    CORSMiddleware(
-        allow_origins=settings.cors_origins,
-        allow_credentials=settings.cors_allow_credentials,
-        allow_methods=settings.cors_allow_methods,
-        allow_headers=settings.cors_allow_headers,
-    )
+    CORSMiddleware,
+    allow_origins=settings.cors_origins,
+    allow_credentials=settings.cors_allow_credentials,
+    allow_methods=settings.cors_allow_methods,
+    allow_headers=settings.cors_allow_headers,
 )
 
 
 # Trusted host middleware for development
 if settings.environment == "development":
-    app.add_middleware(TrustedHostMiddleware(["localhost", "127.0.0.1"]))
+    app.add_middleware(TrustedHostMiddleware, allowed_hosts=["localhost", "127.0.0.1"])
 
 
 @app.on_event("startup")

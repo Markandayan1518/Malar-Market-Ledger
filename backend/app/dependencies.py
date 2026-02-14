@@ -108,6 +108,26 @@ async def get_current_admin_user(
     return current_user
 
 
+def require_role(roles: list[str]):
+    """
+    Dependency factory that checks if current user has one of the required roles.
+    
+    Args:
+        roles: List of allowed role names
+        
+    Returns:
+        Dependency function that validates user role
+    """
+    async def role_checker(current_user: User = Depends(get_current_active_user)) -> User:
+        if current_user.role.value not in roles and current_user.role not in [UserRole(r) for r in roles]:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Required role: {', '.join(roles)}"
+            )
+        return current_user
+    return role_checker
+
+
 async def get_current_staff_or_admin_user(
     current_user: User = Depends(get_current_active_user)
 ) -> User:

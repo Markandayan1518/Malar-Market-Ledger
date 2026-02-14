@@ -14,9 +14,9 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./backend/init-db.sql:/docker-entrypoint-initdb.d
+      - ./backend/init-db.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready", "-U", "malar_user", "-d", "malar_password"]
+      test: ["CMD-SHELL", "pg_isready -U malar_user -d malar_market_ledger"]
       interval: 10s
       timeout: 5s
       retries: 5

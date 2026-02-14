@@ -23,3 +23,14 @@ export const updateMarketRate = async (id, data) => {
 export const deleteMarketRate = async (id) => {
   return handleApiResponse(api.delete(`/market-rates/${id}`));
 };
+
+const marketRateService = {
+  getAll: getMarketRates,
+  getCurrent: getCurrentRate,
+  getById: getMarketRate,
+  create: createMarketRate,
+  update: updateMarketRate,
+  delete: deleteMarketRate
+};
+
+export default marketRateService;

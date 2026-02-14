@@ -125,3 +125,4 @@ const useDailyEntries = () => {
 };
 
 export default useDailyEntries;
+export { useDailyEntries };

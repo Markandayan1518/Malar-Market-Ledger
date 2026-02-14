@@ -23,3 +23,14 @@ export const deleteFarmer = async (id) => {
 export const searchFarmers = async (query) => {
   return handleApiResponse(api.get('/farmers/search', { params: { q: query } }));
 };
+
+const farmerService = {
+  getAll: getFarmers,
+  getById: getFarmer,
+  create: createFarmer,
+  update: updateFarmer,
+  delete: deleteFarmer,
+  search: searchFarmers
+};
+
+export default farmerService;

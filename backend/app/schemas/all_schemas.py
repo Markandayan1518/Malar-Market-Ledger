@@ -2,7 +2,7 @@
 
 from datetime import datetime, date, time
 from typing import Optional, List
-from pydantic import BaseModel, Field, EmailStr, validator
+from pydantic import BaseModel, Field, EmailStr, field_validator
 from decimal import Decimal
 
 from app.models.user import UserRole
@@ -373,7 +373,7 @@ class SettlementCreateRequest(BaseModel):
     """Settlement creation request schema."""
     farmer_id: str
     period_start: date
-    period_end: date = Field(..., gt=lambda x: x)
+    period_end: date
     notes: Optional[str] = None
 
 

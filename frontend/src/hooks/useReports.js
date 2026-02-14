@@ -113,3 +113,4 @@ const useReports = () => {
 };
 
 export default useReports;
+export { useReports };

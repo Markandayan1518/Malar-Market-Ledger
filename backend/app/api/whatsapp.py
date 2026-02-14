@@ -7,7 +7,7 @@ from typing import Dict, Any, List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks, Request
 from fastapi.security import HTTPBearer
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
@@ -16,7 +16,7 @@ from app.models.whatsapp_log import WhatsappLog
 from app.models.notification import Notification
 from app.models.farmer import Farmer
 from app.models.user import User
-from app.core.auth import get_current_user, require_role
+from app.dependencies import get_current_user, require_role
 from app.services.whatsapp_service import whatsapp_service, MessageStatus
 from app.services.bot_handler import bot_handler
 from app.services.message_templates import MessageType, Language
@@ -41,7 +41,8 @@ class SendMessageRequest(BaseModel):
     message_type: str = Field(default="bot_response", description="Message type")
     priority: str = Field(default="normal", description="Message priority (high/normal)")
     
-    @validator('phone_number')
+    @field_validator('phone_number')
+    @classmethod
     def validate_phone(cls, v):
         if not v or len(v) < 10:
             raise ValueError('Invalid phone number')
@@ -55,7 +56,8 @@ class BroadcastMessageRequest(BaseModel):
     message_type: str = Field(default="bot_response", description="Message type")
     priority: str = Field(default="normal", description="Message priority (high/normal)")
     
-    @validator('phone_numbers')
+    @field_validator('phone_numbers')
+    @classmethod
     def validate_phone_numbers(cls, v):
         if not v or len(v) == 0:
             raise ValueError('At least one phone number required')

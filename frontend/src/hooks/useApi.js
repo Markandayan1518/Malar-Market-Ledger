@@ -62,3 +62,4 @@ const useApi = () => {
 };
 
 export default useApi;
+export { useApi };

@@ -99,3 +99,4 @@ const useFarmers = () => {
 };
 
 export default useFarmers;
+export { useFarmers };

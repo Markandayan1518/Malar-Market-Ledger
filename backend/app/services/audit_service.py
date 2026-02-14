@@ -94,7 +94,7 @@ class AuditService:
         db: AsyncSession,
         user_id: str,
         entity_type: str,
-        entity_id: str
+        entity_id: str,
         data: Optional[Dict[str, Any]] = None
     ) -> SecurityLog:
         """Log a delete action."""

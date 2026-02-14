@@ -27,3 +27,15 @@ export const getDailySummary = async (date) => {
 export const bulkCreateEntries = async (entries) => {
   return handleApiResponse(api.post('/daily-entries/bulk', { entries }));
 };
+
+const dailyEntryService = {
+  getAll: getDailyEntries,
+  getById: getDailyEntry,
+  create: createDailyEntry,
+  update: updateDailyEntry,
+  delete: deleteDailyEntry,
+  getSummary: getDailySummary,
+  bulkCreate: bulkCreateEntries
+};
+
+export default dailyEntryService;

@@ -10,7 +10,7 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
-from app.core.auth import get_current_user
+from app.dependencies import get_current_user
 from app.models.user import User, UserRole
 from app.services.report_aggregator import ReportAggregator
 from app.services.pdf_service import PDFService

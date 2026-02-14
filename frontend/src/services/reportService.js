@@ -23,3 +23,14 @@ export const getCashAdvanceReport = async (startDate, endDate) => {
 export const exportReport = async (reportType, params) => {
   return handleApiResponse(api.get(`/reports/${reportType}/export`, { params, responseType: 'blob' }));
 };
+
+const reportService = {
+  getDailySummary,
+  getFarmerSummary,
+  getMarketAnalytics,
+  getSettlementReport,
+  getCashAdvanceReport,
+  export: exportReport
+};
+
+export default reportService;

@@ -103,3 +103,4 @@ const useMarketRates = () => {
 };
 
 export default useMarketRates;
+export { useMarketRates };

@@ -27,3 +27,15 @@ export const rejectCashAdvance = async (id, reason) => {
 export const deleteCashAdvance = async (id) => {
   return handleApiResponse(api.delete(`/cash-advances/${id}`));
 };
+
+const cashAdvanceService = {
+  getAll: getCashAdvances,
+  getById: getCashAdvance,
+  create: createCashAdvance,
+  update: updateCashAdvance,
+  approve: approveCashAdvance,
+  reject: rejectCashAdvance,
+  delete: deleteCashAdvance
+};
+
+export default cashAdvanceService;
