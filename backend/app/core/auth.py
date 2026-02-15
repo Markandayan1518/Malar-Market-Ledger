@@ -3,22 +3,19 @@
 from datetime import datetime, timedelta
 from typing import Optional
 from jose import JWTError, jwt
-from passlib.context import CryptContext
+import bcrypt
 from pydantic import BaseModel
 
 from app.config import get_settings
 
 settings = get_settings()
 
-# Password hashing context
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
 
 class TokenData(BaseModel):
     """Token data structure."""
     sub: str  # user_id
-    role: str
-    exp: int
+    role: Optional[str] = None
+    exp: Optional[float] = None
 
 
 def get_password_hash(password: str) -> str:
@@ -31,7 +28,8 @@ def get_password_hash(password: str) -> str:
     Returns:
         str: Hashed password
     """
-    return pwd_context.hash(password)
+    salt = bcrypt.gensalt()
+    return bcrypt.hashpw(password.encode('utf-8'), salt).decode('utf-8')
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
@@ -45,7 +43,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     Returns:
         bool: True if password matches
     """
-    return pwd_context.verify(plain_password, hashed_password)
+    return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
 
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
@@ -145,8 +143,8 @@ def decode_token(token: str) -> TokenData:
             algorithms=[settings.algorithm]
         )
         user_id: str = payload.get("sub")
-        role: str = payload.get("role")
-        exp: int = payload.get("exp")
+        role: Optional[str] = payload.get("role")
+        exp: Optional[float] = payload.get("exp")
         
         if user_id is None:
             raise JWTError("Invalid token")

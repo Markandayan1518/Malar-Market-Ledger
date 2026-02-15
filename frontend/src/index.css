@@ -63,6 +63,7 @@
 
   body {
     @apply bg-warm-cream text-warm-charcoal font-body;
+    text-align: left;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -119,7 +120,7 @@
 
   /* Card Component */
   .card {
-    @apply bg-white rounded-xl shadow-soft border-2 border-warm-taupe p-6;
+    @apply bg-white rounded-xl shadow-soft border-2 border-warm-taupe p-6 text-left;
   }
 
   .card-header {
@@ -218,7 +219,7 @@
 
   /* Loading Spinner */
   .spinner {
-    @apply animate-spin rounded-full border-3 border-warm-taupe border-t-accent-magenta;
+    @apply animate-spin rounded-full border-4 border-warm-taupe border-t-accent-magenta;
   }
 
   /* Toast Animations */

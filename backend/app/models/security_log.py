@@ -2,10 +2,12 @@
 
 from datetime import datetime
 from typing import Optional
+import json
+import uuid
 
 from sqlalchemy import String, DateTime, Text, Index, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy.dialects.postgresql import INET
+from sqlalchemy.dialects.postgresql import INET, JSONB
 
 from app.database import Base
 
@@ -20,7 +22,8 @@ class SecurityLog(Base):
 
     id: Mapped[str] = mapped_column(
         String(36),
-        primary_key=True
+        primary_key=True,
+        default=lambda: str(uuid.uuid4())
     )
     
     user_id: Mapped[Optional[str]] = mapped_column(
@@ -47,12 +50,12 @@ class SecurityLog(Base):
     )
     
     old_values: Mapped[Optional[dict]] = mapped_column(
-        Text,
+        JSONB,
         nullable=True
     )
     
     new_values: Mapped[Optional[dict]] = mapped_column(
-        Text,
+        JSONB,
         nullable=True
     )
     
@@ -76,8 +79,7 @@ class SecurityLog(Base):
     # Relationships
     user = relationship(
         "User",
-        back_populates="security_logs",
-        cascade="all, delete-orphan"
+        back_populates="security_logs"
     )
 
     def __repr__(self) -> str:

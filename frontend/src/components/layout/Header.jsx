@@ -9,7 +9,8 @@ import { useNavigate } from 'react-router-dom';
 const Header = ({ toggleSidebar, isSidebarOpen }) => {
   const { t } = useTranslation();
   const { user, logout } = useAuth();
-  const { isOnline, syncQueue, syncNow } = useOffline();
+  const { isOffline, syncQueueCount, syncPendingData } = useOffline();
+  const isOnline = !isOffline;
   const { theme, toggleTheme } = useTheme();
   const { i18n } = useTranslation();
   const navigate = useNavigate();
@@ -63,10 +64,10 @@ const Header = ({ toggleSidebar, isSidebarOpen }) => {
             <span>{isOnline ? t('offline.syncSuccess') : t('offline.title')}</span>
           </div>
           
-          {syncQueue.length > 0 && (
+          {syncQueueCount > 0 && (
             <div className="flex items-center gap-2 px-3 py-1.5 bg-accent-crimson text-white rounded-lg text-sm font-medium">
               <RefreshCw size={16} className={isOnline ? 'animate-spin' : ''} />
-              <span>{t('offline.syncQueue', { count: syncQueue.length })}</span>
+              <span>{t('offline.syncQueue', { count: syncQueueCount })}</span>
             </div>
           )}
         </div>
@@ -105,7 +106,7 @@ const Header = ({ toggleSidebar, isSidebarOpen }) => {
                 <User size={16} className="text-white" />
               </div>
               <div className="hidden sm:block text-left">
-                <p className="text-sm font-semibold text-warm-charcoal">{user?.username}</p>
+                <p className="text-sm font-semibold text-warm-charcoal">{user?.full_name}</p>
                 <p className="text-xs text-warm-brown capitalize">{t(`roles.${user?.role}`)}</p>
               </div>
             </button>
@@ -114,7 +115,7 @@ const Header = ({ toggleSidebar, isSidebarOpen }) => {
             {isUserMenuOpen && (
               <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-strong border-2 border-warm-taupe overflow-hidden z-50">
                 <div className="px-4 py-3 border-b border-warm-sand">
-                  <p className="text-sm font-semibold text-warm-charcoal">{user?.username}</p>
+                  <p className="text-sm font-semibold text-warm-charcoal">{user?.full_name}</p>
                   <p className="text-xs text-warm-brown capitalize">{t(`roles.${user?.role}`)}</p>
                 </div>
                 <button
@@ -141,10 +142,10 @@ const Header = ({ toggleSidebar, isSidebarOpen }) => {
           <span>{isOnline ? 'Online' : 'Offline'}</span>
         </div>
         
-        {syncQueue.length > 0 && (
+        {syncQueueCount > 0 && (
           <div className="flex items-center gap-2 px-3 py-1.5 bg-accent-crimson text-white rounded-lg text-xs font-medium">
             <RefreshCw size={14} className={isOnline ? 'animate-spin' : ''} />
-            <span>{syncQueue.length} pending</span>
+            <span>{syncQueueCount} pending</span>
           </div>
         )}
       </div>

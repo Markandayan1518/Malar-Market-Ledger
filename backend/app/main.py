@@ -6,6 +6,7 @@ from typing import AsyncGenerator
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
+from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import get_settings
@@ -61,14 +62,18 @@ async def shutdown_event():
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
     """Handle all unhandled exceptions."""
-    return create_error_response(
+    error_response = create_error_response(
         message=str(exc),
         code="INTERNAL_SERVER_ERROR"
+    )
+    return JSONResponse(
+        status_code=500,
+        content=error_response.model_dump()
     )
 
 
 # Include all API routers
-app.include_router(auth.router, prefix="/api/v1/auth", tags=["Authentication"])
+app.include_router(auth.router, prefix="/api/v1", tags=["Authentication"])
 app.include_router(users.router, prefix="/api/v1/users", tags=["Users"])
 app.include_router(farmers.router, prefix="/api/v1/farmers", tags=["Farmers"])
 app.include_router(flower_types.router, prefix="/api/v1/flower-types", tags=["Flower Types"])

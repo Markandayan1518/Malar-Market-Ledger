@@ -60,8 +60,10 @@ class UserResponse(UserBase):
 
 class LoginRequest(BaseModel):
     """Login request schema."""
-    email: EmailStr
+    email: EmailStr = Field(alias="username")
     password: str
+
+    model_config = {"populate_by_name": True}
 
 
 class RefreshTokenRequest(BaseModel):

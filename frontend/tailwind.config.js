@@ -38,7 +38,14 @@ export default {
           700: '#44403C',
           800: '#292524',
           900: '#1C1917',
-        }
+        },
+        // Warm palette for @apply usage
+        'warm-cream': '#F5F1EB',
+        'warm-sand': '#E8E0D5',
+        'warm-taupe': '#D4C8BC',
+        'warm-brown': '#A89888',
+        'warm-charcoal': '#3D3A36',
+        'warm-black': '#2A2825',
       },
       fontFamily: {
         display: ['Playfair Display', 'serif'],

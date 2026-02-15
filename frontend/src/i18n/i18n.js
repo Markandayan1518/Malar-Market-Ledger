@@ -9,19 +9,21 @@ const resources = {
   ta: { translation: taTranslations },
 };
 
-i18n.init({
-  resources,
-  lng: localStorage.getItem('language') || 'en',
-  fallbackLng: 'en',
-  debug: import.meta.env.DEV,
+i18n
+  .use(initReactI18next)
+  .init({
+    resources,
+    lng: localStorage.getItem('language') || 'en',
+    fallbackLng: 'en',
+    debug: import.meta.env.DEV,
 
-  interpolation: {
-    escapeValue: false,
-  },
+    interpolation: {
+      escapeValue: false,
+    },
 
-  react: {
-    useSuspense: false,
-  },
-});
+    react: {
+      useSuspense: false,
+    },
+  });
 
 export default i18n;

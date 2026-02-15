@@ -59,7 +59,9 @@ api.interceptors.response.use(
             refresh_token: refreshToken,
           });
           
-          const { access_token, refresh_token: newRefreshToken } = response.data.data;
+          // Handle both wrapped and direct response formats
+          const tokenData = response.data.data || response.data;
+          const { access_token, refresh_token: newRefreshToken } = tokenData;
           
           // Store new tokens
           localStorage.setItem('auth_token', access_token);

@@ -26,8 +26,8 @@ import { useNavigate } from 'react-router-dom';
 const DashboardPage = () => {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const { isOnline } = useOffline();
-  const { syncQueue } = useOffline();
+  const { isOffline, syncQueueCount } = useOffline();
+  const isOnline = !isOffline;
   const navigate = useNavigate();
   
   const { fetchEntries, getTodayStats } = useDailyEntries();
@@ -127,7 +127,7 @@ const DashboardPage = () => {
       {/* Header */}
       <div className="mb-6">
         <h1 className="font-display text-3xl font-bold text-warm-charcoal">
-          {t('dashboard.welcome', { name: user?.username })}
+          {t('dashboard.welcome', { name: user?.full_name })}
         </h1>
       </div>
 
@@ -265,11 +265,11 @@ const DashboardPage = () => {
                 </span>
               </div>
               
-              {syncQueue.length > 0 && (
+              {syncQueueCount > 0 && (
                 <div className="flex items-center gap-2 px-3 py-2 bg-accent-crimson text-white rounded-lg">
                   <RefreshCw size={16} className="animate-spin mr-2" />
                   <span className="text-sm font-medium">
-                    {syncQueue.length} {t('offline.syncQueue', { count: syncQueue.length })}
+                    {syncQueueCount} {t('offline.syncQueue', { count: syncQueueCount })}
                   </span>
                 </div>
               )}

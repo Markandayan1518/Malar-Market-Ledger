@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { isOnline, onOnline, onOffline } from '../utils/offlineUtils';
-import { getSyncQueueCount } from '../store/offlineStore';
+import { getSyncQueueCount, initDB } from '../store/offlineStore';
 
 const OfflineContext = createContext(null);
 
@@ -15,13 +15,30 @@ export const useOffline = () => {
 export const OfflineProvider = ({ children }) => {
   const [isOffline, setIsOffline] = useState(!isOnline());
   const [syncQueueCount, setSyncQueueCount] = useState(0);
+  const [dbInitialized, setDbInitialized] = useState(false);
+
+  // Initialize IndexedDB on mount
+  useEffect(() => {
+    const initDatabase = async () => {
+      try {
+        await initDB();
+        setDbInitialized(true);
+      } catch (error) {
+        console.error('Failed to initialize IndexedDB:', error);
+      }
+    };
+    
+    initDatabase();
+  }, []);
 
   // Monitor online/offline status
   useEffect(() => {
     const handleOnline = () => {
       setIsOffline(false);
       // Trigger sync when coming back online
-      syncPendingData();
+      if (dbInitialized) {
+        syncPendingData();
+      }
     };
 
     const handleOffline = () => {
@@ -35,18 +52,21 @@ export const OfflineProvider = ({ children }) => {
       cleanupOnline();
       cleanupOffline();
     };
-  }, []);
+  }, [dbInitialized]);
 
   // Update sync queue count periodically
   useEffect(() => {
-    updateSyncQueueCount();
-    const interval = setInterval(updateSyncQueueCount, 30000); // Every 30 seconds
+    if (dbInitialized) {
+      updateSyncQueueCount();
+      const interval = setInterval(updateSyncQueueCount, 30000); // Every 30 seconds
 
-    return () => clearInterval(interval);
-  }, []);
+      return () => clearInterval(interval);
+    }
+  }, [dbInitialized]);
 
   const updateSyncQueueCount = async () => {
     try {
+      if (!dbInitialized) return;
       const count = await getSyncQueueCount();
       setSyncQueueCount(count);
     } catch (error) {

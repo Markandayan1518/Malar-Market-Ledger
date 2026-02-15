@@ -12,8 +12,8 @@ import { format } from 'date-fns';
 const DailyEntryPage = () => {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const { isOnline } = useOffline();
-  const { syncQueue } = useOffline();
+  const { isOffline, syncQueueCount } = useOffline();
+  const isOnline = !isOffline;
   
   const { fetchEntries, addEntry, getTodayStats } = useDailyEntries();
   const { getCurrentRate } = useMarketRates();
@@ -78,10 +78,10 @@ const DailyEntryPage = () => {
             {/* Sync Button */}
             <button
               onClick={handleSyncNow}
-              disabled={syncQueue.length === 0 || !isOnline}
+              disabled={syncQueueCount === 0 || !isOnline}
               className="flex items-center gap-2 px-4 py-2 bg-white border-2 border-warm-taupe rounded-lg hover:border-accent-magenta transition-colors duration-200 disabled:opacity-50"
             >
-              <RefreshCw size={16} className={syncQueue.length > 0 ? 'animate-spin' : ''} />
+              <RefreshCw size={16} className={syncQueueCount > 0 ? 'animate-spin' : ''} />
               <span className="text-sm font-medium">
                 {t('offline.syncNow')}
               </span>
@@ -140,10 +140,10 @@ const DailyEntryPage = () => {
           </div>
           
           <div className="flex items-center gap-2">
-            <div className={`flex items-center gap-2 px-3 py-2 rounded-lg ${syncQueue.length > 0 ? 'bg-accent-crimson' : 'bg-emerald-100'} transition-colors duration-300`}>
-              <RefreshCw size={16} className={syncQueue.length > 0 ? 'animate-spin' : ''} />
+            <div className={`flex items-center gap-2 px-3 py-2 rounded-lg ${syncQueueCount > 0 ? 'bg-accent-crimson' : 'bg-emerald-100'} transition-colors duration-300`}>
+              <RefreshCw size={16} className={syncQueueCount > 0 ? 'animate-spin' : ''} />
               <span className="text-sm font-medium">
-                {syncQueue.length} {t('offline.syncQueue', { count: syncQueue.length })}
+                {syncQueueCount} {t('offline.syncQueue', { count: syncQueueCount })}
               </span>
             </div>
           </div>

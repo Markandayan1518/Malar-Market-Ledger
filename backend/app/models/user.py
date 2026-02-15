@@ -3,6 +3,7 @@
 from datetime import datetime
 from enum import Enum
 from typing import Optional
+import uuid
 
 from sqlalchemy import String, Boolean, DateTime, Index
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -28,6 +29,7 @@ class User(Base):
     id: Mapped[str] = mapped_column(
         String(36),
         primary_key=True,
+        default=lambda: str(uuid.uuid4()),
         index=True
     )
     
@@ -114,12 +116,14 @@ class User(Base):
     settlements_created = relationship(
         "Settlement",
         back_populates="created_by_user",
+        foreign_keys="[Settlement.created_by]",
         cascade="all, delete-orphan"
     )
     
     cash_advances_created = relationship(
         "CashAdvance",
         back_populates="created_by_user",
+        foreign_keys="[CashAdvance.created_by]",
         cascade="all, delete-orphan"
     )
     
@@ -144,7 +148,7 @@ class User(Base):
     notifications = relationship(
         "Notification",
         back_populates="user",
-        cascade="all, delete-orphan"
+        cascade="all"
     )
 
     def __repr__(self) -> str:

@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 
-const Card = ({
+const CardBase = ({
   title,
   subtitle,
   children,
@@ -37,5 +37,22 @@ const Card = ({
     </div>
   );
 };
+
+const CardHeader = ({ children, className = '' }) => (
+  <div className={`card-header ${className}`}>
+    {children}
+  </div>
+);
+
+const CardBody = ({ children, className = '' }) => (
+  <div className={`card-body ${className}`}>
+    {children}
+  </div>
+);
+
+const Card = Object.assign(CardBase, {
+  Header: CardHeader,
+  Body: CardBody
+});
 
 export default Card;

@@ -2,7 +2,8 @@ import { useOffline } from '../../context/OfflineContext';
 import { Wifi, WifiOff, RefreshCw } from 'lucide-react';
 
 const StatusIndicator = ({ showSyncCount = false, className = '' }) => {
-  const { isOnline, syncQueue, isSyncing } = useOffline();
+  const { isOffline, syncQueueCount, isSyncing } = useOffline();
+  const isOnline = !isOffline;
 
   return (
     <div className={`flex items-center gap-2 ${className}`}>
@@ -26,7 +27,7 @@ const StatusIndicator = ({ showSyncCount = false, className = '' }) => {
       </div>
 
       {/* Sync Status */}
-      {showSyncCount && (syncQueue.length > 0 || isSyncing) && (
+      {showSyncCount && (syncQueueCount > 0 || isSyncing) && (
         <div className="flex items-center gap-1.5 px-3 py-1.5 bg-accent-crimson text-white rounded-lg text-sm font-semibold">
           {isSyncing ? (
             <>
@@ -35,7 +36,7 @@ const StatusIndicator = ({ showSyncCount = false, className = '' }) => {
             </>
           ) : (
             <>
-              <span className="font-bold">{syncQueue.length}</span>
+              <span className="font-bold">{syncQueueCount}</span>
               <span>pending</span>
             </>
           )}

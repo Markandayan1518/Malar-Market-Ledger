@@ -1,6 +1,7 @@
 """Database models module."""
 
 from app.models.user import User, UserRole
+from app.database import Base
 from app.models.farmer import Farmer
 from app.models.flower_type import FlowerType
 from app.models.time_slot import TimeSlot

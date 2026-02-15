@@ -5,13 +5,14 @@ from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status, Body
 from pydantic import Field
-from sqlalchemy import select, or_
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.auth import (
     create_access_token,
     create_refresh_token,
     verify_password,
+    verify_token,
     get_password_hash
 )
 from app.dependencies import get_current_user, CurrentUser, DatabaseSession
@@ -37,26 +38,12 @@ async def login(
     request: LoginRequest,
     db: AsyncSession = Depends(get_db)
 ) -> LoginResponse:
-    """
-    Authenticate user and return JWT tokens.
-    
-    Args:
-        request: Login request with email and password
-        db: Database session
-        
-    Returns:
-        LoginResponse: Access and refresh tokens
-        
-    Raises:
-        HTTPException: If credentials are invalid
-    """
+    """Authenticate user and return JWT tokens."""
     result = await db.execute(
         select(User).where(
-            or_(
-                User.email == request.email,
-                User.is_active == True,
-                User.deleted_at == None
-            )
+            User.email == request.email,
+            User.is_active == True,
+            User.deleted_at == None
         )
     )
     user = result.scalar_one_or_none()
@@ -100,8 +87,13 @@ async def login(
             "id": user.id,
             "email": user.email,
             "full_name": user.full_name,
+            "phone": user.phone,
             "role": user.role,
-            "language_preference": user.language_preference
+            "is_active": user.is_active,
+            "email_verified": user.email_verified,
+            "language_preference": user.language_preference,
+            "created_at": user.created_at,
+            "updated_at": user.updated_at
         }
     )
 

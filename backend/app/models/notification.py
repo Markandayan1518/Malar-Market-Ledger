@@ -111,13 +111,17 @@ class Notification(Base):
     # Relationships
     user = relationship(
         "User",
-        back_populates="notifications",
-        cascade="all, delete-orphan"
+        back_populates="notifications"
     )
-    
+
     farmer = relationship(
         "Farmer",
-        back_populates="notifications",
+        back_populates="notifications"
+    )
+
+    whatsapp_logs = relationship(
+        "WhatsappLog",
+        back_populates="notification",
         cascade="all, delete-orphan"
     )
 

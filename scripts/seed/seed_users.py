@@ -5,15 +5,16 @@ import sys
 import os
 
 # Add backend to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'backend'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'backend'))
 
-from app.database import SessionLocal, engine
+from app.database import AsyncSessionLocal, engine
 from app.models.user import User
 from app.core.auth import get_password_hash
+import asyncio
 
-def seed_users():
+async def seed_users():
     """Seed admin and staff users"""
-    db = SessionLocal()
+    db = AsyncSessionLocal()
     
     # Create admin user
     admin_user = User(
@@ -24,7 +25,7 @@ def seed_users():
         is_active=True,
         email_verified=True,
         language_preference="en",
-        password_hash=get_password_hash("Admin@123")
+        password_hash=get_password_hash("admin123")
     )
     db.add(admin_user)
     
@@ -44,9 +45,9 @@ def seed_users():
     ]
     
     db.add_all(staff_users)
-    db.commit()
+    await db.commit()
     
     print(f"✓ Created {len(staff_users) + 1} users")
 
 if __name__ == "__main__":
-    seed_users()
+    asyncio.run(seed_users())

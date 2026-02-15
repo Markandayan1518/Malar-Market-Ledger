@@ -17,7 +17,7 @@ import { useState, useEffect } from 'react';
 const Sidebar = ({ isOpen, onClose, isMobile }) => {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const { syncQueue } = useOffline();
+  const { syncQueueCount } = useOffline();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -157,7 +157,7 @@ const Sidebar = ({ isOpen, onClose, isMobile }) => {
         </nav>
 
         {/* Sync Queue Indicator */}
-        {syncQueue.length > 0 && (
+        {syncQueueCount > 0 && (
           <div className="p-4 border-t-2 border-warm-sand">
             <div className="bg-accent-crimson text-white rounded-lg p-3">
               <div className="flex items-center gap-2 mb-1">
@@ -167,7 +167,7 @@ const Sidebar = ({ isOpen, onClose, isMobile }) => {
                 </span>
               </div>
               <p className="text-sm">
-                {t('offline.syncQueue', { count: syncQueue.length })}
+                {t('offline.syncQueue', { count: syncQueueCount })}
               </p>
             </div>
           </div>
@@ -178,12 +178,12 @@ const Sidebar = ({ isOpen, onClose, isMobile }) => {
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-accent-purple rounded-full flex items-center justify-center">
               <span className="text-white font-bold text-sm">
-                {user?.username?.charAt(0).toUpperCase()}
+                {user?.full_name?.charAt(0).toUpperCase()}
               </span>
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-warm-charcoal truncate">
-                {user?.username}
+                {user?.full_name}
               </p>
               <p className="text-xs text-warm-brown capitalize">
                 {t(`roles.${user?.role}`)}

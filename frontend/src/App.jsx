@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { I18nextProvider } from 'react-i18next';
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -26,13 +25,6 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user, loading, isAuthenticated } = useAuth();
   const location = useLocation();
 
-  useEffect(() => {
-    if (!loading && !isAuthenticated) {
-      // Redirect to login if not authenticated
-      return <Navigate to="/login" state={{ from: location }} replace />;
-    }
-  }, [isAuthenticated, loading, location]);
-
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -42,7 +34,7 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
   }
 
   if (!isAuthenticated) {
-    return null;
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
   // Check role-based access
