@@ -17,11 +17,12 @@ async def get_current_user_info(
     current_user: CurrentUser
 ):
     """Get current user information."""
+    role_value = current_user.role.value if hasattr(current_user.role, 'value') else current_user.role
     return {
         "id": current_user.id,
         "email": current_user.email,
         "full_name": current_user.full_name,
-        "role": current_user.role.value,
+        "role": role_value,
         "language_preference": current_user.language_preference,
         "is_active": current_user.is_active
     }
@@ -35,4 +36,4 @@ async def list_users(
     """List all users (admin only)."""
     result = await db.execute(select(User).where(User.deleted_at == None))
     users = result.scalars().all()
-    return {"users": [{"id": u.id, "email": u.email, "full_name": u.full_name, "role": u.role.value} for u in users]}
+    return {"users": [{"id": u.id, "email": u.email, "full_name": u.full_name, "role": u.role.value if hasattr(u.role, 'value') else u.role} for u in users]}

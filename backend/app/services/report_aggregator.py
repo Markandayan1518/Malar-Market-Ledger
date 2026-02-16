@@ -1,7 +1,7 @@
 """Report aggregation service for fetching and processing report data."""
 
 import logging
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from typing import Dict, List, Optional, Any
 from decimal import Decimal
 
@@ -132,7 +132,7 @@ class ReportAggregator:
             'month': month,
             'year': year,
             'period_start': period_start.strftime("%Y-%m-%d"),
-            'period_end': (period_end - datetime.timedelta(days=1)).strftime("%Y-%m-%d"),
+            'period_end': (period_end - timedelta(days=1)).strftime("%Y-%m-%d"),
             'total_entries': len(entries),
             'total_quantity': float(total_quantity),
             'gross_amount': float(gross_amount),
@@ -307,7 +307,7 @@ class ReportAggregator:
             'month': month,
             'year': year,
             'period_start': period_start.strftime("%Y-%m-%d"),
-            'period_end': (period_end - datetime.timedelta(days=1)).strftime("%Y-%m-%d"),
+            'period_end': (period_end - timedelta(days=1)).strftime("%Y-%m-%d"),
             'total_farmers': len(farmer_data),
             'total_entries': len(all_entries),
             'total_weight': float(total_weight),
