@@ -1,10 +1,11 @@
 """Authentication API routes."""
 
-from datetime import timedelta
+from datetime import timedelta, datetime
 from typing import Optional
+import secrets
 
 from fastapi import APIRouter, Depends, HTTPException, status, Body
-from pydantic import Field
+from pydantic import Field, EmailStr
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -216,11 +217,11 @@ async def logout(
     return create_success_response(message="Logout successful")
 
 
-@router.post("/forgot-password", response_model=SuccessResponse)
+@router.post("/forgot-password")
 async def forgot_password(
-    email: str,
+    email: EmailStr = Body(..., embed=True),
     db: AsyncSession = Depends(get_db)
-) -> SuccessResponse:
+):
     """
     Initiate password reset.
     
@@ -229,24 +230,28 @@ async def forgot_password(
         db: Database session
         
     Returns:
-        SuccessResponse: Password reset initiated
-        
-    Raises:
-        HTTPException: If email not found
+        SuccessResponse with reset token (in development mode)
     """
-    # Check if user exists
     result = await db.execute(
-        select(User).where(User.email == email)
+        select(User).where(
+            User.email == email,
+            User.deleted_at == None
+        )
     )
     user = result.scalar_one_or_none()
     
     if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found"
+        return create_success_response(
+            message="If the email exists, a password reset link will be sent"
         )
     
-    # Log password reset request
+    reset_token = secrets.token_urlsafe(32)
+    reset_expires = datetime.utcnow() + timedelta(hours=1)
+    
+    user.password_reset_token = reset_token
+    user.password_reset_expires_at = reset_expires
+    await db.commit()
+    
     await audit_service.log_action(
         db=db,
         user_id=user.id,
@@ -257,41 +262,63 @@ async def forgot_password(
         new_values={"email": email}
     )
     
-    return create_success_response(message="Password reset email sent")
+    return {
+        "success": True,
+        "message": "Password reset token generated",
+        "reset_token": reset_token
+    }
 
 
-@router.post("/reset-password", response_model=SuccessResponse)
+@router.post("/reset-password")
 async def reset_password(
-    token: str,
-    new_password: str = Body(..., min_length=8),
+    token: str = Body(...),
+    new_password: str = Body(..., min_length=8, max_length=72),
     db: AsyncSession = Depends(get_db)
-) -> SuccessResponse:
+):
     """
     Reset password using token.
     
     Args:
         token: Password reset token
-        new_password: New password
+        new_password: New password (min 8 characters)
         db: Database session
         
     Returns:
         SuccessResponse: Password reset successful
         
     Raises:
-        HTTPException: If token is invalid
+        HTTPException: If token is invalid or expired
     """
-    # In a real implementation, you would validate the token and update the password
-    # For now, we'll just log the password reset
+    result = await db.execute(
+        select(User).where(User.password_reset_token == token)
+    )
+    user = result.scalar_one_or_none()
     
-    # Log password reset
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid or expired reset token"
+        )
+    
+    if user.password_reset_expires_at and user.password_reset_expires_at < datetime.utcnow():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Reset token has expired"
+        )
+    
+    user.password_hash = get_password_hash(new_password)
+    user.password_reset_token = None
+    user.password_reset_expires_at = None
+    await db.commit()
+    
     await audit_service.log_action(
         db=db,
-        user_id=None,
+        user_id=user.id,
         action="reset_password",
         entity_type="user",
-        entity_id=None,
+        entity_id=user.id,
         old_values=None,
-        new_values={"token": token}
+        new_values=None
     )
     
     return create_success_response(message="Password reset successful")

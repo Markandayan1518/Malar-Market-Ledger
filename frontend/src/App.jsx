@@ -8,6 +8,8 @@ import i18n from './i18n/i18n';
 
 // Pages
 import LoginPage from './pages/LoginPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 import DashboardPage from './pages/DashboardPage';
 import DailyEntryPage from './pages/DailyEntryPage';
 import FarmersPage from './pages/FarmersPage';
@@ -56,6 +58,8 @@ const App = () => {
                 <Routes>
                   {/* Public routes */}
                   <Route path="/login" element={<LoginPage />} />
+                  <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                  <Route path="/reset-password" element={<ResetPasswordPage />} />
 
                   {/* Protected routes */}
                   <Route

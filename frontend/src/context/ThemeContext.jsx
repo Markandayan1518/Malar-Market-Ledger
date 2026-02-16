@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const ThemeContext = createContext(null);
 
@@ -11,6 +12,7 @@ export const useTheme = () => {
 };
 
 export const ThemeProvider = ({ children }) => {
+  const { i18n } = useTranslation();
   const [language, setLanguage] = useState(() => {
     return localStorage.getItem('language') || 'en';
   });
@@ -20,10 +22,13 @@ export const ThemeProvider = ({ children }) => {
     // Save language preference
     localStorage.setItem('language', language);
     
+    // Update i18next language
+    i18n.changeLanguage(language);
+    
     // Update document direction for RTL languages
     document.documentElement.dir = language === 'ta' ? 'rtl' : 'ltr';
     document.documentElement.lang = language;
-  }, [language]);
+  }, [language, i18n]);
 
   const toggleLanguage = () => {
     setLanguage(prev => prev === 'en' ? 'ta' : 'en');
