@@ -1,73 +1,101 @@
 #!/usr/bin/env python3
-"""Seed sample settlements for testing"""
+"""
+Seed settlements data for Malar Market Digital Ledger
+"""
 
+import asyncio
 import sys
 import os
-from datetime import date, timedelta
-import random
+from datetime import datetime, date
 
 # Add backend to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'backend'))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), '..', 'backend'))
 
-from app.database import SessionLocal
-from app.models.farmer import Farmer
-from app.models.user import User
+from app.database import get_db
 from app.models.settlement import Settlement
+from app.models.farmer import Farmer
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+from uuid import uuid4
 
-def seed_settlements():
-    """Seed sample settlements"""
-    db = SessionLocal()
+
+async def seed_settlements():
+    """Seed settlements data"""
+    print("Seeding settlements...")
     
-    # Get farmers and users
-    farmers = db.query(Farmer).filter(Farmer.is_active == True).all()
-    users = db.query(User).filter(User.is_active == True).all()
+    # Sample settlements data
+    settlements_data = [
+        {
+            "id": str(uuid.uuid4()),
+            "farmer_id": str(uuid.uuid4()),  # Will be updated after fetching actual farmer IDs
+            "settlement_date": date.today(),
+            "period_start": date(date.today().year, date.today().month, 1),
+            "period_end": date(date.today().year, date.today().month, 15),
+            "total_sales": 25000.00,
+            "total_commission": 2500.00,
+            "total_advances": 5000.00,
+            "net_amount": 17500.00,
+            "status": "completed",
+            "notes": "Monthly settlement for jasmine sales",
+            "created_at": datetime.utcnow()
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "farmer_id": str(uuid.uuid4()),  # Will be updated after fetching actual farmer IDs
+            "settlement_date": date.today(),
+            "period_start": date(date.today().year, date.today().month, 1),
+            "period_end": date(date.today().year, date.today().month, 15),
+            "total_sales": 18000.00,
+            "total_commission": 1800.00,
+            "total_advances": 3000.00,
+            "net_amount": 13200.00,
+            "status": "pending",
+            "notes": "Monthly settlement for rose sales",
+            "created_at": datetime.utcnow()
+        }
+    ]
     
-    if not farmers or not users:
-        print("✗ No farmers or users found. Run other seed scripts first.")
-        return
+    # Get database session
+    db = next(get_db())
     
-    # Create settlements for the last 8 weeks
-    for weeks_ago in range(8):
-        settlement_date = date.today() - timedelta(weeks=weeks_ago)
+    try:
+        # Get actual IDs from database
+        farmers_result = await db.execute(select(Farmer).limit(2))
+        farmers = farmers_result.scalars().all()
         
-        # Create settlements for 3-5 farmers per week
-        num_settlements = random.randint(3, 5)
+        if len(farmers) >= 2:
+            # Update IDs with actual values
+            settlements_data[0]["farmer_id"] = farmers[0].id
+            settlements_data[1]["farmer_id"] = farmers[1].id if len(farmers) > 1 else farmers[0].id
         
-        for _ in range(num_settlements):
-            farmer = random.choice(farmers)
-            user = random.choice(users)
-            
-            # Generate realistic settlement amount
-            total_amount = round(random.uniform(5000.0, 50000.0), 2)
-            commission_amount = round(total_amount * 0.05, 2)
-            cash_advance_deductions = round(random.uniform(0.0, 5000.0), 2)
-            net_amount = round(total_amount - commission_amount - cash_advance_deductions, 2)
-            
-            # Random status
-            status = random.choice(["pending", "paid"])
-            
-            # If paid, set payment date
-            payment_date = None
-            if status == "paid":
-                payment_date = settlement_date + timedelta(days=random.randint(1, 3))
-            
+        # Insert settlements
+        for settlement_data in settlements_data:
             settlement = Settlement(
-                farmer_id=farmer.id,
-                user_id=user.id,
-                settlement_date=settlement_date,
-                total_amount=total_amount,
-                commission_amount=commission_amount,
-                cash_advance_deductions=cash_advance_deductions,
-                net_amount=net_amount,
-                status=status,
-                payment_date=payment_date,
-                notes=f"Weekly settlement for {farmer.name}"
+                id=settlement_data["id"],
+                farmer_id=settlement_data["farmer_id"],
+                settlement_date=settlement_data["settlement_date"],
+                period_start=settlement_data["period_start"],
+                period_end=settlement_data["period_end"],
+                total_sales=settlement_data["total_sales"],
+                total_commission=settlement_data["total_commission"],
+                total_advances=settlement_data["total_advances"],
+                net_amount=settlement_data["net_amount"],
+                status=settlement_data["status"],
+                notes=settlement_data["notes"],
+                created_at=settlement_data["created_at"]
             )
             db.add(settlement)
-    
-    db.commit()
-    
-    print(f"✓ Created sample settlements for last 8 weeks")
+        
+        await db.commit()
+        print(f"✓ Successfully seeded {len(settlements_data)} settlements")
+        
+    except Exception as e:
+        print(f"✗ Error seeding settlements: {e}")
+        raise e
+        
+    finally:
+        await db.close()
+
 
 if __name__ == "__main__":
-    seed_settlements()
+    asyncio.run(seed_settlements())

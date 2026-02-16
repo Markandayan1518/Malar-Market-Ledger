@@ -19,6 +19,7 @@
     "login": "Login",
     "logout": "Logout",
     "username": "Username",
+    "email": "Email",
     "password": "Password",
     "loginButton": "Sign In",
     "loginSuccess": "Login successful",
@@ -192,7 +193,11 @@
     "yesterday": "Yesterday",
     "thisWeek": "This Week",
     "thisMonth": "This Month",
-    "custom": "Custom"
+    "custom": "Custom",
+    "date": "Date",
+    "actions": "Actions",
+    "syncQueue": "Sync Queue",
+    "noResults": "No results found"
   },
   "validation": {
     "required": "This field is required",

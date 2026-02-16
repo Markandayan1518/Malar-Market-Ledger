@@ -25,6 +25,9 @@ AsyncSessionLocal = async_sessionmaker(
     expire_on_commit=False
 )
 
+# Export SessionLocal for use in seed scripts
+SessionLocal = AsyncSessionLocal
+
 # Base class for all models
 class Base(DeclarativeBase):
     """Base class for all SQLAlchemy models."""

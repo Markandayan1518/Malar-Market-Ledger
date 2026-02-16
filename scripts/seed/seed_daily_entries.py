@@ -1,70 +1,117 @@
 #!/usr/bin/env python3
-"""Seed sample daily entries for testing"""
+"""
+Seed daily entries data for Malar Market Digital Ledger
+"""
 
+import asyncio
 import sys
 import os
-from datetime import date, timedelta
-import random
+from datetime import datetime, date
 
 # Add backend to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'backend'))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), '..', 'backend'))
 
-from app.database import SessionLocal
+from app.database import get_db
+from app.models.daily_entry import DailyEntry
 from app.models.farmer import Farmer
 from app.models.flower_type import FlowerType
 from app.models.time_slot import TimeSlot
-from app.models.daily_entry import DailyEntry
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+from uuid import uuid4
 
-def seed_daily_entries():
-    """Seed sample daily entries"""
-    db = SessionLocal()
+
+async def seed_daily_entries():
+    """Seed daily entries data"""
+    print("Seeding daily entries...")
     
-    # Get farmers, flower types, and time slots
-    farmers = db.query(Farmer).filter(Farmer.is_active == True).all()
-    flower_types = db.query(FlowerType).filter(FlowerType.is_active == True).all()
-    time_slots = db.query(TimeSlot).filter(TimeSlot.is_active == True).all()
+    # Sample daily entries data
+    daily_entries_data = [
+        {
+            "id": str(uuid.uuid4()),
+            "farmer_id": str(uuid.uuid4()),  # Will be updated after fetching actual farmer IDs
+            "flower_type_id": str(uuid.uuid4()),  # Will be updated after fetching actual flower type IDs
+            "time_slot_id": str(uuid.uuid4()),  # Will be updated after fetching actual time slot IDs
+            "weight_kg": 25.5,
+            "rate_per_kg": 85.50,
+            "total_amount": 2180.25,
+            "commission_rate": 0.10,
+            "commission_amount": 218.03,
+            "net_amount": 1962.22,
+            "entry_date": date.today(),
+            "notes": "Fresh morning flowers",
+            "created_at": datetime.utcnow()
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "farmer_id": str(uuid.uuid4()),  # Will be updated after fetching actual farmer IDs
+            "flower_type_id": str(uuid.uuid4()),  # Will be updated after fetching actual flower type IDs
+            "time_slot_id": str(uuid.uuid4()),  # Will be updated after fetching actual time slot IDs
+            "weight_kg": 18.0,
+            "rate_per_kg": 90.00,
+            "total_amount": 1620.00,
+            "commission_rate": 0.10,
+            "commission_amount": 162.00,
+            "net_amount": 1458.00,
+            "entry_date": date.today(),
+            "notes": "Afternoon delivery",
+            "created_at": datetime.utcnow()
+        }
+    ]
     
-    if not farmers or not flower_types or not time_slots:
-        print("✗ No farmers, flower types, or time slots found. Run other seed scripts first.")
-        return
+    # Get database session
+    db = next(get_db())
     
-    # Create entries for the last 7 days
-    for days_ago in range(7):
-        entry_date = date.today() - timedelta(days=days_ago)
+    try:
+        # Get actual IDs from database
+        farmers_result = await db.execute(select(Farmer).limit(2))
+        farmers = farmers_result.scalars().all()
         
-        # Create 5-10 entries per day
-        num_entries = random.randint(5, 10)
+        flower_types_result = await db.execute(select(FlowerType).limit(2))
+        flower_types = flower_types_result.scalars().all()
         
-        for _ in range(num_entries):
-            farmer = random.choice(farmers)
-            flower_type = random.choice(flower_types)
-            time_slot = random.choice(time_slots)
+        time_slots_result = await db.execute(select(TimeSlot).limit(2))
+        time_slots = time_slots_result.scalars().all()
+        
+        if len(farmers) >= 2 and len(flower_types) >= 2 and len(time_slots) >= 2:
+            # Update IDs with actual values
+            daily_entries_data[0]["farmer_id"] = farmers[0].id
+            daily_entries_data[0]["flower_type_id"] = flower_types[0].id
+            daily_entries_data[0]["time_slot_id"] = time_slots[0].id
             
-            # Generate realistic values
-            weight_kg = round(random.uniform(5.0, 50.0), 2)
-            rate_per_unit = round(random.uniform(100.0, 200.0), 2)
-            total_amount = round(weight_kg * rate_per_unit, 2)
-            commission_amount = round(total_amount * 0.05, 2)  # 5% commission
-            net_amount = round(total_amount - commission_amount, 2)
-            
-            entry = DailyEntry(
-                farmer_id=farmer.id,
-                flower_type_id=flower_type.id,
-                time_slot_id=time_slot.id,
-                entry_date=entry_date,
-                weight_kg=weight_kg,
-                rate_per_unit=rate_per_unit,
-                total_amount=total_amount,
-                commission_amount=commission_amount,
-                net_amount=net_amount,
-                status="verified",
-                notes=f"Sample entry for {farmer.name}"
+            daily_entries_data[1]["farmer_id"] = farmers[1].id if len(farmers) > 1 else farmers[0].id
+            daily_entries_data[1]["flower_type_id"] = flower_types[1].id if len(flower_types) > 1 else flower_types[0].id
+            daily_entries_data[1]["time_slot_id"] = time_slots[1].id if len(time_slots) > 1 else time_slots[0].id
+        
+        # Insert daily entries
+        for entry_data in daily_entries_data:
+            daily_entry = DailyEntry(
+                id=entry_data["id"],
+                farmer_id=entry_data["farmer_id"],
+                flower_type_id=entry_data["flower_type_id"],
+                time_slot_id=entry_data["time_slot_id"],
+                weight_kg=entry_data["weight_kg"],
+                rate_per_kg=entry_data["rate_per_kg"],
+                total_amount=entry_data["total_amount"],
+                commission_rate=entry_data["commission_rate"],
+                commission_amount=entry_data["commission_amount"],
+                net_amount=entry_data["net_amount"],
+                entry_date=entry_data["entry_date"],
+                notes=entry_data["notes"],
+                created_at=entry_data["created_at"]
             )
-            db.add(entry)
-    
-    db.commit()
-    
-    print(f"✓ Created sample daily entries for last 7 days")
+            db.add(daily_entry)
+        
+        await db.commit()
+        print(f"✓ Successfully seeded {len(daily_entries_data)} daily entries")
+        
+    except Exception as e:
+        print(f"✗ Error seeding daily entries: {e}")
+        raise e
+        
+    finally:
+        await db.close()
+
 
 if __name__ == "__main__":
-    seed_daily_entries()
+    asyncio.run(seed_daily_entries())

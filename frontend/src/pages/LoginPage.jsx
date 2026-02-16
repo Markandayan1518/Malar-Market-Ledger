@@ -16,7 +16,7 @@ const LoginPage = () => {
   const { language, toggleLanguage } = useTheme();
 
   const [formData, setFormData] = useState({
-    username: '',
+    email: '',
     password: '',
   });
   const [loading, setLoading] = useState(false);
@@ -81,14 +81,14 @@ const LoginPage = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label className="block text-sm font-medium text-neutral-700 mb-2">
-                {t('auth.username')}
+                {t('auth.email')}
               </label>
               <Input
-                type="text"
-                name="username"
-                value={formData.username}
+                type="email"
+                name="email"
+                value={formData.email}
                 onChange={handleChange}
-                placeholder={t('auth.username')}
+                placeholder={t('auth.email')}
                 required
                 autoFocus
               />

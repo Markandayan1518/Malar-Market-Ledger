@@ -1,55 +1,93 @@
 #!/usr/bin/env python3
-"""Seed market rates data"""
+"""
+Seed market rates data for Malar Market Digital Ledger
+"""
 
+import asyncio
 import sys
 import os
+from datetime import datetime
 
 # Add backend to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'backend'))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), '..', 'backend'))
 
-from app.database import SessionLocal
+from app.database import get_db
 from app.models.flower_type import FlowerType
 from app.models.time_slot import TimeSlot
 from app.models.market_rate import MarketRate
-from datetime import date
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+from uuid import uuid4
 
-def seed_market_rates():
-    """Seed market rates"""
-    db = SessionLocal()
+
+async def seed_market_rates():
+    """Seed market rates data"""
+    print("Seeding market rates...")
     
-    # Get flower types and time slots
-    flower_types = db.query(FlowerType).filter(FlowerType.is_active == True).all()
-    time_slots = db.query(TimeSlot).filter(TimeSlot.is_active == True).all()
+    # Sample market rates data
+    market_rates_data = [
+        {
+            "id": str(uuid.uuid4()),
+            "flower_type_id": str(uuid.uuid4()),  # Jasmine
+            "time_slot_id": str(uuid.uuid4()),  # Early Morning
+            "rate_per_kg": 85.50,
+            "created_at": datetime.utcnow()
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "flower_type_id": str(uuid.uuid4()),  # Rose
+            "time_slot_id": str(uuid.uuid4()),  # Morning
+            "rate_per_kg": 90.00,
+            "created_at": datetime.utcnow()
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "flower_type_id": str(uuid.uuid4()), # Marigold
+            "time_slot_id": str(uuid.uuid4()), # Morning
+            "rate_per_kg": 95.00,
+            "created_at": datetime.utcnow()
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "flower_type_id": str(uuid.uuid4()), # Lily
+            "time_slot_id": str(uuid.uuid4()), # Afternoon
+            "rate_per_kg": 88.00,
+            "created_at": datetime.utcnow()
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "flower_type_id": str(uuid.uuid4()), # Lily
+            "time_slot_id": str(uuid.uuid4()), # Evening
+            "rate_per_kg": 92.00,
+            "created_at": datetime.utcnow()
+        }
+    ]
     
-    # Create rates for each flower type and time slot
-    for flower_type in flower_types:
-        for time_slot in time_slots:
-            # Determine rate based on time slot name
-            if "Early Morning" in time_slot.name:
-                rate = 150.00
-            elif "Morning Peak" in time_slot.name:
-                rate = 180.00
-            elif "Late Morning" in time_slot.name:
-                rate = 140.00
-            elif "Afternoon" in time_slot.name:
-                rate = 120.00
-            elif "Evening" in time_slot.name:
-                rate = 100.00
-            else:
-                rate = 130.00
-            
+    # Get database session
+    db = next(get_db())
+    
+    try:
+        # Insert market rates
+        for rate_data in market_rates_data:
             market_rate = MarketRate(
-                flower_type_id=flower_type.id,
-                time_slot_id=time_slot.id,
-                rate_per_unit=rate,
-                effective_date=date.today(),
-                is_active=True
+                id=rate_data["id"],
+                flower_type_id=rate_data["flower_type_id"],
+                time_slot_id=rate_data["time_slot_id"],
+                rate_per_kg=rate_data["rate_per_kg"],
+                created_at=rate_data["created_at"]
             )
             db.add(market_rate)
-    
-    db.commit()
-    
-    print(f"✓ Created {len(flower_types) * len(time_slots)} market rates")
+        
+        await db.commit()
+        print(f"✓ Successfully seeded {len(market_rates_data)} market rates")
+        
+    except Exception as e:
+        print(f"✗ Error seeding market rates: {e}")
+        raise e
+        
+    finally:
+        await db.close()
+
 
 if __name__ == "__main__":
-    seed_market_rates()
+    asyncio.run(seed_market_rates())

@@ -8,17 +8,19 @@ import sys
 import os
 
 # Add backend to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'backend'))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), '..', 'backend'))
+# Add current directory to path for seed modules
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-from seed.seed_users import seed_users
-from seed.seed_farmers import seed_farmers
-from seed.seed_flower_types import seed_flower_types
-from seed.seed_time_slots import seed_time_slots
-from seed.seed_market_rates import seed_market_rates
-from seed.seed_system_settings import seed_system_settings
-from seed.seed_daily_entries import seed_daily_entries
-from seed.seed_cash_advances import seed_cash_advances
-from seed.seed_settlements import seed_settlements
+from seed_users import seed_users
+from seed_farmers import seed_farmers
+from seed_flower_types import seed_flower_types
+from seed_time_slots import seed_time_slots
+from seed_market_rates import seed_market_rates
+from seed_system_settings import seed_system_settings
+from seed_daily_entries import seed_daily_entries
+from seed_cash_advances import seed_cash_advances
+from seed_settlements import seed_settlements
 
 def main():
     """Main seed function"""

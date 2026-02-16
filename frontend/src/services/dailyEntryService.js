@@ -4,6 +4,10 @@ export const getDailyEntries = async (params = {}) => {
   return handlePaginatedResponse(api.get('/daily-entries', { params }));
 };
 
+export const getByDate = async (date) => {
+  return handlePaginatedResponse(api.get('/daily-entries', { params: { date } }));
+};
+
 export const getDailyEntry = async (id) => {
   return handleApiResponse(api.get(`/daily-entries/${id}`));
 };
@@ -35,6 +39,7 @@ const dailyEntryService = {
   update: updateDailyEntry,
   delete: deleteDailyEntry,
   getSummary: getDailySummary,
+  getByDate: getByDate,
   bulkCreate: bulkCreateEntries
 };
 

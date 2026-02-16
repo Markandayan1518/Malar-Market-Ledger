@@ -1,0 +1,11 @@
+01-login-page-2026-02-16T06-15-06-993Z.png: Login page initial state
+02-login-validation-empty-2026-02-16T06-15-08-273Z.png: Login form validation with empty fields
+03-login-validation-invalid-2026-02-16T06-15-10-735Z.png: Login form validation with invalid credentials
+04-login-success-2026-02-16T06-15-11-199Z.png: Successful login redirect
+05-dashboard-2026-02-16T06-15-13-299Z.png: Dashboard page after login
+06-daily-entry-navigation-2026-02-16T06-15-13-585Z.png: Navigation to Daily Entry page
+07-daily-entry-initial-2026-02-16T06-15-13-642Z.png: Daily Entry page initial state
+error-screenshot-2026-02-16T06-15-43-803Z.png: Error occurred: page.click: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for locator('button:has-text("Add Entry")')[22m
+
