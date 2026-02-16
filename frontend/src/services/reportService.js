@@ -1,7 +1,10 @@
 import api, { handleApiResponse } from './api';
 
-export const getDailySummary = async (date) => {
-  return handleApiResponse(api.get('/reports/daily-summary', { params: { date } }));
+export const getDailySummary = async (startDate, endDate = null) => {
+  if (endDate) {
+    return handleApiResponse(api.get('/reports/daily-summary', { params: { start_date: startDate, end_date: endDate } }));
+  }
+  return handleApiResponse(api.get('/reports/daily-summary', { params: { date: startDate } }));
 };
 
 export const getFarmerSummary = async (farmerId, startDate, endDate) => {

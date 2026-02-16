@@ -16,8 +16,8 @@ const useFarmers = () => {
         'Farmers loaded successfully',
         'Failed to load farmers'
       );
-      setFarmers(data);
-      setFilteredFarmers(data);
+      setFarmers(Array.isArray(data) ? data : (data?.data || []));
+      setFilteredFarmers(Array.isArray(data) ? data : (data?.data || []));
     } catch (err) {
       console.error('Error fetching farmers:', err);
     } finally {

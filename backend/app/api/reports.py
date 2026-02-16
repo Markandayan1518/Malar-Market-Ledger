@@ -19,7 +19,285 @@ from app.services.font_manager import init_fonts
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/api/v1/reports", tags=["reports"])
+router = APIRouter(tags=["reports"])
+
+
+@router.get("/daily-summary")
+async def get_daily_summary_json(
+    date: Optional[str] = Query(None),
+    start_date: Optional[str] = Query(None),
+    end_date: Optional[str] = Query(None),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Get daily summary data as JSON for frontend display.
+    
+    Args:
+        date: Single date in YYYY-MM-DD format (optional)
+        start_date: Start date for range (optional)
+        end_date: End date for range (optional)
+        current_user: Current authenticated user
+        db: Database session
+        
+    Returns:
+        JSON summary data
+    """
+    try:
+        aggregator = ReportAggregator(db)
+        
+        if date:
+            parsed_date = datetime.strptime(date, "%Y-%m-%d").date()
+            data = await aggregator.get_daily_summary_data(parsed_date)
+            return {
+                "totalEntries": data['summary'].get('total_entries', 0),
+                "totalWeight": float(data['summary'].get('total_weight', 0)),
+                "totalAmount": float(data['summary'].get('total_amount', 0)),
+                "activeFarmers": data['summary'].get('active_farmers', 0),
+                "dailyBreakdown": [
+                    {
+                        "date": date,
+                        "entries": data['summary'].get('total_entries', 0),
+                        "weight": float(data['summary'].get('total_weight', 0)),
+                        "amount": float(data['summary'].get('total_amount', 0))
+                    }
+                ]
+            }
+        elif start_date and end_date:
+            parsed_start = datetime.strptime(start_date, "%Y-%m-%d").date()
+            parsed_end = datetime.strptime(end_date, "%Y-%m-%d").date()
+            data = await aggregator.get_custom_report_data(
+                start_date=parsed_start,
+                end_date=parsed_end
+            )
+            return {
+                "totalEntries": data['summary'].get('total_entries', 0),
+                "totalWeight": float(data['summary'].get('total_weight', 0)),
+                "totalAmount": float(data['summary'].get('total_amount', 0)),
+                "activeFarmers": data['summary'].get('active_farmers', 0),
+                "dailyBreakdown": data.get('daily_breakdown', [])
+            }
+        else:
+            # Default to today
+            today = date.today()
+            data = await aggregator.get_daily_summary_data(today)
+            return {
+                "totalEntries": data['summary'].get('total_entries', 0),
+                "totalWeight": float(data['summary'].get('total_weight', 0)),
+                "totalAmount": float(data['summary'].get('total_amount', 0)),
+                "activeFarmers": data['summary'].get('active_farmers', 0),
+                "dailyBreakdown": [
+                    {
+                        "date": today.isoformat(),
+                        "entries": data['summary'].get('total_entries', 0),
+                        "weight": float(data['summary'].get('total_weight', 0)),
+                        "amount": float(data['summary'].get('total_amount', 0))
+                    }
+                ]
+            }
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid date format. Use YYYY-MM-DD."
+        )
+    except Exception as e:
+        logger.error(f"Error getting daily summary: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to get daily summary"
+        )
+
+
+@router.get("/farmer-summary")
+async def get_farmer_summary_json(
+    farmer_id: Optional[str] = Query(None),
+    start_date: Optional[str] = Query(None),
+    end_date: Optional[str] = Query(None),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Get farmer summary data as JSON for frontend display.
+    """
+    try:
+        aggregator = ReportAggregator(db)
+        
+        if start_date and end_date:
+            parsed_start = datetime.strptime(start_date, "%Y-%m-%d").date()
+            parsed_end = datetime.strptime(end_date, "%Y-%m-%d").date()
+        else:
+            # Default to current month
+            today = date.today()
+            parsed_start = date(today.year, today.month, 1)
+            parsed_end = today
+        
+        if farmer_id:
+            data = await aggregator.get_farmer_data_in_range(
+                farmer_id=farmer_id,
+                start_date=parsed_start,
+                end_date=parsed_end
+            )
+        else:
+            data = await aggregator.get_all_farmers_summary(
+                start_date=parsed_start,
+                end_date=parsed_end
+            )
+        
+        return {
+            "totalEntries": data.get('total_entries', 0),
+            "totalWeight": float(data.get('total_weight', 0)),
+            "totalAmount": float(data.get('total_amount', 0)),
+            "entries": data.get('entries', [])
+        }
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid date format. Use YYYY-MM-DD."
+        )
+    except Exception as e:
+        logger.error(f"Error getting farmer summary: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to get farmer summary"
+        )
+
+
+@router.get("/market-analytics")
+async def get_market_analytics_json(
+    start_date: Optional[str] = Query(None),
+    end_date: Optional[str] = Query(None),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Get market analytics data as JSON for frontend display.
+    """
+    try:
+        aggregator = ReportAggregator(db)
+        
+        if start_date and end_date:
+            parsed_start = datetime.strptime(start_date, "%Y-%m-%d").date()
+            parsed_end = datetime.strptime(end_date, "%Y-%m-%d").date()
+        else:
+            # Default to last 30 days
+            today = date.today()
+            parsed_end = today
+            parsed_start = date(today.year, today.month, max(1, today.day - 30))
+        
+        data = await aggregator.get_market_analytics(
+            start_date=parsed_start,
+            end_date=parsed_end
+        )
+        
+        return {
+            "avgWeight": float(data.get('avg_weight', 0)),
+            "maxWeight": float(data.get('max_weight', 0)),
+            "minWeight": float(data.get('min_weight', 0)),
+            "adjustmentStats": data.get('adjustment_stats', [])
+        }
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid date format. Use YYYY-MM-DD."
+        )
+    except Exception as e:
+        logger.error(f"Error getting market analytics: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to get market analytics"
+        )
+
+
+@router.get("/settlements")
+async def get_settlements_report_json(
+    start_date: Optional[str] = Query(None),
+    end_date: Optional[str] = Query(None),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Get settlements report data as JSON for frontend display.
+    """
+    try:
+        aggregator = ReportAggregator(db)
+        
+        if start_date and end_date:
+            parsed_start = datetime.strptime(start_date, "%Y-%m-%d").date()
+            parsed_end = datetime.strptime(end_date, "%Y-%m-%d").date()
+        else:
+            # Default to current month
+            today = date.today()
+            parsed_start = date(today.year, today.month, 1)
+            parsed_end = today
+        
+        data = await aggregator.get_settlements_summary(
+            start_date=parsed_start,
+            end_date=parsed_end
+        )
+        
+        return {
+            "totalSettlements": data.get('total_settlements', 0),
+            "totalAmount": float(data.get('total_amount', 0)),
+            "advancesDeducted": float(data.get('advances_deducted', 0)),
+            "netAmount": float(data.get('net_amount', 0))
+        }
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid date format. Use YYYY-MM-DD."
+        )
+    except Exception as e:
+        logger.error(f"Error getting settlements report: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to get settlements report"
+        )
+
+
+@router.get("/cash-advances")
+async def get_cash_advances_report_json(
+    start_date: Optional[str] = Query(None),
+    end_date: Optional[str] = Query(None),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Get cash advances report data as JSON for frontend display.
+    """
+    try:
+        aggregator = ReportAggregator(db)
+        
+        if start_date and end_date:
+            parsed_start = datetime.strptime(start_date, "%Y-%m-%d").date()
+            parsed_end = datetime.strptime(end_date, "%Y-%m-%d").date()
+        else:
+            # Default to current month
+            today = date.today()
+            parsed_start = date(today.year, today.month, 1)
+            parsed_end = today
+        
+        data = await aggregator.get_cash_advances_summary(
+            start_date=parsed_start,
+            end_date=parsed_end
+        )
+        
+        return {
+            "totalAdvances": data.get('total_advances', 0),
+            "totalAmount": float(data.get('total_amount', 0)),
+            "pendingAdvances": data.get('pending_advances', 0)
+        }
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid date format. Use YYYY-MM-DD."
+        )
+    except Exception as e:
+        logger.error(f"Error getting cash advances report: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to get cash advances report"
+        )
+
 
 # Initialize fonts on module load
 try:

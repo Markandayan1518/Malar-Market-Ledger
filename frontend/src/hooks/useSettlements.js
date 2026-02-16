@@ -15,7 +15,7 @@ const useSettlements = () => {
         'Settlements loaded successfully',
         'Failed to load settlements'
       );
-      setSettlements(data);
+      setSettlements(Array.isArray(data) ? data : (data?.data || []));
     } catch (err) {
       console.error('Error fetching settlements:', err);
     } finally {

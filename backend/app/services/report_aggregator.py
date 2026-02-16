@@ -620,3 +620,235 @@ class ReportAggregator:
             'summary': summary_data,
             'entries': entries_data
         }
+
+    async def get_farmer_data_in_range(
+        self,
+        farmer_id: str,
+        start_date: date,
+        end_date: date
+    ) -> Dict[str, Any]:
+        """
+        Get farmer data for a date range.
+        
+        Args:
+            farmer_id: Farmer ID
+            start_date: Start date
+            end_date: End date
+            
+        Returns:
+            Dictionary with farmer data
+        """
+        # Get entries for the farmer in date range
+        entries_result = await self.db.execute(
+            select(DailyEntry)
+            .options(selectinload(DailyEntry.flower_type))
+            .where(
+                and_(
+                    DailyEntry.farmer_id == farmer_id,
+                    DailyEntry.entry_date >= start_date,
+                    DailyEntry.entry_date <= end_date
+                )
+            )
+            .order_by(DailyEntry.entry_date, DailyEntry.entry_time)
+        )
+        entries = entries_result.scalars().all()
+        
+        # Calculate totals
+        total_quantity = Decimal('0')
+        total_amount = Decimal('0')
+        
+        entries_data = []
+        for entry in entries:
+            total_quantity += entry.quantity
+            total_amount += entry.total_amount
+            entries_data.append({
+                'id': entry.id,
+                'date': entry.entry_date.strftime("%Y-%m-%d"),
+                'flower_name': entry.flower_type.name if entry.flower_type else '',
+                'quantity': float(entry.quantity),
+                'amount': float(entry.total_amount),
+                'adjustments': []
+            })
+        
+        return {
+            'total_entries': len(entries),
+            'total_weight': float(total_quantity),
+            'total_amount': float(total_amount),
+            'entries': entries_data
+        }
+
+    async def get_all_farmers_summary(
+        self,
+        start_date: date,
+        end_date: date
+    ) -> Dict[str, Any]:
+        """
+        Get summary for all farmers in a date range.
+        
+        Args:
+            start_date: Start date
+            end_date: End date
+            
+        Returns:
+            Dictionary with summary data
+        """
+        # Get all entries in date range
+        entries_result = await self.db.execute(
+            select(DailyEntry)
+            .options(selectinload(DailyEntry.farmer))
+            .where(
+                and_(
+                    DailyEntry.entry_date >= start_date,
+                    DailyEntry.entry_date <= end_date
+                )
+            )
+        )
+        entries = entries_result.scalars().all()
+        
+        total_quantity = Decimal('0')
+        total_amount = Decimal('0')
+        
+        for entry in entries:
+            total_quantity += entry.quantity
+            total_amount += entry.total_amount
+        
+        return {
+            'total_entries': len(entries),
+            'total_weight': float(total_quantity),
+            'total_amount': float(total_amount),
+            'entries': []
+        }
+
+    async def get_market_analytics(
+        self,
+        start_date: date,
+        end_date: date
+    ) -> Dict[str, Any]:
+        """
+        Get market analytics for a date range.
+        
+        Args:
+            start_date: Start date
+            end_date: End date
+            
+        Returns:
+            Dictionary with analytics data
+        """
+        # Get all entries in date range
+        entries_result = await self.db.execute(
+            select(DailyEntry)
+            .where(
+                and_(
+                    DailyEntry.entry_date >= start_date,
+                    DailyEntry.entry_date <= end_date
+                )
+            )
+        )
+        entries = entries_result.scalars().all()
+        
+        if not entries:
+            return {
+                'avg_weight': 0,
+                'max_weight': 0,
+                'min_weight': 0,
+                'adjustment_stats': []
+            }
+        
+        weights = [float(e.quantity) for e in entries]
+        avg_weight = sum(weights) / len(weights)
+        max_weight = max(weights)
+        min_weight = min(weights)
+        
+        return {
+            'avg_weight': round(avg_weight, 2),
+            'max_weight': max_weight,
+            'min_weight': min_weight,
+            'adjustment_stats': [
+                {'type': 'Bonus', 'count': 0, 'percentage': 0},
+                {'type': 'Deduction', 'count': 0, 'percentage': 0}
+            ]
+        }
+
+    async def get_settlements_summary(
+        self,
+        start_date: date,
+        end_date: date
+    ) -> Dict[str, Any]:
+        """
+        Get settlements summary for a date range.
+        
+        Args:
+            start_date: Start date
+            end_date: End date
+            
+        Returns:
+            Dictionary with settlements summary
+        """
+        # Get all settlements in date range
+        settlements_result = await self.db.execute(
+            select(Settlement)
+            .where(
+                and_(
+                    Settlement.settlement_date >= start_date,
+                    Settlement.settlement_date <= end_date
+                )
+            )
+        )
+        settlements = settlements_result.scalars().all()
+        
+        total_amount = Decimal('0')
+        advances_deducted = Decimal('0')
+        net_amount = Decimal('0')
+        
+        for settlement in settlements:
+            total_amount += settlement.gross_amount
+            advances_deducted += settlement.total_advances
+            net_amount += settlement.net_payable
+        
+        return {
+            'total_settlements': len(settlements),
+            'total_amount': float(total_amount),
+            'advances_deducted': float(advances_deducted),
+            'net_amount': float(net_amount)
+        }
+
+    async def get_cash_advances_summary(
+        self,
+        start_date: date,
+        end_date: date
+    ) -> Dict[str, Any]:
+        """
+        Get cash advances summary for a date range.
+        
+        Args:
+            start_date: Start date
+            end_date: End date
+            
+        Returns:
+            Dictionary with advances summary
+        """
+        # Get all cash advances in date range
+        advances_result = await self.db.execute(
+            select(CashAdvance)
+            .where(
+                and_(
+                    CashAdvance.advance_date >= start_date,
+                    CashAdvance.advance_date <= end_date
+                )
+            )
+        )
+        advances = advances_result.scalars().all()
+        
+        total_amount = Decimal('0')
+        pending_count = 0
+        
+        for advance in advances:
+            total_amount += advance.amount
+            if advance.status == 'pending':
+                pending_count += 1
+        
+        return {
+            'total_advances': len(advances),
+            'total_amount': float(total_amount),
+            'pending_advances': pending_count
+        }

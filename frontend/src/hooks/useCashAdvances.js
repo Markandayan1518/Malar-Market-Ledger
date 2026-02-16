@@ -15,7 +15,7 @@ const useCashAdvances = () => {
         'Cash advances loaded successfully',
         'Failed to load cash advances'
       );
-      setAdvances(data);
+      setAdvances(Array.isArray(data) ? data : (data?.data || []));
     } catch (err) {
       console.error('Error fetching cash advances:', err);
     } finally {

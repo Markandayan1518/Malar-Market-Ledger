@@ -7,15 +7,16 @@ const useReports = () => {
   const [loadingReports, setLoadingReports] = useState(false);
   const [reportData, setReportData] = useState(null);
 
-  const generateDailySummary = useCallback(async (date) => {
+  const generateDailySummary = useCallback(async (startDate, endDate = null) => {
     try {
       setLoadingReports(true);
       const data = await executeApiCall(
-        () => reportService.getDailySummary(date),
+        () => reportService.getDailySummary(startDate, endDate),
         'Daily summary report generated successfully',
         'Failed to generate daily summary'
       );
       setReportData(data);
+      return data;
     } catch (err) {
       console.error('Error generating daily summary:', err);
     } finally {
@@ -23,15 +24,16 @@ const useReports = () => {
     }
   }, [executeApiCall]);
 
-  const generateFarmerSummary = useCallback(async (filters = {}) => {
+  const generateFarmerSummary = useCallback(async (farmerId, startDate, endDate) => {
     try {
       setLoadingReports(true);
       const data = await executeApiCall(
-        () => reportService.getFarmerSummary(filters),
+        () => reportService.getFarmerSummary(farmerId, startDate, endDate),
         'Farmer summary report generated successfully',
         'Failed to generate farmer summary'
       );
       setReportData(data);
+      return data;
     } catch (err) {
       console.error('Error generating farmer summary:', err);
     } finally {
@@ -39,15 +41,16 @@ const useReports = () => {
     }
   }, [executeApiCall]);
 
-  const generateMarketAnalytics = useCallback(async (dateRange) => {
+  const generateMarketAnalytics = useCallback(async (startDate, endDate) => {
     try {
       setLoadingReports(true);
       const data = await executeApiCall(
-        () => reportService.getMarketAnalytics(dateRange),
+        () => reportService.getMarketAnalytics(startDate, endDate),
         'Market analytics report generated successfully',
         'Failed to generate market analytics'
       );
       setReportData(data);
+      return data;
     } catch (err) {
       console.error('Error generating market analytics:', err);
     } finally {
@@ -55,15 +58,16 @@ const useReports = () => {
     }
   }, [executeApiCall]);
 
-  const generateSettlementReport = useCallback(async (filters = {}) => {
+  const generateSettlementReport = useCallback(async (startDate, endDate) => {
     try {
       setLoadingReports(true);
       const data = await executeApiCall(
-        () => reportService.getSettlementReport(filters),
+        () => reportService.getSettlementReport(startDate, endDate),
         'Settlement report generated successfully',
         'Failed to generate settlement report'
       );
       setReportData(data);
+      return data;
     } catch (err) {
       console.error('Error generating settlement report:', err);
     } finally {
@@ -71,15 +75,16 @@ const useReports = () => {
     }
   }, [executeApiCall]);
 
-  const generateCashAdvanceReport = useCallback(async (filters = {}) => {
+  const generateCashAdvanceReport = useCallback(async (startDate, endDate) => {
     try {
       setLoadingReports(true);
       const data = await executeApiCall(
-        () => reportService.getCashAdvanceReport(filters),
+        () => reportService.getCashAdvanceReport(startDate, endDate),
         'Cash advance report generated successfully',
         'Failed to generate cash advance report'
       );
       setReportData(data);
+      return data;
     } catch (err) {
       console.error('Error generating cash advance report:', err);
     } finally {

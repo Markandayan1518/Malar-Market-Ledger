@@ -16,12 +16,13 @@ const useMarketRates = () => {
         'Market rates loaded successfully',
         'Failed to load market rates'
       );
-      setRates(data);
+      const ratesArray = Array.isArray(data) ? data : (data?.data || []);
+      setRates(ratesArray);
       
       // Set current rate (most recent)
-      if (data && data.length > 0) {
-        const current = data.find(r => r.is_current);
-        setCurrentRate(current?.rate || data[0].rate || 0);
+      if (ratesArray && ratesArray.length > 0) {
+        const current = ratesArray.find(r => r.is_current);
+        setCurrentRate(current?.rate || ratesArray[0].rate || 0);
       }
     } catch (err) {
       console.error('Error fetching market rates:', err);

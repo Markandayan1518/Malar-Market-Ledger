@@ -5,7 +5,8 @@ import { format } from 'date-fns';
 
 const Footer = () => {
   const { t } = useTranslation();
-  const { isOnline } = useOffline();
+  const { isOffline } = useOffline();
+  const isOnline = !isOffline;
   const currentTime = format(new Date(), 'HH:mm');
 
   return (

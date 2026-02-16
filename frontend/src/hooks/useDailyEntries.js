@@ -6,7 +6,7 @@ import { format } from 'date-fns';
 
 const useDailyEntries = () => {
   const { loading, error, executeApiCall } = useApi();
-  const { isOnline, addToSyncQueue } = useOffline();
+  const { isOffline, addToSyncQueue } = useOffline();
   const [entries, setEntries] = useState([]);
   const [loadingEntries, setLoadingEntries] = useState(false);
 
@@ -18,7 +18,7 @@ const useDailyEntries = () => {
         'Entries loaded successfully',
         'Failed to load entries'
       );
-      setEntries(data);
+      setEntries(Array.isArray(data) ? data : (data?.data || []));
     } catch (err) {
       console.error('Error fetching entries:', err);
     } finally {
@@ -28,7 +28,7 @@ const useDailyEntries = () => {
 
   const addEntry = useCallback(async (entryData) => {
     try {
-      if (isOnline) {
+      if (!isOffline) {
         await executeApiCall(
           () => dailyEntryService.create(entryData),
           'Entry saved successfully',
@@ -48,11 +48,11 @@ const useDailyEntries = () => {
     } catch (err) {
       console.error('Error adding entry:', err);
     }
-  }, [executeApiCall, isOnline, addToSyncQueue]);
+  }, [executeApiCall, isOffline, addToSyncQueue]);
 
   const updateEntry = useCallback(async (id, entryData) => {
     try {
-      if (isOnline) {
+      if (!isOffline) {
         await executeApiCall(
           () => dailyEntryService.update(id, entryData),
           'Entry updated successfully',
@@ -72,11 +72,11 @@ const useDailyEntries = () => {
     } catch (err) {
       console.error('Error updating entry:', err);
     }
-  }, [executeApiCall, isOnline, addToSyncQueue]);
+  }, [executeApiCall, isOffline, addToSyncQueue]);
 
   const deleteEntry = useCallback(async (id) => {
     try {
-      if (isOnline) {
+      if (!isOffline) {
         await executeApiCall(
           () => dailyEntryService.delete(id),
           'Entry deleted successfully',
@@ -94,7 +94,7 @@ const useDailyEntries = () => {
     } catch (err) {
       console.error('Error deleting entry:', err);
     }
-  }, [executeApiCall, isOnline, addToSyncQueue]);
+  }, [executeApiCall, isOffline, addToSyncQueue]);
 
   const getTodayStats = useCallback(() => {
     const today = format(new Date(), 'yyyy-MM-dd');

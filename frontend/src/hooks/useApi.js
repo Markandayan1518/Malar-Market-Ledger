@@ -7,7 +7,7 @@ const useApi = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const { addNotification } = useNotification();
-  const { isOnline, addToSyncQueue } = useOffline();
+  const { isOffline, addToSyncQueue } = useOffline();
 
   const executeApiCall = useCallback(async (apiCall, successMessage, errorMessage) => {
     setLoading(true);
@@ -16,7 +16,7 @@ const useApi = () => {
     try {
       const result = await apiCall();
       
-      if (isOnline) {
+      if (!isOffline) {
         addNotification({
           type: 'success',
           title: 'Success',
@@ -52,7 +52,7 @@ const useApi = () => {
     } finally {
       setLoading(false);
     }
-  }, [isOnline, addNotification, addToSyncQueue]);
+  }, [isOffline, addNotification, addToSyncQueue]);
 
   return {
     loading,

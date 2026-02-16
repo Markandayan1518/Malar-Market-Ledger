@@ -62,6 +62,14 @@ export const NotificationProvider = ({ children }) => {
     });
   }, [addNotification]);
 
+  const showNotification = useCallback((type, message, options = {}) => {
+    addNotification({
+      type,
+      message,
+      ...options,
+    });
+  }, [addNotification]);
+
   const clearAll = useCallback(() => {
     setNotifications([]);
   }, []);
@@ -74,6 +82,7 @@ export const NotificationProvider = ({ children }) => {
     showError,
     showWarning,
     showInfo,
+    showNotification,
     clearAll,
   };
 

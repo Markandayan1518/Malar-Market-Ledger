@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { isOnline, onOnline, onOffline } from '../utils/offlineUtils';
-import { getSyncQueueCount, initDB } from '../store/offlineStore';
+import { getSyncQueueCount, initDB, addToSyncQueue as addToQueue } from '../store/offlineStore';
 
 const OfflineContext = createContext(null);
 
@@ -86,11 +86,27 @@ export const OfflineProvider = ({ children }) => {
     }
   };
 
+  const addToSyncQueue = async (item) => {
+    if (!dbInitialized) {
+      console.error('Database not initialized');
+      return null;
+    }
+    try {
+      const id = await addToQueue(item);
+      await updateSyncQueueCount();
+      return id;
+    } catch (error) {
+      console.error('Failed to add to sync queue:', error);
+      return null;
+    }
+  };
+
   const value = {
     isOffline,
     syncQueueCount,
     syncPendingData,
     updateSyncQueueCount,
+    addToSyncQueue,
   };
 
   return (
