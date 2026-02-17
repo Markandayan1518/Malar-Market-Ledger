@@ -10,6 +10,8 @@ import {
   FileText, 
   TrendingUp, 
   Settings,
+  Receipt,
+  Building2,
   X
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
@@ -66,6 +68,18 @@ const Sidebar = ({ isOpen, onClose, isMobile }) => {
       label: 'nav.reports',
       icon: FileText,
       roles: ['admin', 'staff']
+    },
+    {
+      path: '/invoices',
+      label: 'nav.invoices',
+      icon: Receipt,
+      roles: ['admin', 'staff']
+    },
+    {
+      path: '/business-settings',
+      label: 'nav.businessSettings',
+      icon: Building2,
+      roles: ['admin']
     },
     {
       path: '/settings',

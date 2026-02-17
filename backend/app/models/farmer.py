@@ -132,6 +132,12 @@ class Farmer(Base):
         cascade="all, delete-orphan"
     )
     
+    invoices = relationship(
+        "Invoice",
+        back_populates="farmer",
+        cascade="all, delete-orphan"
+    )
+    
     notifications = relationship(
         "Notification",
         back_populates="farmer",

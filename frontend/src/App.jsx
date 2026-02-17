@@ -18,6 +18,8 @@ import CashAdvancesPage from './pages/CashAdvancesPage';
 import SettlementsPage from './pages/SettlementsPage';
 import ReportsPage from './pages/ReportsPage';
 import SettingsPage from './pages/SettingsPage';
+import InvoicePage from './pages/InvoicePage';
+import BusinessSettingsPage from './pages/BusinessSettingsPage';
 
 // Layout
 import MainLayout from './components/layout/MainLayout';
@@ -148,6 +150,26 @@ const App = () => {
                       <ProtectedRoute allowedRoles={['admin']}>
                         <MainLayout>
                           <SettingsPage />
+                        </MainLayout>
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/invoices"
+                    element={
+                      <ProtectedRoute allowedRoles={['admin', 'staff']}>
+                        <MainLayout>
+                          <InvoicePage />
+                        </MainLayout>
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/business-settings"
+                    element={
+                      <ProtectedRoute allowedRoles={['admin']}>
+                        <MainLayout>
+                          <BusinessSettingsPage />
                         </MainLayout>
                       </ProtectedRoute>
                     }

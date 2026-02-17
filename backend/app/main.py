@@ -14,7 +14,7 @@ from app.database import get_db, init_db, close_db
 from app.core.auth import verify_token
 from app.dependencies import get_current_user
 from app.schemas.common import create_error_response, ErrorResponse
-from app.api import auth, users, farmers, flower_types, time_slots, market_rates, daily_entries, cash_advances, settlements, reports, notifications, system_settings
+from app.api import auth, users, farmers, flower_types, time_slots, market_rates, daily_entries, cash_advances, settlements, reports, notifications, system_settings, invoices, business_profile
 
 settings = get_settings()
 
@@ -85,6 +85,8 @@ app.include_router(settlements.router, prefix="/api/v1/settlements", tags=["Sett
 app.include_router(reports.router, prefix="/api/v1/reports", tags=["Reports"])
 app.include_router(notifications.router, prefix="/api/v1/notifications", tags=["Notifications"])
 app.include_router(system_settings.router, prefix="/api/v1/system-settings", tags=["System Settings"])
+app.include_router(invoices.router, prefix="/api/v1", tags=["Invoices"])
+app.include_router(business_profile.router, prefix="/api/v1", tags=["Business Profile"])
 
 
 # Health check endpoint

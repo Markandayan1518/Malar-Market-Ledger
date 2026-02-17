@@ -178,6 +178,11 @@ class Settlement(Base):
         back_populates="settlement",
         cascade="all, delete-orphan"
     )
+    
+    invoices = relationship(
+        "Invoice",
+        back_populates="settlement"
+    )
 
     def __repr__(self) -> str:
         return f"<Settlement(id={self.id}, number={self.settlement_number}, status={self.status})>"

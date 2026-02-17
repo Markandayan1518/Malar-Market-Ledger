@@ -13,6 +13,8 @@ from app.models.notification import Notification, NotificationStatus, Notificati
 from app.models.security_log import SecurityLog
 from app.models.system_setting import SystemSetting
 from app.models.whatsapp_log import WhatsappLog
+from app.models.business_profile import BusinessProfile
+from app.models.invoice import Invoice, InvoiceItem, InvoiceStatus
 
 __all__ = [
     "User",
@@ -32,5 +34,9 @@ __all__ = [
     "NotificationChannel",
     "SecurityLog",
     "SystemSetting",
-    "WhatsappLog"
+    "WhatsappLog",
+    "BusinessProfile",
+    "Invoice",
+    "InvoiceItem",
+    "InvoiceStatus"
 ]

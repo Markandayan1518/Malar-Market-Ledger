@@ -481,3 +481,203 @@ class FarmerSummaryResponse(BaseModel):
     settlements_received: Decimal
     current_balance: Decimal
     last_updated: datetime
+
+
+# ==================== BUSINESS PROFILE SCHEMAS ====================
+
+class BusinessProfileBase(BaseModel):
+    """Base business profile schema."""
+    id: str
+    shop_name: str
+    owner_name: str
+    address_line1: str
+    address_line2: Optional[str] = None
+    city: str
+    state: str
+    pincode: str
+    phone: str
+    alternate_phone: Optional[str] = None
+    email: Optional[str] = None
+    gst_number: Optional[str] = None
+    pan_number: Optional[str] = None
+    bank_name: Optional[str] = None
+    bank_account_number: Optional[str] = None
+    bank_ifsc_code: Optional[str] = None
+    bank_branch: Optional[str] = None
+    upi_id: Optional[str] = None
+    logo_url: Optional[str] = None
+    invoice_prefix: str
+    invoice_notes: Optional[str] = None
+    invoice_terms: Optional[str] = None
+    is_active: bool
+    created_at: datetime
+    updated_at: datetime
+
+
+class BusinessProfileCreate(BaseModel):
+    """Business profile creation schema."""
+    shop_name: str = Field(..., min_length=2, max_length=255)
+    owner_name: str = Field(..., min_length=2, max_length=255)
+    address_line1: str = Field(..., min_length=5)
+    address_line2: Optional[str] = None
+    city: str = Field(..., min_length=2)
+    state: str = Field(..., min_length=2)
+    pincode: str = Field(..., min_length=6, max_length=20)
+    phone: str = Field(..., min_length=10, max_length=20)
+    alternate_phone: Optional[str] = None
+    email: Optional[EmailStr] = None
+    gst_number: Optional[str] = None
+    pan_number: Optional[str] = None
+    bank_name: Optional[str] = None
+    bank_account_number: Optional[str] = None
+    bank_ifsc_code: Optional[str] = None
+    bank_branch: Optional[str] = None
+    upi_id: Optional[str] = None
+    logo_url: Optional[str] = None
+    invoice_prefix: str = Field(default="INV", max_length=10)
+    invoice_notes: Optional[str] = None
+    invoice_terms: Optional[str] = None
+
+
+class BusinessProfileUpdate(BaseModel):
+    """Business profile update schema."""
+    shop_name: Optional[str] = Field(None, min_length=2, max_length=255)
+    owner_name: Optional[str] = Field(None, min_length=2, max_length=255)
+    address_line1: Optional[str] = Field(None, min_length=5)
+    address_line2: Optional[str] = None
+    city: Optional[str] = Field(None, min_length=2)
+    state: Optional[str] = Field(None, min_length=2)
+    pincode: Optional[str] = Field(None, min_length=6, max_length=20)
+    phone: Optional[str] = Field(None, min_length=10, max_length=20)
+    alternate_phone: Optional[str] = None
+    email: Optional[EmailStr] = None
+    gst_number: Optional[str] = None
+    pan_number: Optional[str] = None
+    bank_name: Optional[str] = None
+    bank_account_number: Optional[str] = None
+    bank_ifsc_code: Optional[str] = None
+    bank_branch: Optional[str] = None
+    upi_id: Optional[str] = None
+    logo_url: Optional[str] = None
+    invoice_prefix: Optional[str] = Field(None, max_length=10)
+    invoice_notes: Optional[str] = None
+    invoice_terms: Optional[str] = None
+    is_active: Optional[bool] = None
+
+
+class BusinessProfileResponse(BusinessProfileBase):
+    """Business profile response schema."""
+    pass
+
+
+# ==================== INVOICE SCHEMAS ====================
+
+from app.models.invoice import InvoiceStatus
+
+
+class InvoiceItemBase(BaseModel):
+    """Base invoice item schema."""
+    id: str
+    description: str
+    quantity: Decimal
+    unit: str
+    rate: Decimal
+    total: Decimal
+    flower_type_id: Optional[str] = None
+    sort_order: int
+
+
+class InvoiceItemCreate(BaseModel):
+    """Invoice item creation schema."""
+    description: str = Field(..., min_length=2, max_length=500)
+    quantity: Decimal = Field(..., gt=0)
+    unit: str = Field(default="kg", max_length=20)
+    rate: Decimal = Field(..., gt=0)
+    daily_entry_id: Optional[str] = None
+    flower_type_id: Optional[str] = None
+    sort_order: int = Field(default=0)
+
+
+class InvoiceItemResponse(InvoiceItemBase):
+    """Invoice item response schema."""
+    pass
+
+
+class InvoiceBase(BaseModel):
+    """Base invoice schema."""
+    id: str
+    invoice_number: str
+    farmer_id: Optional[str] = None
+    customer_name: str
+    customer_phone: Optional[str] = None
+    customer_address: Optional[str] = None
+    invoice_date: date
+    due_date: Optional[date] = None
+    status: InvoiceStatus
+    subtotal: Decimal
+    tax_rate: Decimal
+    tax_amount: Decimal
+    discount: Decimal
+    total_amount: Decimal
+    amount_paid: Decimal
+    balance_due: Decimal
+    notes: Optional[str] = None
+    terms: Optional[str] = None
+    settlement_id: Optional[str] = None
+    created_by: str
+    paid_at: Optional[datetime] = None
+    cancelled_at: Optional[datetime] = None
+    cancelled_reason: Optional[str] = None
+    created_at: datetime
+    updated_at: datetime
+
+
+class InvoiceCreate(BaseModel):
+    """Invoice creation schema."""
+    farmer_id: Optional[str] = None
+    customer_name: str = Field(..., min_length=2, max_length=255)
+    customer_phone: Optional[str] = Field(None, max_length=20)
+    customer_address: Optional[str] = None
+    invoice_date: date
+    due_date: Optional[date] = None
+    tax_rate: Decimal = Field(default=0, ge=0, le=100)
+    discount: Decimal = Field(default=0, ge=0)
+    notes: Optional[str] = None
+    terms: Optional[str] = None
+    settlement_id: Optional[str] = None
+    items: List[InvoiceItemCreate] = Field(..., min_length=1)
+
+
+class InvoiceUpdate(BaseModel):
+    """Invoice update schema."""
+    customer_name: Optional[str] = Field(None, min_length=2, max_length=255)
+    customer_phone: Optional[str] = Field(None, max_length=20)
+    customer_address: Optional[str] = None
+    invoice_date: Optional[date] = None
+    due_date: Optional[date] = None
+    tax_rate: Optional[Decimal] = Field(None, ge=0, le=100)
+    discount: Optional[Decimal] = Field(None, ge=0)
+    notes: Optional[str] = None
+    terms: Optional[str] = None
+    items: Optional[List[InvoiceItemCreate]] = None
+
+
+class InvoiceResponse(InvoiceBase):
+    """Invoice response schema."""
+    items: List[InvoiceItemResponse] = []
+
+
+class InvoiceListResponse(PaginatedResponse[InvoiceResponse]):
+    """Invoice list response schema."""
+    pass
+
+
+class InvoicePaymentRequest(BaseModel):
+    """Invoice payment request schema."""
+    amount: Decimal = Field(..., gt=0)
+    notes: Optional[str] = None
+
+
+class InvoiceCancelRequest(BaseModel):
+    """Invoice cancel request schema."""
+    reason: str = Field(..., min_length=5)
