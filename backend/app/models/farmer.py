@@ -143,6 +143,12 @@ class Farmer(Base):
         back_populates="farmer",
         cascade="all, delete-orphan"
     )
+    
+    farmer_products = relationship(
+        "FarmerProduct",
+        back_populates="farmer",
+        cascade="all, delete-orphan"
+    )
 
     def __repr__(self) -> str:
         return f"<Farmer(id={self.id}, code={self.farmer_code}, name={self.name})>"

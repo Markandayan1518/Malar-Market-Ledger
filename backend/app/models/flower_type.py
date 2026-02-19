@@ -1,7 +1,7 @@
 """Flower type model for managing flower varieties."""
 
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 
 from sqlalchemy import String, Boolean, DateTime, Text, Index
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -69,6 +69,11 @@ class FlowerType(Base):
         default=datetime.utcnow,
         onupdate=datetime.utcnow
     )
+    
+    deleted_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime,
+        nullable=True
+    )
 
     # Relationships
     daily_entries = relationship(
@@ -79,6 +84,12 @@ class FlowerType(Base):
     
     market_rates = relationship(
         "MarketRate",
+        back_populates="flower_type",
+        cascade="all, delete-orphan"
+    )
+    
+    farmer_products = relationship(
+        "FarmerProduct",
         back_populates="flower_type",
         cascade="all, delete-orphan"
     )

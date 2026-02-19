@@ -4,6 +4,7 @@ from app.models.user import User, UserRole
 from app.database import Base
 from app.models.farmer import Farmer
 from app.models.flower_type import FlowerType
+from app.models.farmer_product import FarmerProduct
 from app.models.time_slot import TimeSlot
 from app.models.market_rate import MarketRate
 from app.models.daily_entry import DailyEntry
@@ -21,6 +22,7 @@ __all__ = [
     "UserRole",
     "Farmer",
     "FlowerType",
+    "FarmerProduct",
     "TimeSlot",
     "MarketRate",
     "DailyEntry",

@@ -1,6 +1,6 @@
 /* eslint-disable no-restricted-globals */
 
-const CACHE_NAME = 'malar-ledger-v1';
+const CACHE_NAME = 'malar-ledger-arctic-v2';
 const OFFLINE_URL = '/';
 
 // Assets to cache immediately
@@ -10,6 +10,13 @@ const PRECACHE_ASSETS = [
   '/manifest.json',
 ];
 
+// CSS files to cache (Arctic Frost theme)
+const CSS_ASSETS = [
+  '/src/styles/arctic-frost.css',
+  '/src/styles/animations.css',
+  '/src/index.css',
+];
+
 // API routes that should use NetworkFirst strategy
 const API_ROUTES = ['/api/'];
 
@@ -17,6 +24,7 @@ const API_ROUTES = ['/api/'];
 const STATIC_ASSETS = [
   '/icons/',
   '/assets/',
+  '/src/styles/',
 ];
 
 self.addEventListener('install', (event) => {

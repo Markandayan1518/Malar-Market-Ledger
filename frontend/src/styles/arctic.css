@@ -1,0 +1,673 @@
+/* ============================================
+   ARCTIC FROST THEME - Component Styles
+   ============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+/* ============================================
+   CSS CUSTOM PROPERTIES
+   ============================================ */
+:root {
+  /* Arctic Backgrounds */
+  --arctic-snow: #F8FAFC;
+  --arctic-ice: #FFFFFF;
+  --arctic-frost: #F1F5F9;
+  --arctic-mist: #E2E8F0;
+  --arctic-glow: #DBEAFE;
+  
+  /* Arctic Blues */
+  --arctic-glacier: #3B82F6;
+  --arctic-glacier-dark: #2563EB;
+  --arctic-deep: #1E40AF;
+  --arctic-sky: #0EA5E9;
+  
+  /* Text Colors */
+  --arctic-slate: #1E293B;
+  --arctic-gray: #64748B;
+  --arctic-mist-text: #94A3B8;
+  --arctic-charcoal: #0F172A;
+  
+  /* Financial Colors */
+  --arctic-frostbite: #DC2626;
+  --arctic-frostbite-light: #FEE2E2;
+  --arctic-aurora: #10B981;
+  --arctic-aurora-light: #D1FAE5;
+  --arctic-gold: #F59E0B;
+  
+  /* Borders */
+  --arctic-border: #E2E8F0;
+  --arctic-border-dark: #CBD5E1;
+  --arctic-border-active: #3B82F6;
+  
+  /* Shadows */
+  --arctic-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.03);
+  --arctic-shadow-md: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+  --arctic-shadow-lg: 0 4px 6px rgba(0, 0, 0, 0.04), 0 2px 4px rgba(0, 0, 0, 0.03);
+  --arctic-shadow-glow: 0 0 0 2px #3B82F6, 0 4px 12px rgba(59, 130, 246, 0.15);
+  
+  /* Typography */
+  --font-arctic: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', Consolas, monospace;
+  
+  /* Transitions */
+  --arctic-transition-fast: 150ms ease;
+  --arctic-transition-normal: 200ms ease;
+  --arctic-transition-slow: 300ms ease;
+  
+  /* Border Radius */
+  --arctic-radius: 12px;
+  --arctic-radius-lg: 16px;
+  --arctic-radius-pill: 50px;
+}
+
+/* ============================================
+   BASE ARCTIC THEME
+   ============================================ */
+.arctic-theme {
+  background: var(--arctic-snow);
+  color: var(--arctic-slate);
+  font-family: var(--font-arctic);
+}
+
+/* ============================================
+   ARCTIC GRID CONTAINER
+   ============================================ */
+.arctic-grid {
+  background: var(--arctic-ice);
+  border: 1px solid var(--arctic-border);
+  border-radius: var(--arctic-radius);
+  overflow: hidden;
+  box-shadow: var(--arctic-shadow-md);
+}
+
+.arctic-grid table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+/* ============================================
+   ARCTIC TABLE HEADER (Frosted Glass)
+   ============================================ */
+.arctic-header {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--arctic-border);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.arctic-header th {
+  padding: 14px 16px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--arctic-gray);
+  text-align: left;
+  background: transparent;
+  border-bottom: 1px solid var(--arctic-border);
+  transition: color var(--arctic-transition-fast);
+}
+
+.arctic-header th.sortable {
+  cursor: pointer;
+}
+
+.arctic-header th.sortable:hover {
+  color: var(--arctic-glacier);
+}
+
+.arctic-header th.text-right,
+.arctic-header th[data-align="right"] {
+  text-align: right;
+}
+
+.arctic-header th.text-center,
+.arctic-header th[data-align="center"] {
+  text-align: center;
+}
+
+/* ============================================
+   ARCTIC DATA ROWS
+   ============================================ */
+.arctic-row {
+  background: var(--arctic-ice);
+  border-bottom: 1px solid var(--arctic-border);
+  transition: all var(--arctic-transition-normal);
+}
+
+/* Zebra striping */
+.arctic-row:nth-child(even) {
+  background: #FAFBFC;
+}
+
+.arctic-row:hover {
+  background: var(--arctic-snow);
+}
+
+.arctic-row td {
+  padding: 16px;
+  vertical-align: middle;
+  font-size: 14px;
+  color: var(--arctic-slate);
+}
+
+/* ============================================
+   ACTIVE ROW (Spotlight on Ice)
+   ============================================ */
+.arctic-row-active {
+  background: var(--arctic-ice) !important;
+  box-shadow: var(--arctic-shadow-glow);
+  transform: scale(1.002);
+  z-index: 5;
+  position: relative;
+}
+
+/* Spotlight effect - dims surrounding rows */
+.arctic-grid.has-active-row .arctic-row:not(.arctic-row-active) {
+  opacity: 0.55;
+  transition: opacity var(--arctic-transition-fast);
+}
+
+/* ============================================
+   ARCTIC INPUT CELLS
+   ============================================ */
+.arctic-cell-input {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 14px;
+  font-family: var(--font-arctic);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  transition: all var(--arctic-transition-fast);
+  color: var(--arctic-slate);
+}
+
+.arctic-cell-input:hover {
+  background: var(--arctic-frost);
+}
+
+.arctic-cell-input:focus {
+  background: var(--arctic-ice);
+  border-color: var(--arctic-glacier);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  outline: none;
+}
+
+.arctic-cell-input::placeholder {
+  color: var(--arctic-mist-text);
+}
+
+/* Hero inputs (Weight, Price) - 20% larger, bolder */
+.arctic-cell-input-hero {
+  font-family: var(--font-mono);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--arctic-charcoal);
+  text-align: right;
+  font-feature-settings: 'tnum' 1;
+}
+
+/* ============================================
+   ARCTIC ADJUSTMENT TAGS
+   ============================================ */
+.arctic-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: var(--font-arctic);
+  border-radius: 20px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all var(--arctic-transition-fast);
+  user-select: none;
+  white-space: nowrap;
+}
+
+/* Unselected state */
+.arctic-tag.unselected {
+  background: var(--arctic-frost);
+  border-color: var(--arctic-border);
+  color: var(--arctic-gray);
+}
+
+.arctic-tag.unselected:hover {
+  background: var(--arctic-mist);
+  border-color: var(--arctic-border-dark);
+}
+
+.arctic-tag.unselected:active {
+  transform: scale(0.95);
+}
+
+/* Deduction tags (Frostbite) */
+.arctic-tag.deduction {
+  background: var(--arctic-frostbite-light);
+  border-color: #FECACA;
+  color: var(--arctic-frostbite);
+}
+
+/* Bonus tags (Aurora) */
+.arctic-tag.bonus {
+  background: var(--arctic-aurora-light);
+  border-color: #A7F3D0;
+  color: #059669;
+}
+
+/* ============================================
+   ARCTIC BUTTONS
+   ============================================ */
+
+/* Primary Action Button (Frost Pill) */
+.arctic-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: var(--font-arctic);
+  color: var(--arctic-ice);
+  background: linear-gradient(135deg, var(--arctic-glacier) 0%, var(--arctic-glacier-dark) 100%);
+  border: none;
+  border-radius: var(--arctic-radius-pill);
+  cursor: pointer;
+  transition: all var(--arctic-transition-normal);
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.25), 0 4px 8px rgba(59, 130, 246, 0.1);
+  min-height: 48px;
+}
+
+.arctic-btn-primary:hover {
+  background: linear-gradient(135deg, var(--arctic-glacier-dark) 0%, #1D4ED8 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3), 0 8px 16px rgba(59, 130, 246, 0.15);
+}
+
+.arctic-btn-primary:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.25);
+}
+
+.arctic-btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Secondary Button (Frosted) */
+.arctic-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: var(--font-arctic);
+  color: var(--arctic-slate);
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--arctic-border);
+  border-radius: var(--arctic-radius-pill);
+  cursor: pointer;
+  transition: all var(--arctic-transition-normal);
+  min-height: 48px;
+}
+
+.arctic-btn-secondary:hover {
+  background: var(--arctic-ice);
+  border-color: var(--arctic-border-dark);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.arctic-btn-secondary:active {
+  transform: scale(0.98);
+}
+
+.arctic-btn-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Icon Button */
+.arctic-btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--arctic-gray);
+  cursor: pointer;
+  transition: all var(--arctic-transition-fast);
+}
+
+.arctic-btn-icon:hover {
+  background: var(--arctic-frost);
+  color: var(--arctic-slate);
+}
+
+.arctic-btn-icon:active {
+  transform: scale(0.95);
+}
+
+.arctic-btn-icon.danger:hover {
+  background: var(--arctic-frostbite-light);
+  color: var(--arctic-frostbite);
+}
+
+.arctic-btn-icon.success:hover {
+  background: var(--arctic-aurora-light);
+  color: #059669;
+}
+
+/* ============================================
+   ARCTIC TABLE FOOTER
+   ============================================ */
+.arctic-footer {
+  background: rgba(248, 250, 252, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 2px solid var(--arctic-border);
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+}
+
+.arctic-footer td {
+  padding: 16px;
+  font-weight: 600;
+  color: var(--arctic-slate);
+}
+
+.arctic-footer-total {
+  font-family: var(--font-mono);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--arctic-charcoal);
+  font-feature-settings: 'tnum' 1;
+}
+
+/* ============================================
+   ARCTIC STAT CARDS
+   ============================================ */
+.arctic-stat-card {
+  background: var(--arctic-ice);
+  border: 1px solid var(--arctic-border);
+  border-radius: var(--arctic-radius-lg);
+  padding: 20px;
+  transition: all var(--arctic-transition-normal);
+}
+
+.arctic-stat-card:hover {
+  border-color: var(--arctic-border-dark);
+  box-shadow: var(--arctic-shadow-lg);
+}
+
+.arctic-stat-value {
+  font-family: var(--font-arctic);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--arctic-charcoal);
+  line-height: 1;
+  font-feature-settings: 'tnum' 1;
+}
+
+.arctic-stat-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--arctic-gray);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 4px;
+}
+
+/* ============================================
+   ARCTIC MICRO-INTERACTIONS
+   ============================================ */
+
+/* Flash Freeze Animation (Save) */
+@keyframes arcticFlashFreeze {
+  0% {
+    background: var(--arctic-ice);
+  }
+  30% {
+    background: var(--arctic-glow);
+    box-shadow: 0 0 0 2px var(--arctic-glacier);
+  }
+  100% {
+    background: var(--arctic-ice);
+    box-shadow: none;
+  }
+}
+
+.arctic-row-saving {
+  animation: arcticFlashFreeze 0.6s ease-out;
+}
+
+/* Checkmark Animation */
+@keyframes arcticCheckmarkAppear {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.arctic-saved-checkmark {
+  animation: arcticCheckmarkAppear 0.3s ease-out 0.3s both;
+  color: var(--arctic-aurora);
+}
+
+/* Focus Ring Pulse */
+@keyframes arcticFocusPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+  }
+}
+
+.arctic-cell-input:focus {
+  animation: arcticFocusPulse 2s ease-in-out infinite;
+}
+
+/* ============================================
+   ARCTIC FINANCIAL DISPLAY
+   ============================================ */
+.arctic-price {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--arctic-slate);
+  text-align: right;
+}
+
+.arctic-price-hero {
+  font-family: var(--font-mono);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--arctic-charcoal);
+  text-align: right;
+}
+
+.arctic-price-positive {
+  color: #059669;
+}
+
+.arctic-price-negative {
+  color: var(--arctic-frostbite);
+}
+
+/* ============================================
+   ARCTIC FOCUS INDICATORS (Accessibility)
+   ============================================ */
+*:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .arctic-row-active {
+    box-shadow: 0 0 0 3px var(--arctic-glacier);
+  }
+  
+  .arctic-btn-primary {
+    border: 2px solid var(--arctic-deep);
+  }
+  
+  .arctic-tag.deduction {
+    border-width: 2px;
+  }
+  
+  .arctic-tag.bonus {
+    border-width: 2px;
+  }
+}
+
+/* ============================================
+   ARCTIC RESPONSIVE UTILITIES
+   ============================================ */
+
+/* Tablet landscape optimization */
+@media (min-width: 1024px) and (max-width: 1366px) and (orientation: landscape) {
+  .arctic-row td {
+    padding: 14px;
+  }
+  
+  .arctic-cell-input-hero {
+    font-size: 16px;
+  }
+}
+
+/* Touch device optimization */
+@media (hover: none) and (pointer: coarse) {
+  .arctic-btn-icon {
+    width: 44px;
+    height: 44px;
+  }
+  
+  .arctic-tag {
+    padding: 8px 14px;
+    min-height: 32px;
+  }
+  
+  .arctic-row td {
+    padding: 14px;
+  }
+}
+
+/* ============================================
+   ARCTIC SCROLLBAR
+   ============================================ */
+.arctic-grid ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.arctic-grid ::-webkit-scrollbar-track {
+  background: var(--arctic-frost);
+  border-radius: 4px;
+}
+
+.arctic-grid ::-webkit-scrollbar-thumb {
+  background: var(--arctic-border-dark);
+  border-radius: 4px;
+}
+
+.arctic-grid ::-webkit-scrollbar-thumb:hover {
+  background: var(--arctic-gray);
+}
+
+/* ============================================
+   ARCTIC BADGES
+   ============================================ */
+.arctic-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.arctic-badge-glacier {
+  background: var(--arctic-glow);
+  color: var(--arctic-deep);
+}
+
+.arctic-badge-aurora {
+  background: var(--arctic-aurora-light);
+  color: #059669;
+}
+
+.arctic-badge-frostbite {
+  background: var(--arctic-frostbite-light);
+  color: var(--arctic-frostbite);
+}
+
+.arctic-badge-gold {
+  background: #FEF3C7;
+  color: #B45309;
+}
+
+/* ============================================
+   ARCTIC LOADING STATES
+   ============================================ */
+.arctic-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--arctic-frost) 25%,
+    var(--arctic-snow) 50%,
+    var(--arctic-frost) 75%
+  );
+  background-size: 200% 100%;
+  animation: arcticShimmer 1.5s infinite;
+  border-radius: 6px;
+}
+
+@keyframes arcticShimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.arctic-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--arctic-border);
+  border-top-color: var(--arctic-glacier);
+  border-radius: 50%;
+  animation: arcticSpin 0.8s linear infinite;
+}
+
+@keyframes arcticSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}

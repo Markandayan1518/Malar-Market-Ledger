@@ -1,0 +1,1310 @@
+/**
+ * Arctic Frost CSS Utility Classes
+ * 
+ * A premium frost aesthetic for the Malar Market Digital Ledger application.
+ * Designed for use during early morning hours (4-9 AM) in low-light conditions.
+ * 
+ * WCAG Requirements: Minimum 7:1 contrast ratio for critical text, WCAG AA compliant.
+ * All classes use the .af- prefix (Arctic Frost)
+ */
+
+/* =============================================================================
+   1. FOUNDATION VARIABLES - CSS Custom Properties
+   ============================================================================= */
+
+/* Primary Accent Colors - Periwinkle Spectrum */
+:root {
+  /* Periwinkle Accent - Primary brand color */
+  --af-periwinkle-50: #f0f0ff;
+  --af-periwinkle-100: #e0e0fa;
+  --af-periwinkle-200: #c5c5f5;
+  --af-periwinkle-300: #a5a5ed;
+  --af-periwinkle-400: #8b7cf5;
+  --af-periwinkle-500: #6b5ce0;
+  --af-periwinkle-600: #5247c7;
+  --af-periwinkle-700: #4038a5;
+  --af-periwinkle-800: #332d82;
+  --af-periwinkle-900: #2a2465;
+  
+  /* Ice Blues - Gradient transitions */
+  --af-ice-50: #f0f8ff;
+  --af-ice-100: #e8f4fc;
+  --af-ice-200: #d0e8f8;
+  --af-ice-300: #b8dcf4;
+  --af-ice-400: #9cc8eb;
+  --af-ice-500: #7eb0de;
+  --af-ice-600: #5e94ce;
+  --af-ice-700: #4678b5;
+  --af-ice-800: #355f91;
+  --af-ice-900: #2a4a72;
+  
+  /* White Text Opacity Levels - WCAG AAA compliant on dark backgrounds */
+  --af-white-100: rgba(255, 255, 255, 1);
+  --af-white-95: rgba(255, 255, 255, 0.95);
+  --af-white-90: rgba(255, 255, 255, 0.90);
+  --af-white-80: rgba(255, 255, 255, 0.80);
+  --af-white-70: rgba(255, 255, 255, 0.70);
+  --af-white-60: rgba(255, 255, 255, 0.60);
+  --af-white-40: rgba(255, 255, 255, 0.40);
+  
+  /* Glassmorphism Backgrounds */
+  --af-glass-08: rgba(255, 255, 255, 0.08);
+  --af-glass-10: rgba(255, 255, 255, 0.10);
+  --af-glass-12: rgba(255, 255, 255, 0.12);
+  --af-glass-15: rgba(255, 255, 255, 0.15);
+  --af-glass-20: rgba(255, 255, 255, 0.20);
+  --af-glass-25: rgba(255, 255, 255, 0.25);
+  
+  /* Error State - Red-violet accent (maintains cold palette) */
+  --af-error-light: #f5a3a3;
+  --af-error: #e57373;
+  --af-error-dark: #c75050;
+  --af-error-bg: rgba(229, 115, 115, 0.15);
+  
+  /* Success State - Cool green */
+  --af-success-light: #81c784;
+  --af-success: #4caf50;
+  --af-success-dark: #388e3c;
+  --af-success-bg: rgba(76, 175, 80, 0.15);
+  
+  /* Warning State - Amber */
+  --af-warning-light: #ffb74d;
+  --af-warning: #ff9800;
+  --af-warning-dark: #f57c00;
+  --af-warning-bg: rgba(255, 152, 0, 0.15);
+  
+  /* Spacing Tokens */
+  --af-space-1: 0.25rem;   /* 4px */
+  --af-space-2: 0.5rem;    /* 8px */
+  --af-space-3: 0.75rem;   /* 12px */
+  --af-space-4: 1rem;      /* 16px */
+  --af-space-5: 1.25rem;   /* 20px */
+  --af-space-6: 1.5rem;    /* 24px */
+  --af-space-8: 2rem;      /* 32px */
+  --af-space-10: 2.5rem;   /* 40px */
+  --af-space-12: 3rem;     /* 48px */
+  --af-space-16: 4rem;     /* 64px */
+  
+  /* Shadow Tokens - Frost/ice effect */
+  --af-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.15);
+  --af-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.12);
+  --af-shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.15), 0 4px 6px rgba(0, 0, 0, 0.10);
+  --af-shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.15), 0 10px 10px rgba(0, 0, 0, 0.08);
+  --af-shadow-glow: 0 0 20px rgba(139, 124, 245, 0.4);
+  --af-shadow-glow-lg: 0 0 40px rgba(139, 124, 245, 0.5);
+  --af-shadow-frost: 0 8px 32px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  
+  /* Blur Values */
+  --af-blur-sm: 4px;
+  --af-blur-md: 8px;
+  --af-blur-lg: 12px;
+  --af-blur-xl: 16px;
+  --af-blur-2xl: 24px;
+  
+  /* Animation Timings */
+  --af-duration-fast: 150ms;
+  --af-duration-normal: 250ms;
+  --af-duration-slow: 350ms;
+  --af-duration-xslow: 500ms;
+  
+  /* Border Radius */
+  --af-radius-sm: 4px;
+  --af-radius-md: 8px;
+  --af-radius-lg: 12px;
+  --af-radius-xl: 16px;
+  --af-radius-2xl: 24px;
+  --af-radius-full: 9999px;
+  
+  /* Typography */
+  --af-font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --af-font-mono: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Mono', monospace;
+}
+
+/* =============================================================================
+   2. BACKGROUND UTILITIES
+   ============================================================================= */
+
+/**
+ * Ice gradient backgrounds - Cool blue gradient transitions
+ */
+.af-bg-ice {
+  background: linear-gradient(135deg, var(--af-ice-100) 0%, var(--af-ice-200) 50%, var(--af-ice-300) 100%);
+}
+
+.af-bg-ice-light {
+  background: linear-gradient(180deg, var(--af-ice-50) 0%, var(--af-ice-100) 100%);
+}
+
+.af-bg-ice-dark {
+  background: linear-gradient(180deg, var(--af-ice-400) 0%, var(--af-ice-600) 100%);
+}
+
+/**
+ * Frosted glass effect - Multi-layer backdrop blur
+ */
+.af-bg-frost {
+  background: var(--af-glass-10);
+  backdrop-filter: blur(var(--af-blur-md));
+  -webkit-backdrop-filter: blur(var(--af-blur-md));
+}
+
+.af-bg-frost-lg {
+  background: var(--af-glass-12);
+  backdrop-filter: blur(var(--af-blur-xl));
+  -webkit-backdrop-filter: blur(var(--af-blur-xl));
+}
+
+.af-bg-frost-xl {
+  background: var(--af-glass-15);
+  backdrop-filter: blur(var(--af-blur-2xl));
+  -webkit-backdrop-filter: blur(var(--af-blur-2xl));
+}
+
+/**
+ * Periwinkle tinted backgrounds
+ */
+.af-bg-periwinkle {
+  background: linear-gradient(135deg, var(--af-periwinkle-400) 0%, var(--af-periwinkle-600) 100%);
+}
+
+.af-bg-periwinkle-light {
+  background: linear-gradient(135deg, var(--af-periwinkle-100) 0%, var(--af-periwinkle-200) 100%);
+}
+
+.af-bg-periwinkle-subtle {
+  background: var(--af-periwinkle-50);
+}
+
+/**
+ * Crystal clear with subtle gradient
+ */
+.af-bg-crystal {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.15) 0%,
+    rgba(255, 255, 255, 0.05) 50%,
+    rgba(255, 255, 255, 0.02) 100%
+  );
+}
+
+.af-bg-crystal-dark {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(255, 255, 255, 0.02) 50%,
+    rgba(255, 255, 255, 0.01) 100%
+  );
+}
+
+/**
+ * Transparent backgrounds
+ */
+.af-bg-transparent {
+  background: transparent;
+}
+
+.af-bg-solid {
+  background: var(--af-ice-900);
+}
+
+/* =============================================================================
+   3. TEXT UTILITIES
+   ============================================================================= */
+
+/**
+ * Primary white text - 100% opacity for maximum contrast
+ */
+.af-text-primary {
+  color: var(--af-white-100);
+}
+
+/**
+ * Secondary white text - 95% opacity
+ */
+.af-text-secondary {
+  color: var(--af-white-95);
+}
+
+/**
+ * Muted white text - 80% opacity for less important content
+ */
+.af-text-muted {
+  color: var(--af-white-80);
+}
+
+/**
+ * Accent periwinkle text
+ */
+.af-text-accent {
+  color: var(--af-periwinkle-400);
+}
+
+.af-text-accent-light {
+  color: var(--af-periwinkle-300);
+}
+
+.af-text-accent-dark {
+  color: var(--af-periwinkle-500);
+}
+
+/**
+ * Error text
+ */
+.af-text-error {
+  color: var(--af-error);
+}
+
+.af-text-error-light {
+  color: var(--af-error-light);
+}
+
+/**
+ * Success text
+ */
+.af-text-success {
+  color: var(--af-success);
+}
+
+/**
+ * Warning text
+ */
+.af-text-warning {
+  color: var(--af-warning);
+}
+
+/**
+ * Ice blue text
+ */
+.af-text-ice {
+  color: var(--af-ice-300);
+}
+
+.af-text-ice-light {
+  color: var(--af-ice-200);
+}
+
+/* =============================================================================
+   4. SURFACE UTILITIES
+   ============================================================================= */
+
+/**
+ * Card with glassmorphism effect
+ */
+.af-surface-card {
+  background: var(--af-glass-12);
+  backdrop-filter: blur(var(--af-blur-md));
+  -webkit-backdrop-filter: blur(var(--af-blur-md));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--af-radius-lg);
+  box-shadow: var(--af-shadow-frost);
+}
+
+.af-surface-card-hover:hover {
+  background: var(--af-glass-15);
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: var(--af-shadow-lg), var(--af-shadow-glow);
+}
+
+/**
+ * Panel with ice gradient
+ */
+.af-surface-panel {
+  background: linear-gradient(
+    180deg,
+    var(--af-glass-15) 0%,
+    var(--af-glass-10) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--af-radius-md);
+  box-shadow: var(--af-shadow-md);
+}
+
+/**
+ * Modal backdrop with multi-layer blur
+ */
+.af-surface-modal {
+  background: var(--af-glass-20);
+  backdrop-filter: blur(var(--af-blur-2xl));
+  -webkit-backdrop-filter: blur(var(--af-blur-2xl));
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--af-radius-xl);
+  box-shadow: var(--af-shadow-xl);
+}
+
+/**
+ * Tooltip with glass panel and soft shadows
+ */
+.af-surface-tooltip {
+  background: var(--af-glass-15);
+  backdrop-filter: blur(var(--af-blur-md));
+  -webkit-backdrop-filter: blur(var(--af-blur-md));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--af-radius-md);
+  box-shadow: var(--af-shadow-lg);
+}
+
+/**
+ * Input surface
+ */
+.af-surface-input {
+  background: var(--af-glass-08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--af-radius-md);
+  transition: all var(--af-duration-normal) ease;
+}
+
+/**
+ * Interactive surface
+ */
+.af-surface-interactive {
+  background: var(--af-glass-10);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--af-radius-md);
+  transition: all var(--af-duration-normal) ease;
+}
+
+.af-surface-interactive:hover {
+  background: var(--af-glass-12);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.af-surface-interactive:active {
+  background: var(--af-glass-08);
+  border-color: rgba(255, 255, 255, 0.06);
+  transform: translateY(1px);
+}
+
+/* =============================================================================
+   5. INPUT UTILITIES
+   ============================================================================= */
+
+/**
+ * Base input with ice-tinted focus ring
+ */
+.af-input {
+  background: var(--af-glass-08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--af-radius-md);
+  color: var(--af-white-100);
+  font-size: 1rem;
+  padding: var(--af-space-3) var(--af-space-4);
+  transition: all var(--af-duration-normal) ease;
+  outline: none;
+}
+
+.af-input::placeholder {
+  color: var(--af-white-40);
+}
+
+.af-input:focus {
+  border-color: var(--af-periwinkle-400);
+  box-shadow: 0 0 0 3px rgba(139, 124, 245, 0.25), var(--af-shadow-glow);
+}
+
+.af-input:hover:not(:focus) {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/**
+ * Large hero input - 20% bigger
+ */
+.af-input-hero {
+  background: var(--af-glass-10);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--af-radius-lg);
+  color: var(--af-white-100);
+  font-size: 1.25rem;
+  padding: var(--af-space-5) var(--af-space-6);
+  transition: all var(--af-duration-normal) ease;
+  outline: none;
+}
+
+.af-input-hero::placeholder {
+  color: var(--af-white-40);
+}
+
+.af-input-hero:focus {
+  border-color: var(--af-periwinkle-400);
+  box-shadow: 0 0 0 4px rgba(139, 124, 245, 0.3), var(--af-shadow-glow-lg);
+}
+
+.af-input-hero:hover:not(:focus) {
+  border-color: rgba(255, 255, 255, 0.25);
+  background: var(--af-glass-12);
+}
+
+/**
+ * Input error state with red-violet accent
+ */
+.af-input-error {
+  background: var(--af-error-bg);
+  border: 1px solid var(--af-error);
+  border-radius: var(--af-radius-md);
+  color: var(--af-white-100);
+  font-size: 1rem;
+  padding: var(--af-space-3) var(--af-space-4);
+  transition: all var(--af-duration-normal) ease;
+  outline: none;
+}
+
+.af-input-error:focus {
+  border-color: var(--af-error-dark);
+  box-shadow: 0 0 0 3px rgba(229, 115, 115, 0.3);
+}
+
+.af-input-error::placeholder {
+  color: var(--af-white-60);
+}
+
+/**
+ * Input disabled state
+ */
+.af-input:disabled,
+.af-input-hero:disabled,
+.af-input-error:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/**
+ * Input success state
+ */
+.af-input-success {
+  background: var(--af-success-bg);
+  border: 1px solid var(--af-success);
+  border-radius: var(--af-radius-md);
+  color: var(--af-white-100);
+  font-size: 1rem;
+  padding: var(--af-space-3) var(--af-space-4);
+  transition: all var(--af-duration-normal) ease;
+  outline: none;
+}
+
+.af-input-success:focus {
+  border-color: var(--af-success-dark);
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.3);
+}
+
+/* =============================================================================
+   6. BUTTON UTILITIES
+   ============================================================================= */
+
+/**
+ * Base button styles
+ */
+.af-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--af-space-2);
+  padding: var(--af-space-3) var(--af-space-5);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  border-radius: var(--af-radius-md);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all var(--af-duration-normal) ease;
+  outline: none;
+  text-decoration: none;
+}
+
+.af-btn:focus-visible {
+  box-shadow: 0 0 0 3px rgba(139, 124, 245, 0.4);
+}
+
+.af-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/**
+ * Crystalline primary button
+ */
+.af-btn-primary {
+  background: linear-gradient(
+    135deg,
+    var(--af-periwinkle-400) 0%,
+    var(--af-periwinkle-500) 50%,
+    var(--af-periwinkle-600) 100%
+  );
+  border: 1px solid var(--af-periwinkle-300);
+  color: var(--af-white-100);
+  box-shadow: var(--af-shadow-md), 0 0 20px rgba(139, 124, 245, 0.2);
+}
+
+.af-btn-primary:hover:not(:disabled) {
+  background: linear-gradient(
+    135deg,
+    var(--af-periwinkle-300) 0%,
+    var(--af-periwinkle-400) 50%,
+    var(--af-periwinkle-500) 100%
+  );
+  box-shadow: var(--af-shadow-lg), 0 0 30px rgba(139, 124, 245, 0.35);
+  transform: translateY(-1px);
+}
+
+.af-btn-primary:active:not(:disabled) {
+  background: var(--af-periwinkle-600);
+  box-shadow: var(--af-shadow-sm);
+  transform: translateY(0);
+}
+
+/**
+ * Frosted secondary button
+ */
+.af-btn-secondary {
+  background: var(--af-glass-12);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--af-white-100);
+  backdrop-filter: blur(var(--af-blur-sm));
+  -webkit-backdrop-filter: blur(var(--af-blur-sm));
+}
+
+.af-btn-secondary:hover:not(:disabled) {
+  background: var(--af-glass-15);
+  border-color: rgba(255, 255, 255, 0.25);
+  box-shadow: var(--af-shadow-md), 0 0 15px rgba(139, 124, 245, 0.15);
+}
+
+.af-btn-secondary:active:not(:disabled) {
+  background: var(--af-glass-10);
+  border-color: rgba(255, 255, 255, 0.1);
+  transform: translateY(1px);
+}
+
+/**
+ * Ghost/transparent button
+ */
+.af-btn-ghost {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--af-white-80);
+}
+
+.af-btn-ghost:hover:not(:disabled) {
+  background: var(--af-glass-08);
+  color: var(--af-white-100);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.af-btn-ghost:active:not(:disabled) {
+  background: var(--af-glass-10);
+  transform: translateY(1px);
+}
+
+/**
+ * Danger button
+ */
+.af-btn-danger {
+  background: linear-gradient(
+    135deg,
+    var(--af-error) 0%,
+    var(--af-error-dark) 100%
+  );
+  border: 1px solid var(--af-error-light);
+  color: var(--af-white-100);
+}
+
+.af-btn-danger:hover:not(:disabled) {
+  background: linear-gradient(
+    135deg,
+    var(--af-error-light) 0%,
+    var(--af-error) 100%
+  );
+  box-shadow: var(--af-shadow-md), 0 0 20px rgba(229, 115, 115, 0.3);
+}
+
+/**
+ * Small button variant
+ */
+.af-btn-sm {
+  padding: var(--af-space-2) var(--af-space-3);
+  font-size: 0.8125rem;
+}
+
+/**
+ * Large button variant
+ */
+.af-btn-lg {
+  padding: var(--af-space-4) var(--af-space-8);
+  font-size: 1.0625rem;
+}
+
+/**
+ * Icon button
+ */
+.af-btn-icon {
+  padding: var(--af-space-2);
+  aspect-ratio: 1;
+  border-radius: var(--af-radius-md);
+}
+
+/* =============================================================================
+   7. STATE UTILITIES
+   ============================================================================= */
+
+/**
+ * Hover: 15-20% luminosity increase
+ */
+.af-hover-luminous {
+  transition: all var(--af-duration-normal) ease;
+}
+
+.af-hover-luminous:hover {
+  filter: brightness(1.2);
+}
+
+/**
+ * Focus: Glowing periwinkle rings at 2-3px spread
+ */
+.af-focus-glow {
+  outline: none;
+  transition: box-shadow var(--af-duration-normal) ease;
+}
+
+.af-focus-glow:focus {
+  box-shadow: 0 0 0 3px rgba(139, 124, 245, 0.4), var(--af-shadow-glow);
+}
+
+.af-focus-glow:focus-visible {
+  box-shadow: 0 0 0 3px rgba(139, 124, 245, 0.4), var(--af-shadow-glow);
+}
+
+/**
+ * Active: Pressed depth effect
+ */
+.af-active-pressed {
+  transition: all var(--af-duration-fast) ease;
+}
+
+.af-active-pressed:active {
+  transform: translateY(2px);
+  box-shadow: var(--af-shadow-sm);
+}
+
+/**
+ * Disabled: 40% opacity with frost overlay
+ */
+.af-disabled-frost {
+  opacity: 0.4;
+  pointer-events: none;
+  position: relative;
+}
+
+.af-disabled-frost::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: inherit;
+  backdrop-filter: blur(2px);
+}
+
+/**
+ * Loading: Shimmer animation
+ */
+.af-loading-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.af-loading-shimmer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    transparent 100%
+  );
+  animation: af-shimmer 1.5s infinite;
+}
+
+@keyframes af-shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/**
+ * Loading shimmer - alternative pulse style
+ */
+.af-loading-pulse {
+  animation: af-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes af-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/**
+ * Selected state
+ */
+.af-selected {
+  background: var(--af-periwinkle-50) !important;
+  border-color: var(--af-periwinkle-400) !important;
+}
+
+/**
+ * Error state
+ */
+.af-error {
+  border-color: var(--af-error) !important;
+  background: var(--af-error-bg) !important;
+}
+
+/**
+ * Success state
+ */
+.af-success {
+  border-color: var(--af-success) !important;
+  background: var(--af-success-bg) !important;
+}
+
+/* =============================================================================
+   8. GRID UTILITIES
+   ============================================================================= */
+
+/**
+ * Main grid container
+ */
+.af-grid {
+  display: grid;
+  gap: var(--af-space-4);
+  width: 100%;
+}
+
+/**
+ * Frosted glass header
+ */
+.af-grid-header {
+  background: var(--af-glass-15);
+  backdrop-filter: blur(var(--af-blur-md));
+  -webkit-backdrop-filter: blur(var(--af-blur-md));
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: var(--af-space-4) var(--af-space-6);
+  font-weight: 600;
+  color: var(--af-white-95);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.75rem;
+}
+
+/**
+ * Data row with striping
+ */
+.af-grid-row {
+  background: var(--af-glass-08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding: var(--af-space-4) var(--af-space-6);
+  transition: all var(--af-duration-normal) ease;
+}
+
+.af-grid-row:hover {
+  background: var(--af-glass-12);
+}
+
+/**
+ * Alternating ice tone
+ */
+.af-grid-row-alt {
+  background: var(--af-glass-10);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding: var(--af-space-4) var(--af-space-6);
+  transition: all var(--af-duration-normal) ease;
+}
+
+.af-grid-row-alt:hover {
+  background: var(--af-glass-15);
+}
+
+/**
+ * Active/selected row highlighting
+ */
+.af-grid-row-active {
+  background: linear-gradient(
+    90deg,
+    rgba(139, 124, 245, 0.15) 0%,
+    rgba(139, 124, 245, 0.08) 100%
+  ) !important;
+  border-left: 3px solid var(--af-periwinkle-400);
+}
+
+.af-grid-row-active:hover {
+  background: linear-gradient(
+    90deg,
+    rgba(139, 124, 245, 0.2) 0%,
+    rgba(139, 124, 245, 0.12) 100%
+  ) !important;
+}
+
+/**
+ * Cell styling
+ */
+.af-grid-cell {
+  color: var(--af-white-90);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+/**
+ * Hero cell for weight/price - emphasized styling
+ */
+.af-grid-cell-hero {
+  color: var(--af-white-100);
+  font-size: 1.125rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/**
+ * Grid cell with icon
+ */
+.af-grid-cell-icon {
+  display: flex;
+  align-items: center;
+  gap: var(--af-space-3);
+  color: var(--af-white-80);
+}
+
+/**
+ * Grid actions cell
+ */
+.af-grid-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--af-space-2);
+  opacity: 0.7;
+  transition: opacity var(--af-duration-normal) ease;
+}
+
+.af-grid-row:hover .af-grid-actions {
+  opacity: 1;
+}
+
+/**
+ * Responsive grid
+ */
+.af-grid-responsive {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--af-space-4);
+}
+
+/**
+ * Grid with fixed columns
+ */
+.af-grid-fixed {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--af-space-4);
+}
+
+@media (max-width: 768px) {
+  .af-grid-fixed {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .af-grid-fixed {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =============================================================================
+   9. ANIMATION UTILITIES
+   ============================================================================= */
+
+/**
+ * Flash freeze effect - Quick opacity/transform animation
+ */
+.af-animate-freeze {
+  animation: af-freeze var(--af-duration-normal) ease-out;
+}
+
+@keyframes af-freeze {
+  0% {
+    opacity: 0;
+    transform: scale(0.95);
+    filter: blur(4px);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(0.98);
+    filter: blur(2px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
+  }
+}
+
+/**
+ * Thaw/slide in - Gradual reveal from bottom
+ */
+.af-animate-thaw {
+  animation: af-thaw var(--af-duration-slow) ease-out;
+}
+
+@keyframes af-thaw {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/**
+ * Crystal shimmer - Light reflection effect
+ */
+.af-animate-crystal {
+  animation: af-crystal var(--af-duration-xslow) ease-in-out infinite;
+}
+
+@keyframes af-crystal {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/**
+ * Periwinkle glow pulse
+ */
+.af-animate-glow {
+  animation: af-glow var(--af-duration-slow) ease-in-out infinite;
+}
+
+@keyframes af-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(139, 124, 245, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(139, 124, 245, 0.6), 0 0 60px rgba(139, 124, 245, 0.3);
+  }
+}
+
+/**
+ * Fade in animation
+ */
+.af-animate-fade-in {
+  animation: af-fade-in var(--af-duration-normal) ease-out;
+}
+
+@keyframes af-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/**
+ * Slide in from left
+ */
+.af-animate-slide-left {
+  animation: af-slide-left var(--af-duration-normal) ease-out;
+}
+
+@keyframes af-slide-left {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/**
+ * Slide in from right
+ */
+.af-animate-slide-right {
+  animation: af-slide-right var(--af-duration-normal) ease-out;
+}
+
+@keyframes af-slide-right {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/**
+ * Scale in animation
+ */
+.af-animate-scale-in {
+  animation: af-scale-in var(--af-duration-normal) ease-out;
+}
+
+@keyframes af-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/**
+ * Spin animation for loading states
+ */
+.af-animate-spin {
+  animation: af-spin 1s linear infinite;
+}
+
+@keyframes af-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/**
+ * Bounce animation
+ */
+.af-animate-bounce {
+  animation: af-bounce 1s ease-in-out infinite;
+}
+
+@keyframes af-bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/**
+ * Staggered animation delays
+ */
+.af-delay-1 { animation-delay: 50ms; }
+.af-delay-2 { animation-delay: 100ms; }
+.af-delay-3 { animation-delay: 150ms; }
+.af-delay-4 { animation-delay: 200ms; }
+.af-delay-5 { animation-delay: 250ms; }
+.af-delay-6 { animation-delay: 300ms; }
+.af-delay-7 { animation-delay: 350ms; }
+.af-delay-8 { animation-delay: 400ms; }
+
+/* =============================================================================
+   REDUCED MOTION SUPPORT
+   ============================================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  .af-loading-shimmer::after {
+    animation: none;
+    background: transparent;
+  }
+  
+  .af-loading-pulse {
+    animation: none;
+  }
+  
+  .af-animate-freeze,
+  .af-animate-thaw,
+  .af-animate-crystal,
+  .af-animate-glow,
+  .af-animate-fade-in,
+  .af-animate-slide-left,
+  .af-animate-slide-right,
+  .af-animate-scale-in,
+  .af-animate-spin,
+  .af-animate-bounce {
+    animation: none;
+  }
+}
+
+/* =============================================================================
+   ACCESSIBILITY UTILITIES
+   ============================================================================= */
+
+/**
+ * Screen reader only
+ */
+.af-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/**
+ * Focus visible only
+ */
+.af-focus-visible-only:focus:not(:focus-visible) {
+  outline: none;
+  box-shadow: none;
+}
+
+/**
+ * High contrast mode support
+ */
+@media (prefers-contrast: high) {
+  .af-surface-card,
+  .af-surface-panel,
+  .af-surface-modal {
+    border-width: 2px;
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+  
+  .af-btn-primary,
+  .af-btn-secondary {
+    border-width: 2px;
+  }
+  
+  .af-input,
+  .af-input-hero,
+  .af-input-error {
+    border-width: 2px;
+  }
+}
+
+/* =============================================================================
+   UTILITY COMBINATIONS
+   ============================================================================= */
+
+/* Common component combinations */
+.af-card {
+  @extend .af-surface-card;
+  @extend .af-bg-frost;
+}
+
+.af-card-interactive {
+  @extend .af-surface-card;
+  @extend .af-surface-interactive;
+}
+
+.af-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--af-space-2);
+}
+
+.af-input-label {
+  color: var(--af-white-80);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.af-form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--af-space-4);
+}
+
+.af-flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.af-flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.af-gap-2 { gap: var(--af-space-2); }
+.af-gap-3 { gap: var(--af-space-3); }
+.af-gap-4 { gap: var(--af-space-4); }
+.af-gap-6 { gap: var(--af-space-6); }
+
+.af-p-2 { padding: var(--af-space-2); }
+.af-p-3 { padding: var(--af-space-3); }
+.af-p-4 { padding: var(--af-space-4); }
+.af-p-6 { padding: var(--af-space-6); }
+.af-p-8 { padding: var(--af-space-8); }
+
+.af-m-0 { margin: 0; }
+.af-mt-2 { margin-top: var(--af-space-2); }
+.af-mt-4 { margin-top: var(--af-space-4); }
+.af-mb-2 { margin-bottom: var(--af-space-2); }
+.af-mb-4 { margin-bottom: var(--af-space-4); }
+
+.af-rounded { border-radius: var(--af-radius-md); }
+.af-rounded-lg { border-radius: var(--af-radius-lg); }
+.af-rounded-xl { border-radius: var(--af-radius-xl); }
+.af-rounded-full { border-radius: var(--af-radius-full); }
+
+.af-shadow-sm { box-shadow: var(--af-shadow-sm); }
+.af-shadow-md { box-shadow: var(--af-shadow-md); }
+.af-shadow-lg { box-shadow: var(--af-shadow-lg); }
+.af-shadow-glow { box-shadow: var(--af-shadow-glow); }
+
+.af-border {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.af-border-light {
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.af-text-sm { font-size: 0.875rem; }
+.af-text-base { font-size: 1rem; }
+.af-text-lg { font-size: 1.125rem; }
+.af-text-xl { font-size: 1.25rem; }
+.af-text-2xl { font-size: 1.5rem; }
+
+.af-font-normal { font-weight: 400; }
+.af-font-medium { font-weight: 500; }
+.af-font-semibold { font-weight: 600; }
+.af-font-bold { font-weight: 700; }
+
+.af-w-full { width: 100%; }
+.af-h-full { height: 100%; }
+.af-min-h-screen { min-height: 100vh; }
+
+.af-overflow-hidden { overflow: hidden; }
+.af-overflow-auto { overflow: auto; }
+
+.af-cursor-pointer { cursor: pointer; }
+.af-cursor-default { cursor: default; }
+.af-cursor-not-allowed { cursor: not-allowed; }
+
+.af-select-none { user-select: none; }
+.af-select-text { user-select: text; }
+
+.af-transition { transition: all var(--af-duration-normal) ease; }

@@ -1,13 +1,52 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { businessProfileService } from '../services/invoiceService';
+import { useNotification } from '../context/NotificationContext';
+import Button from '../components/forms/Button';
+import {
+  Building2,
+  Save,
+  Upload,
+  MapPin,
+  Phone,
+  Mail,
+  CreditCard,
+  FileText,
+  Image,
+  ChevronDown,
+  ChevronUp,
+  Banknote,
+  Hash,
+  Globe,
+  QrCode,
+  Loader2
+} from 'lucide-react';
 
+/**
+ * Arctic Frost Theme - Business Settings Page
+ * 
+ * Redesigned with Arctic Frost design system:
+ * - Gradient header with business icon
+ * - Section cards with expandable/collapsible design
+ * - Arctic form styling
+ * - Logo upload area with preview
+ * - Section icons and visual hierarchy
+ */
 const BusinessSettingsPage = () => {
   const { t } = useTranslation();
+  const { showNotification } = useNotification();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState({ type: '', text: '' });
+  
+  const [expandedSections, setExpandedSections] = useState({
+    basic: true,
+    address: true,
+    contact: true,
+    tax: false,
+    bank: true,
+    invoice: true
+  });
 
   const [formData, setFormData] = useState({
     shop_name: '',
@@ -67,7 +106,7 @@ const BusinessSettingsPage = () => {
       });
     } catch (error) {
       console.error('Failed to fetch business profile:', error);
-      setMessage({ type: 'error', text: 'Failed to load business profile' });
+      showNotification('error', t('businessProfile.fetchError'));
     } finally {
       setLoading(false);
     }
@@ -78,12 +117,18 @@ const BusinessSettingsPage = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const toggleSection = (section) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
     try {
       setSaving(true);
-      setMessage({ type: '', text: '' });
 
       if (profile?.id) {
         await businessProfileService.update(profile.id, formData);
@@ -91,351 +136,525 @@ const BusinessSettingsPage = () => {
         await businessProfileService.create(formData);
       }
 
-      setMessage({ type: 'success', text: t('businessProfile.saveSuccess') });
+      showNotification('success', t('businessProfile.saveSuccess'));
       fetchProfile();
     } catch (error) {
       console.error('Failed to save business profile:', error);
-      setMessage({ type: 'error', text: t('businessProfile.saveError') });
+      showNotification('error', t('businessProfile.saveError'));
     } finally {
       setSaving(false);
     }
   };
 
+  // Section Header Component
+  const SectionHeader = ({ icon: Icon, title, section, isExpanded, required = false }) => (
+    <button
+      type="button"
+      onClick={() => toggleSection(section)}
+      className="w-full flex items-center justify-between p-4 hover:bg-arctic-ice/50 transition-colors rounded-t-xl"
+    >
+      <div className="flex items-center gap-3">
+        <div className="p-2 bg-glacier-100 rounded-lg">
+          <Icon size={20} className="text-glacier-600" />
+        </div>
+        <div className="flex items-center gap-2">
+          <h3 className="font-semibold text-arctic-night">{title}</h3>
+          {required && (
+            <span className="px-2 py-0.5 text-xs font-medium bg-frostbite-100 text-frostbite-700 rounded-full">
+              {t('common.required')}
+            </span>
+          )}
+        </div>
+      </div>
+      {isExpanded ? (
+        <ChevronUp size={20} className="text-arctic-mist" />
+      ) : (
+        <ChevronDown size={20} className="text-arctic-mist" />
+      )}
+    </button>
+  );
+
+  // Form Input Component
+  const FormInput = ({ label, name, type = 'text', required = false, placeholder, value, onChange, className = '', icon: Icon, helperText }) => (
+    <div className={className}>
+      <label className="block text-sm font-medium text-arctic-night mb-1.5">
+        {label} {required && <span className="text-frostbite-500">*</span>}
+      </label>
+      <div className="relative">
+        {Icon && (
+          <Icon size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-arctic-mist" />
+        )}
+        <input
+          type={type}
+          name={name}
+          value={value}
+          onChange={onChange}
+          required={required}
+          placeholder={placeholder}
+          className={`w-full ${Icon ? 'pl-10' : 'pl-4'} pr-4 py-2.5 bg-arctic-ice border border-arctic-border rounded-xl text-arctic-night placeholder-arctic-mist focus:outline-none focus:ring-2 focus:ring-glacier-400 focus:border-transparent transition-all`}
+        />
+      </div>
+      {helperText && (
+        <p className="mt-1 text-xs text-arctic-mist">{helperText}</p>
+      )}
+    </div>
+  );
+
+  // Form Textarea Component
+  const FormTextarea = ({ label, name, required = false, placeholder, value, onChange, rows = 3, className = '', helperText }) => (
+    <div className={className}>
+      <label className="block text-sm font-medium text-arctic-night mb-1.5">
+        {label} {required && <span className="text-frostbite-500">*</span>}
+      </label>
+      <textarea
+        name={name}
+        value={value}
+        onChange={onChange}
+        required={required}
+        placeholder={placeholder}
+        rows={rows}
+        className="w-full px-4 py-2.5 bg-arctic-ice border border-arctic-border rounded-xl text-arctic-night placeholder-arctic-mist focus:outline-none focus:ring-2 focus:ring-glacier-400 focus:border-transparent transition-all resize-none"
+      />
+      {helperText && (
+        <p className="mt-1 text-xs text-arctic-mist">{helperText}</p>
+      )}
+    </div>
+  );
+
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-500"></div>
+      <div className="min-h-screen bg-arctic-ice flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 size={40} className="animate-spin text-glacier-500 mx-auto mb-4" />
+          <p className="text-arctic-charcoal">{t('common.loading')}</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">{t('businessProfile.title')}</h1>
-
-      {message.text && (
-        <div className={`p-4 mb-4 rounded-lg ${message.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-          {message.text}
+    <div className="min-h-screen bg-arctic-ice">
+      {/* Gradient Header */}
+      <div className="bg-gradient-to-r from-glacier-600 via-arctic-600 to-glacier-700 px-6 py-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-white/20 backdrop-blur-sm rounded-xl">
+                <Building2 className="w-8 h-8 text-white" />
+              </div>
+              <div>
+                <h1 className="font-display text-3xl font-bold text-white">
+                  {t('businessProfile.title')}
+                </h1>
+                <p className="text-glacier-100 mt-1">
+                  {t('businessProfile.subtitle')}
+                </p>
+              </div>
+            </div>
+            
+            <Button
+              variant="primary"
+              icon={Save}
+              onClick={handleSubmit}
+              loading={saving}
+              className="bg-white text-glacier-700 hover:bg-glacier-50"
+            >
+              {t('businessProfile.save')}
+            </Button>
+          </div>
         </div>
-      )}
+      </div>
 
-      <form onSubmit={handleSubmit}>
-        <div className="bg-white rounded-lg shadow p-6 mb-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">
-            {t('businessProfile.title')}
-          </h2>
+      {/* Main Content */}
+      <form onSubmit={handleSubmit} className="max-w-4xl mx-auto px-6 py-6 space-y-4">
+        {/* Logo Section - Full Width */}
+        <div className="bg-white rounded-2xl border border-arctic-border shadow-sm p-6">
+          <div className="flex flex-col md:flex-row items-center gap-6">
+            <div className="relative">
+              {formData.logo_url ? (
+                <div className="w-32 h-32 rounded-2xl border-2 border-arctic-border overflow-hidden bg-white">
+                  <img
+                    src={formData.logo_url}
+                    alt="Business Logo"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+              ) : (
+                <div className="w-32 h-32 rounded-2xl border-2 border-dashed border-arctic-border bg-arctic-ice flex flex-col items-center justify-center">
+                  <Image size={32} className="text-arctic-mist mb-2" />
+                  <span className="text-xs text-arctic-mist text-center px-2">
+                    {t('businessProfile.noLogo')}
+                  </span>
+                </div>
+              )}
+            </div>
+            
+            <div className="flex-1 text-center md:text-left">
+              <h3 className="font-semibold text-arctic-night mb-1">
+                {t('businessProfile.businessLogo')}
+              </h3>
+              <p className="text-sm text-arctic-charcoal mb-3">
+                {t('businessProfile.logoHelp')}
+              </p>
+              <FormInput
+                label=""
+                name="logo_url"
+                type="url"
+                placeholder="https://example.com/logo.png"
+                value={formData.logo_url}
+                onChange={handleInputChange}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Basic Information */}
+        <div className="bg-white rounded-2xl border border-arctic-border shadow-sm overflow-hidden">
+          <SectionHeader
+            icon={Building2}
+            title={t('businessProfile.basicInfo')}
+            section="basic"
+            isExpanded={expandedSections.basic}
+            required
+          />
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t('businessProfile.shopName')} *
-              </label>
-              <input
-                type="text"
-                name="shop_name"
-                value={formData.shop_name}
-                onChange={handleInputChange}
-                required
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
-              />
+          {expandedSections.basic && (
+            <div className="p-4 pt-0 space-y-4 border-t border-arctic-border">
+              <div className="pt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormInput
+                  label={t('businessProfile.shopName')}
+                  name="shop_name"
+                  required
+                  value={formData.shop_name}
+                  onChange={handleInputChange}
+                  placeholder={t('businessProfile.shopNamePlaceholder')}
+                />
+                
+                <FormInput
+                  label={t('businessProfile.ownerName')}
+                  name="owner_name"
+                  required
+                  value={formData.owner_name}
+                  onChange={handleInputChange}
+                  placeholder={t('businessProfile.ownerNamePlaceholder')}
+                />
+              </div>
             </div>
+          )}
+        </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t('businessProfile.ownerName')} *
-              </label>
-              <input
-                type="text"
-                name="owner_name"
-                value={formData.owner_name}
-                onChange={handleInputChange}
-                required
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
-              />
-            </div>
-
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t('businessProfile.addressLine1')} *
-              </label>
-              <input
-                type="text"
-                name="address_line1"
-                value={formData.address_line1}
-                onChange={handleInputChange}
-                required
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
-              />
-            </div>
-
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t('businessProfile.addressLine2')}
-              </label>
-              <input
-                type="text"
+        {/* Address Information */}
+        <div className="bg-white rounded-2xl border border-arctic-border shadow-sm overflow-hidden">
+          <SectionHeader
+            icon={MapPin}
+            title={t('businessProfile.addressInfo')}
+            section="address"
+            isExpanded={expandedSections.address}
+            required
+          />
+          
+          {expandedSections.address && (
+            <div className="p-4 pt-0 space-y-4 border-t border-arctic-border">
+              <div className="pt-4">
+                <FormInput
+                  label={t('businessProfile.addressLine1')}
+                  name="address_line1"
+                  required
+                  value={formData.address_line1}
+                  onChange={handleInputChange}
+                  placeholder={t('businessProfile.addressLine1Placeholder')}
+                />
+              </div>
+              
+              <FormInput
+                label={t('businessProfile.addressLine2')}
                 name="address_line2"
                 value={formData.address_line2}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                placeholder={t('businessProfile.addressLine2Placeholder')}
               />
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <FormInput
+                  label={t('businessProfile.city')}
+                  name="city"
+                  required
+                  value={formData.city}
+                  onChange={handleInputChange}
+                  placeholder={t('businessProfile.cityPlaceholder')}
+                />
+                
+                <FormInput
+                  label={t('businessProfile.state')}
+                  name="state"
+                  required
+                  value={formData.state}
+                  onChange={handleInputChange}
+                  placeholder={t('businessProfile.statePlaceholder')}
+                />
+                
+                <FormInput
+                  label={t('businessProfile.pincode')}
+                  name="pincode"
+                  required
+                  value={formData.pincode}
+                  onChange={handleInputChange}
+                  placeholder={t('businessProfile.pincodePlaceholder')}
+                />
+              </div>
             </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t('businessProfile.city')} *
-              </label>
-              <input
-                type="text"
-                name="city"
-                value={formData.city}
-                onChange={handleInputChange}
-                required
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t('businessProfile.state')} *
-              </label>
-              <input
-                type="text"
-                name="state"
-                value={formData.state}
-                onChange={handleInputChange}
-                required
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t('businessProfile.pincode')} *
-              </label>
-              <input
-                type="text"
-                name="pincode"
-                value={formData.pincode}
-                onChange={handleInputChange}
-                required
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t('businessProfile.phone')} *
-              </label>
-              <input
-                type="tel"
-                name="phone"
-                value={formData.phone}
-                onChange={handleInputChange}
-                required
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t('businessProfile.alternatePhone')}
-              </label>
-              <input
-                type="tel"
-                name="alternate_phone"
-                value={formData.alternate_phone}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t('businessProfile.email')}
-              </label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t('businessProfile.gstNumber')}
-              </label>
-              <input
-                type="text"
-                name="gst_number"
-                value={formData.gst_number}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t('businessProfile.panNumber')}
-              </label>
-              <input
-                type="text"
-                name="pan_number"
-                value={formData.pan_number}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
-              />
-            </div>
-          </div>
+          )}
         </div>
 
-        <div className="bg-white rounded-lg shadow p-6 mb-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">
-            {t('businessProfile.bankDetails')}
-          </h2>
+        {/* Contact Information */}
+        <div className="bg-white rounded-2xl border border-arctic-border shadow-sm overflow-hidden">
+          <SectionHeader
+            icon={Phone}
+            title={t('businessProfile.contactInfo')}
+            section="contact"
+            isExpanded={expandedSections.contact}
+          />
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t('businessProfile.bankName')}
-              </label>
-              <input
-                type="text"
-                name="bank_name"
-                value={formData.bank_name}
+          {expandedSections.contact && (
+            <div className="p-4 pt-0 space-y-4 border-t border-arctic-border">
+              <div className="pt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormInput
+                  label={t('businessProfile.phone')}
+                  name="phone"
+                  type="tel"
+                  required
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  placeholder="+91 98765 43210"
+                  icon={Phone}
+                />
+                
+                <FormInput
+                  label={t('businessProfile.alternatePhone')}
+                  name="alternate_phone"
+                  type="tel"
+                  value={formData.alternate_phone}
+                  onChange={handleInputChange}
+                  placeholder="+91 98765 43210"
+                  icon={Phone}
+                />
+              </div>
+              
+              <FormInput
+                label={t('businessProfile.email')}
+                name="email"
+                type="email"
+                value={formData.email}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                placeholder="contact@business.com"
+                icon={Mail}
+                helperText={t('businessProfile.emailHelp')}
               />
             </div>
+          )}
+        </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t('businessProfile.accountNumber')}
-              </label>
-              <input
-                type="text"
-                name="bank_account_number"
-                value={formData.bank_account_number}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
-              />
+        {/* Tax Information */}
+        <div className="bg-white rounded-2xl border border-arctic-border shadow-sm overflow-hidden">
+          <SectionHeader
+            icon={Hash}
+            title={t('businessProfile.taxInfo')}
+            section="tax"
+            isExpanded={expandedSections.tax}
+          />
+          
+          {expandedSections.tax && (
+            <div className="p-4 pt-0 space-y-4 border-t border-arctic-border">
+              <div className="pt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormInput
+                  label={t('businessProfile.gstNumber')}
+                  name="gst_number"
+                  value={formData.gst_number}
+                  onChange={handleInputChange}
+                  placeholder="33AAAAA0000A1Z5"
+                  helperText={t('businessProfile.gstHelp')}
+                />
+                
+                <FormInput
+                  label={t('businessProfile.panNumber')}
+                  name="pan_number"
+                  value={formData.pan_number}
+                  onChange={handleInputChange}
+                  placeholder="AAAAA0000A"
+                  helperText={t('businessProfile.panHelp')}
+                />
+              </div>
             </div>
+          )}
+        </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t('businessProfile.ifscCode')}
-              </label>
-              <input
-                type="text"
-                name="bank_ifsc_code"
-                value={formData.bank_ifsc_code}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t('businessProfile.branch')}
-              </label>
-              <input
-                type="text"
-                name="bank_branch"
-                value={formData.bank_branch}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t('businessProfile.upiId')}
-              </label>
-              <input
-                type="text"
+        {/* Bank Details */}
+        <div className="bg-white rounded-2xl border border-arctic-border shadow-sm overflow-hidden">
+          <SectionHeader
+            icon={Banknote}
+            title={t('businessProfile.bankDetails')}
+            section="bank"
+            isExpanded={expandedSections.bank}
+          />
+          
+          {expandedSections.bank && (
+            <div className="p-4 pt-0 space-y-4 border-t border-arctic-border">
+              <div className="pt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormInput
+                  label={t('businessProfile.bankName')}
+                  name="bank_name"
+                  value={formData.bank_name}
+                  onChange={handleInputChange}
+                  placeholder={t('businessProfile.bankNamePlaceholder')}
+                />
+                
+                <FormInput
+                  label={t('businessProfile.branch')}
+                  name="bank_branch"
+                  value={formData.bank_branch}
+                  onChange={handleInputChange}
+                  placeholder={t('businessProfile.branchPlaceholder')}
+                />
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormInput
+                  label={t('businessProfile.accountNumber')}
+                  name="bank_account_number"
+                  value={formData.bank_account_number}
+                  onChange={handleInputChange}
+                  placeholder="0000000000000"
+                />
+                
+                <FormInput
+                  label={t('businessProfile.ifscCode')}
+                  name="bank_ifsc_code"
+                  value={formData.bank_ifsc_code}
+                  onChange={handleInputChange}
+                  placeholder="ABCD0000000"
+                />
+              </div>
+              
+              <FormInput
+                label={t('businessProfile.upiId')}
                 name="upi_id"
                 value={formData.upi_id}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                placeholder="business@upi"
+                icon={QrCode}
+                helperText={t('businessProfile.upiHelp')}
               />
             </div>
-          </div>
+          )}
         </div>
 
-        <div className="bg-white rounded-lg shadow p-6 mb-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">
-            {t('businessProfile.invoiceSettings')}
-          </h2>
+        {/* Invoice Settings */}
+        <div className="bg-white rounded-2xl border border-arctic-border shadow-sm overflow-hidden">
+          <SectionHeader
+            icon={FileText}
+            title={t('businessProfile.invoiceSettings')}
+            section="invoice"
+            isExpanded={expandedSections.invoice}
+          />
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t('businessProfile.invoicePrefix')}
-              </label>
-              <input
-                type="text"
-                name="invoice_prefix"
-                value={formData.invoice_prefix}
-                onChange={handleInputChange}
-                maxLength={10}
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t('businessProfile.logo')}
-              </label>
-              <input
-                type="url"
-                name="logo_url"
-                value={formData.logo_url}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
-                placeholder="https://example.com/logo.png"
-              />
-            </div>
-
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t('businessProfile.invoiceNotes')}
-              </label>
-              <textarea
+          {expandedSections.invoice && (
+            <div className="p-4 pt-0 space-y-4 border-t border-arctic-border">
+              <div className="pt-4">
+                <FormInput
+                  label={t('businessProfile.invoicePrefix')}
+                  name="invoice_prefix"
+                  value={formData.invoice_prefix}
+                  onChange={handleInputChange}
+                  placeholder="INV"
+                  maxLength={10}
+                  helperText={t('businessProfile.invoicePrefixHelp')}
+                  className="max-w-xs"
+                />
+              </div>
+              
+              <FormTextarea
+                label={t('businessProfile.invoiceNotes')}
                 name="invoice_notes"
                 value={formData.invoice_notes}
                 onChange={handleInputChange}
-                rows={3}
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
-                placeholder="Default notes to appear on all invoices..."
+                placeholder={t('businessProfile.invoiceNotesPlaceholder')}
+                helperText={t('businessProfile.invoiceNotesHelp')}
               />
-            </div>
-
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t('businessProfile.invoiceTerms')}
-              </label>
-              <textarea
+              
+              <FormTextarea
+                label={t('businessProfile.invoiceTerms')}
                 name="invoice_terms"
                 value={formData.invoice_terms}
                 onChange={handleInputChange}
-                rows={3}
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
-                placeholder="Payment terms and conditions..."
+                placeholder={t('businessProfile.invoiceTermsPlaceholder')}
+                helperText={t('businessProfile.invoiceTermsHelp')}
               />
+            </div>
+          )}
+        </div>
+
+        {/* Preview Card */}
+        <div className="bg-gradient-to-r from-glacier-50 to-arctic-50 rounded-2xl border border-glacier-200 p-6">
+          <h3 className="font-semibold text-arctic-night mb-4">
+            {t('businessProfile.preview')}
+          </h3>
+          
+          <div className="bg-white rounded-xl border border-arctic-border p-4 shadow-sm">
+            <div className="flex items-start gap-4">
+              {formData.logo_url ? (
+                <img
+                  src={formData.logo_url}
+                  alt="Logo"
+                  className="w-16 h-16 rounded-lg object-contain border border-arctic-border"
+                />
+              ) : (
+                <div className="w-16 h-16 rounded-lg bg-arctic-ice flex items-center justify-center border border-arctic-border">
+                  <Building2 size={24} className="text-arctic-mist" />
+                </div>
+              )}
+              
+              <div className="flex-1">
+                <h4 className="font-display font-bold text-lg text-arctic-night">
+                  {formData.shop_name || t('businessProfile.shopNamePlaceholder')}
+                </h4>
+                <p className="text-sm text-arctic-charcoal">
+                  {formData.owner_name || t('businessProfile.ownerNamePlaceholder')}
+                </p>
+                {formData.address_line1 && (
+                  <p className="text-xs text-arctic-mist mt-1">
+                    {[formData.address_line1, formData.city, formData.state].filter(Boolean).join(', ')}
+                  </p>
+                )}
+              </div>
+              
+              <div className="text-right">
+                <p className="font-mono text-sm font-semibold text-glacier-700">
+                  {formData.invoice_prefix}-0001
+                </p>
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="flex justify-end">
-          <button
-            type="submit"
-            disabled={saving}
-            className="px-6 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {saving ? t('common.saving') : t('businessProfile.save')}
-          </button>
+        {/* Save Button - Fixed at bottom on mobile */}
+        <div className="sticky bottom-0 bg-arctic-ice/80 backdrop-blur-sm py-4 -mx-6 px-6 md:relative md:bg-transparent md:py-0 md:mt-6">
+          <div className="flex justify-end gap-3">
+            <Button
+              variant="secondary"
+              onClick={fetchProfile}
+              disabled={saving}
+            >
+              {t('common.reset')}
+            </Button>
+            <Button
+              type="submit"
+              variant="primary"
+              loading={saving}
+              icon={Save}
+            >
+              {saving ? t('common.saving') : t('businessProfile.save')}
+            </Button>
+          </div>
         </div>
       </form>
     </div>

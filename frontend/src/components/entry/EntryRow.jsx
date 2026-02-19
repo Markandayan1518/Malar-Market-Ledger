@@ -1,7 +1,16 @@
-import { useState, useRef, useEffect } from 'react';
-import { CheckCircle, Trash2, Edit2 } from 'lucide-react';
+import { useState, useRef, forwardRef } from 'react';
+import { Check, Trash2 } from 'lucide-react';
 
-const EntryRow = ({
+/**
+ * Arctic Frost Theme - Entry Row Component
+ * 
+ * Features:
+ * - Spotlight on Ice effect when active
+ * - Flash freeze animation on save
+ * - High-contrast financial display
+ * - Large touch targets for gloved hands
+ */
+const EntryRow = forwardRef(({
   entry,
   farmers,
   currentRate,
@@ -9,8 +18,11 @@ const EntryRow = ({
   onDelete,
   isSaved = false,
   isSaving = false,
-  isNew = false
-}) => {
+  isNew = false,
+  isActive = false,
+  onActivate,
+  onDeactivate
+}, ref) => {
   const [farmerId, setFarmerId] = useState(entry.farmerId || '');
   const [weight, setWeight] = useState(entry.weight || '');
   const [adjustments, setAdjustments] = useState(entry.adjustments || []);
@@ -29,13 +41,12 @@ const EntryRow = ({
     
     let total = weightNum * rateNum;
     
-    // Apply adjustments
     adjustments.forEach(adj => {
-      if (adj === 'late') total *= 0.95; // 5% deduction
-      if (adj === 'wet') total *= 0.90; // 10% deduction
-      if (adj === 'bonus') total *= 1.05; // 5% bonus
-      if (adj === 'premium') total *= 1.10; // 10% premium
-      if (adj === 'first_time') total *= 1.02; // 2% first time
+      if (adj === 'late') total *= 0.95;
+      if (adj === 'wet') total *= 0.90;
+      if (adj === 'bonus') total *= 1.05;
+      if (adj === 'premium') total *= 1.10;
+      if (adj === 'first_time') total *= 1.02;
     });
     
     return total.toFixed(2);
@@ -43,13 +54,12 @@ const EntryRow = ({
 
   const total = calculateTotal();
 
-  useEffect(() => {
-    if (isSaved) {
-      setShowSaved(true);
-      const timer = setTimeout(() => setShowSaved(false), 2000);
-      return () => clearTimeout(timer);
-    }
-  }, [isSaved]);
+  // Flash freeze animation trigger
+  const justSaved = isSaved && !showSaved;
+  
+  if (justSaved && !showSaved) {
+    setTimeout(() => setShowSaved(true), 600);
+  }
 
   const handleSave = () => {
     if (!farmerId || !weight) return;
@@ -80,16 +90,53 @@ const EntryRow = ({
     }
   };
 
+  const handleRowFocus = () => {
+    onActivate?.();
+  };
+
+  const handleRowBlur = (e) => {
+    if (!e.currentTarget.contains(e.relatedTarget)) {
+      onDeactivate?.();
+    }
+  };
+
+  // Calculate adjustment percentage for display
+  const getAdjustmentPercentage = (adjustments) => {
+    let percentage = 0;
+    adjustments.forEach(adj => {
+      if (adj === 'late') percentage -= 5;
+      if (adj === 'wet') percentage -= 10;
+      if (adj === 'bonus') percentage += 5;
+      if (adj === 'premium') percentage += 10;
+      if (adj === 'first_time') percentage += 2;
+    });
+    return percentage;
+  };
+
+  const adjustmentPercentage = getAdjustmentPercentage(adjustments);
+
   return (
     <tr 
+      ref={ref}
       className={`
-        transition-all duration-300
-        ${isSaved ? 'entry-row-saved' : ''}
-        ${isSaving ? 'opacity-60' : ''}
+        border-b border-ice-border
+        transition-all duration-200
+        ${isActive ? 'arctic-row-active' : 'bg-arctic-ice even:bg-arctic-snow/50'}
+        ${isSaving || justSaved ? 'animate-flash-freeze' : ''}
+        ${showSaved ? 'bg-aurora-light/20' : ''}
       `}
+      onFocus={handleRowFocus}
+      onBlur={handleRowBlur}
+      tabIndex={-1}
+      style={isActive ? {
+        boxShadow: '0 0 0 2px #3B82F6, 0 4px 12px rgba(59, 130, 246, 0.15)',
+        transform: 'scale(1.001)',
+        position: 'relative',
+        zIndex: 5
+      } : {}}
     >
       {/* Farmer Cell */}
-      <td className="py-2">
+      <td className="px-4 py-4">
         <input
           ref={farmerRef}
           type="text"
@@ -98,15 +145,13 @@ const EntryRow = ({
           onKeyDown={(e) => handleKeyDown(e, weightRef)}
           disabled={isSaving}
           placeholder="Select farmer"
-          className={`
-            entry-cell w-full text-sm
-            ${showSaved ? 'entry-cell-saved' : ''}
-          `}
+          className="entry-cell"
+          readOnly={!isNew}
         />
       </td>
 
-      {/* Weight Cell */}
-      <td className="py-2">
+      {/* Weight Cell (Hero - 20% larger, bolder) */}
+      <td className="px-4 py-4">
         <input
           ref={weightRef}
           type="text"
@@ -116,78 +161,109 @@ const EntryRow = ({
           onKeyDown={(e) => handleKeyDown(e, null)}
           disabled={isSaving}
           placeholder="0.00"
-          className={`
-            entry-cell w-full text-sm font-mono text-right
-            ${showSaved ? 'entry-cell-saved' : ''}
-          `}
+          className="entry-cell font-mono text-lg font-bold text-right text-slate-charcoal"
         />
       </td>
 
       {/* Adjustments Cell */}
-      <td className="py-2">
-        <div className="flex flex-wrap gap-1">
-          {['late', 'wet', 'bonus', 'premium', 'first_time'].map(adj => {
-            const isSelected = adjustments.includes(adj);
+      <td className="px-4 py-4">
+        <div className="flex flex-wrap gap-2 items-center">
+          {[
+            { key: 'late', label: 'Late', type: 'deduction' },
+            { key: 'wet', label: 'Wet', type: 'deduction' },
+            { key: 'bonus', label: 'Bonus', type: 'bonus' },
+            { key: 'premium', label: 'Premium', type: 'bonus' },
+          ].map(adj => {
+            const isSelected = adjustments.includes(adj.key);
             return (
               <button
-                key={adj}
+                key={adj.key}
                 type="button"
                 onClick={() => {
+                  if (isSaving) return;
                   if (isSelected) {
-                    setAdjustments(adjustments.filter(a => a !== adj));
+                    setAdjustments(adjustments.filter(a => a !== adj.key));
                   } else {
-                    setAdjustments([...adjustments, adj]);
+                    setAdjustments([...adjustments, adj.key]);
                   }
                 }}
                 disabled={isSaving}
                 className={`
-                  px-2 py-1 rounded text-xs font-medium transition-all duration-150 border-2
+                  px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-150
+                  min-h-[32px]
                   ${isSelected 
-                    ? (adj === 'late' || adj === 'wet') 
-                      ? 'bg-red-100 border-red-400 text-red-800' 
-                      : 'bg-emerald-100 border-emerald-400 text-emerald-800'
-                    : 'text-warm-brown border-warm-taupe hover:border-warm-brown hover:bg-warm-sand'
+                    ? adj.type === 'deduction' 
+                      ? 'bg-frostbite-light text-frostbite border border-frostbite-medium' 
+                      : 'bg-aurora-light text-aurora-dark border border-aurora-medium'
+                    : 'bg-arctic-frost text-slate-cool border border-ice-border hover:border-ice-border-dark'
                   }
-                  ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}
+                  ${isSaving ? 'opacity-50 cursor-not-allowed' : 'active:scale-95'}
                 `}
               >
-                {adj === 'late' && 'Late'}
-                {adj === 'wet' && 'Wet'}
-                {adj === 'bonus' && 'Bonus'}
-                {adj === 'premium' && 'Premium'}
-                {adj === 'first_time' && 'New'}
+                {adj.label}
               </button>
             );
           })}
+          
+          {/* Adjustment Total Badge */}
+          {adjustmentPercentage !== 0 && (
+            <span 
+              className={`
+                px-2 py-1 rounded text-xs font-bold ml-1
+                ${adjustmentPercentage > 0 
+                  ? 'bg-aurora-light text-aurora-dark' 
+                  : 'bg-frostbite-light text-frostbite'
+                }
+              `}
+            >
+              {adjustmentPercentage > 0 ? '+' : ''}{adjustmentPercentage}%
+            </span>
+          )}
         </div>
       </td>
 
       {/* Rate Cell */}
-      <td className="py-2">
-        <div className="text-sm font-mono text-right">
+      <td className="px-4 py-4 text-right">
+        <span className="font-mono text-sm text-slate-cool">
           ₹{currentRate?.toFixed(2) || '0.00'}
-        </div>
+        </span>
       </td>
 
-      {/* Total Cell */}
-      <td className="py-2">
-        <div className="text-sm font-mono text-right font-semibold">
+      {/* Total Cell (Hero - 20% larger, bolder) */}
+      <td className="px-4 py-4 text-right">
+        <span 
+          className={`
+            font-mono text-lg font-bold
+            ${adjustmentPercentage > 0 ? 'text-aurora-dark' : ''}
+            ${adjustmentPercentage < 0 ? 'text-frostbite' : ''}
+            ${adjustmentPercentage === 0 ? 'text-slate-charcoal' : ''}
+          `}
+        >
           ₹{total}
-        </div>
+        </span>
       </td>
 
       {/* Actions Cell */}
-      <td className="py-2">
-        <div className="flex items-center justify-end gap-2">
+      <td className="px-4 py-4">
+        <div className="flex items-center justify-center gap-2">
+          {/* Saved Checkmark - Flash Freeze Animation */}
           {showSaved && (
-            <CheckCircle size={20} className="text-accent-emerald" />
+            <div className="animate-checkmark-appear text-aurora">
+              <Check size={20} strokeWidth={2.5} />
+            </div>
           )}
           
+          {/* Delete Button - Large touch target */}
           {!isNew && (
             <button
               onClick={handleDelete}
               disabled={isSaving || isSaved}
-              className="p-1.5 hover:bg-red-100 rounded-lg transition-colors text-red-600"
+              className="
+                w-9 h-9 flex items-center justify-center rounded-lg
+                text-slate-cool hover:text-frostbite hover:bg-frostbite-light
+                transition-all duration-150 active:scale-95
+                disabled:opacity-40 disabled:cursor-not-allowed
+              "
               aria-label="Delete entry"
             >
               <Trash2 size={16} />
@@ -197,6 +273,8 @@ const EntryRow = ({
       </td>
     </tr>
   );
-};
+});
+
+EntryRow.displayName = 'EntryRow';
 
 export default EntryRow;

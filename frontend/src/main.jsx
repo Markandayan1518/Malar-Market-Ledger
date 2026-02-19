@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.jsx';
 import './index.css';
+import './styles/arctic-frost.css';
 import { registerServiceWorker, onMessageFromSW } from './utils/offlineUtils';
 import { initDB } from './store/offlineStore';
 

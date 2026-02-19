@@ -1,7 +1,7 @@
 import { openDB, deleteDB } from 'idb';
 
 const DB_NAME = 'MalarLedgerDB';
-const DB_VERSION = 2; // Incremented to force upgrade and create missing stores
+const DB_VERSION = 3; // Incremented for farmer_products store
 
 // Store names
 export const STORES = {
@@ -9,6 +9,7 @@ export const STORES = {
   FARMERS_CACHE: 'farmers_cache',
   MARKET_RATES_CACHE: 'market_rates_cache',
   SYNC_QUEUE: 'sync_queue',
+  FARMER_PRODUCTS_CACHE: 'farmer_products_cache',
 };
 
 // Cached database instance
@@ -69,6 +70,13 @@ export const initDB = async () => {
             
             if (!db.objectStoreNames.contains(STORES.SYNC_QUEUE)) {
               db.createObjectStore(STORES.SYNC_QUEUE, { keyPath: 'id' });
+            }
+          }
+          
+          // Version 3 - add farmer products cache for offline flower suggestions
+          if (oldVersion < 3) {
+            if (!db.objectStoreNames.contains(STORES.FARMER_PRODUCTS_CACHE)) {
+              db.createObjectStore(STORES.FARMER_PRODUCTS_CACHE, { keyPath: 'id' });
             }
           }
         },
@@ -348,6 +356,90 @@ export const getStorageUsage = async () => {
     farmers,
     rates,
     queue,
+    farmerProducts: 0, // Will be updated below
     total: pendingEntries + farmers + rates + queue,
   };
+};
+
+// =====================
+// Farmer Products Cache (for offline flower suggestions)
+// =====================
+
+/**
+ * Cache farmer products
+ * @param {Array} products - Farmer products to cache (with farmer_id, flower_type_id, etc.)
+ * @returns {Promise<void>}
+ */
+export const cacheFarmerProducts = async (products) => {
+  const db = await initDB();
+  await db.clear(STORES.FARMER_PRODUCTS_CACHE);
+  for (const product of products) {
+    // Use composite key for unique identification
+    const cacheKey = `${product.farmer_id}_${product.flower_type_id}`;
+    await db.put(STORES.FARMER_PRODUCTS_CACHE, { ...product, id: cacheKey });
+  }
+};
+
+/**
+ * Get all cached farmer products
+ * @returns {Promise<Array>} Cached farmer products
+ */
+export const getCachedFarmerProducts = async () => {
+  const db = await initDB();
+  return db.getAll(STORES.FARMER_PRODUCTS_CACHE);
+};
+
+/**
+ * Get cached farmer products by farmer ID
+ * @param {string} farmerId - Farmer ID
+ * @returns {Promise<Array>} Cached products for the farmer
+ */
+export const getCachedFarmerProductsByFarmer = async (farmerId) => {
+  const db = await initDB();
+  const allProducts = await db.getAll(STORES.FARMER_PRODUCTS_CACHE);
+  return allProducts.filter(product => product.farmer_id === farmerId);
+};
+
+/**
+ * Get cached farmer product by farmer and flower type
+ * @param {string} farmerId - Farmer ID
+ * @param {string} flowerTypeId - Flower type ID
+ * @returns {Promise<Object|null>} Cached product or null
+ */
+export const getCachedFarmerProduct = async (farmerId, flowerTypeId) => {
+  const db = await initDB();
+  const cacheKey = `${farmerId}_${flowerTypeId}`;
+  return db.get(STORES.FARMER_PRODUCTS_CACHE, cacheKey);
+};
+
+/**
+ * Add or update a single farmer product in cache
+ * @param {Object} product - Farmer product to cache
+ * @returns {Promise<void>}
+ */
+export const putCachedFarmerProduct = async (product) => {
+  const db = await initDB();
+  const cacheKey = `${product.farmer_id}_${product.flower_type_id}`;
+  await db.put(STORES.FARMER_PRODUCTS_CACHE, { ...product, id: cacheKey });
+};
+
+/**
+ * Remove a farmer product from cache
+ * @param {string} farmerId - Farmer ID
+ * @param {string} flowerTypeId - Flower type ID
+ * @returns {Promise<void>}
+ */
+export const removeCachedFarmerProduct = async (farmerId, flowerTypeId) => {
+  const db = await initDB();
+  const cacheKey = `${farmerId}_${flowerTypeId}`;
+  await db.delete(STORES.FARMER_PRODUCTS_CACHE, cacheKey);
+};
+
+/**
+ * Clear all cached farmer products
+ * @returns {Promise<void>}
+ */
+export const clearCachedFarmerProducts = async () => {
+  const db = await initDB();
+  await db.clear(STORES.FARMER_PRODUCTS_CACHE);
 };

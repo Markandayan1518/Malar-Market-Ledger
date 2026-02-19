@@ -151,6 +151,24 @@ class FlowerTypeBase(BaseModel):
     updated_at: datetime
 
 
+class FlowerTypeCreate(BaseModel):
+    """Flower type creation schema."""
+    name: str = Field(..., min_length=2, max_length=255)
+    name_ta: Optional[str] = Field(None, max_length=255)
+    code: str = Field(..., min_length=2, max_length=20)
+    description: Optional[str] = None
+    unit: str = Field(default="kg", max_length=20)
+
+
+class FlowerTypeUpdate(BaseModel):
+    """Flower type update schema."""
+    name: Optional[str] = Field(None, min_length=2, max_length=255)
+    name_ta: Optional[str] = Field(None, max_length=255)
+    description: Optional[str] = None
+    unit: Optional[str] = Field(None, max_length=20)
+    is_active: Optional[bool] = None
+
+
 class FlowerTypeResponse(FlowerTypeBase):
     """Flower type response schema."""
     pass
@@ -159,6 +177,48 @@ class FlowerTypeResponse(FlowerTypeBase):
 class FlowerTypeListResponse(PaginatedResponse[FlowerTypeResponse]):
     """Flower type list response schema."""
     pass
+
+
+# ==================== FARMER PRODUCT SCHEMAS ====================
+
+class FarmerProductBase(BaseModel):
+    """Base farmer product schema."""
+    id: str
+    farmer_id: str
+    flower_type_id: str
+    entry_count: int
+    last_entry_at: Optional[datetime] = None
+    created_at: datetime
+    updated_at: datetime
+
+
+class FarmerProductCreate(BaseModel):
+    """Farmer product creation schema."""
+    flower_type_id: str
+
+
+class FarmerProductBatchCreate(BaseModel):
+    """Batch creation schema for farmer products."""
+    flower_type_ids: List[str] = Field(..., min_length=1)
+
+
+class FarmerProductResponse(FarmerProductBase):
+    """Farmer product response schema."""
+    flower_type: FlowerTypeBase
+
+
+class FarmerProductListResponse(BaseModel):
+    """Farmer product list response schema."""
+    farmer_id: str
+    products: List[FarmerProductResponse]
+
+
+class SuggestedFlowerResponse(BaseModel):
+    """Suggested flower response for smart suggestions."""
+    flower_type: FlowerTypeBase
+    entry_count: int
+    last_entry_at: Optional[datetime] = None
+    is_primary: bool  # True if this is the most common flower for this farmer
 
 
 # ==================== TIME SLOT SCHEMAS ====================

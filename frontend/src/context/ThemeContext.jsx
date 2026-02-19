@@ -16,7 +16,18 @@ export const ThemeProvider = ({ children }) => {
   const [language, setLanguage] = useState(() => {
     return localStorage.getItem('language') || 'en';
   });
-  const [theme, setTheme] = useState('light');
+
+  // Apply Arctic theme class to document (always use Arctic)
+  useEffect(() => {
+    const root = document.documentElement;
+    
+    // Always apply Arctic theme
+    root.classList.remove('warm-theme');
+    root.classList.add('arctic-theme');
+    
+    // Save theme preference
+    localStorage.setItem('theme', 'arctic');
+  }, []);
 
   useEffect(() => {
     // Save language preference
@@ -34,17 +45,11 @@ export const ThemeProvider = ({ children }) => {
     setLanguage(prev => prev === 'en' ? 'ta' : 'en');
   };
 
-  const toggleTheme = () => {
-    setTheme(prev => prev === 'light' ? 'dark' : 'light');
-  };
-
   const value = {
     language,
-    theme,
+    theme: 'arctic', // Always return 'arctic' for compatibility
     toggleLanguage,
-    toggleTheme,
     setLanguage,
-    setTheme,
   };
 
   return (

@@ -15,7 +15,8 @@ from app.api import (
     reports,
     notifications,
     system_settings,
-    whatsapp
+    whatsapp,
+    dashboard,
 )
 
 # Create a single router that includes all routes
@@ -35,3 +36,4 @@ router.include_router(reports.router)
 router.include_router(notifications.router)
 router.include_router(system_settings.router)
 router.include_router(whatsapp.router)
+router.include_router(dashboard.router)

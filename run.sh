@@ -278,6 +278,295 @@ seed_database() {
     print_status "Database seeded successfully!"
 }
 
+# Function to run all Playwright tests
+run_tests() {
+    print_status "Running all Playwright tests..."
+    
+    cd frontend
+    
+    # Check if Playwright is installed
+    if [ ! -d "node_modules/@playwright" ]; then
+        print_warning "Playwright not found. Installing..."
+        npm install -D @playwright/test
+        npx playwright install
+    fi
+    
+    npm test
+    cd ..
+    
+    print_status "Tests completed!"
+}
+
+# Function to run API tests only
+run_api_tests() {
+    print_status "Running API tests..."
+    
+    cd frontend
+    
+    if [ ! -d "node_modules/@playwright" ]; then
+        print_warning "Playwright not found. Installing..."
+        npm install -D @playwright/test
+        npx playwright install
+    fi
+    
+    npm run test:api
+    cd ..
+    
+    print_status "API tests completed!"
+}
+
+# Function to run UI tests only
+run_ui_tests() {
+    print_status "Running UI tests..."
+    
+    cd frontend
+    
+    if [ ! -d "node_modules/@playwright" ]; then
+        print_warning "Playwright not found. Installing..."
+        npm install -D @playwright/test
+        npx playwright install
+    fi
+    
+    npm run test:ui-tests
+    cd ..
+    
+    print_status "UI tests completed!"
+}
+
+# Function to run tests with UI mode
+run_tests_ui() {
+    print_status "Starting Playwright test runner in UI mode..."
+    
+    cd frontend
+    
+    if [ ! -d "node_modules/@playwright" ]; then
+        print_warning "Playwright not found. Installing..."
+        npm install -D @playwright/test
+        npx playwright install
+    fi
+    
+    npm run test:ui
+    cd ..
+}
+
+# Function to run tests in headed mode
+run_tests_headed() {
+    print_status "Running tests in headed mode..."
+    
+    cd frontend
+    
+    if [ ! -d "node_modules/@playwright" ]; then
+        print_warning "Playwright not found. Installing..."
+        npm install -D @playwright/test
+        npx playwright install
+    fi
+    
+    npm run test:headed
+    cd ..
+}
+
+# Function to show test report
+show_test_report() {
+    print_status "Opening Playwright test report..."
+    
+    cd frontend
+    
+    if [ -f "playwright-report/index.html" ]; then
+        npm run test:report
+    else
+        print_error "No test report found. Run tests first with './run.sh test'"
+    fi
+    
+    cd ..
+}
+
+# Function to install Playwright browsers
+install_playwright() {
+    print_status "Installing Playwright browsers..."
+    
+    cd frontend
+    
+    if [ ! -d "node_modules/@playwright" ]; then
+        print_warning "Playwright not found. Installing..."
+        npm install -D @playwright/test
+    fi
+    
+    npx playwright install
+    cd ..
+    
+    print_status "Playwright browsers installed successfully!"
+}
+
+# Function to clean frontend
+clean_frontend() {
+    print_status "Cleaning frontend build artifacts..."
+    
+    cd frontend
+    
+    # Remove node_modules
+    if [ -d "node_modules" ]; then
+        print_status "Removing node_modules..."
+        rm -rf node_modules
+    fi
+    
+    # Remove dist folder
+    if [ -d "dist" ]; then
+        print_status "Removing dist..."
+        rm -rf dist
+    fi
+    
+    # Remove .vite cache
+    if [ -d "node_modules/.vite" ]; then
+        print_status "Removing .vite cache..."
+        rm -rf node_modules/.vite
+    fi
+    
+    # Remove Playwright cache
+    if [ -d "node_modules/.cache" ]; then
+        print_status "Removing .cache..."
+        rm -rf node_modules/.cache
+    fi
+    
+    # Remove test results
+    if [ -d "test-results" ]; then
+        print_status "Removing test-results..."
+        rm -rf test-results
+    fi
+    
+    if [ -d "playwright-report" ]; then
+        print_status "Removing playwright-report..."
+        rm -rf playwright-report
+    fi
+    
+    cd ..
+    
+    print_status "Frontend cleaned successfully!"
+}
+
+# Function to clean backend
+clean_backend() {
+    print_status "Cleaning backend build artifacts..."
+    
+    cd backend
+    
+    # Remove virtual environment
+    if [ -d "venv" ]; then
+        print_status "Removing virtual environment..."
+        rm -rf venv
+    fi
+    
+    # Remove __pycache__ directories
+    print_status "Removing __pycache__ directories..."
+    find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null
+    
+    # Remove .pyc files
+    print_status "Removing .pyc files..."
+    find . -type f -name "*.pyc" -delete 2>/dev/null
+    
+    # Remove .pytest_cache
+    if [ -d ".pytest_cache" ]; then
+        print_status "Removing .pytest_cache..."
+        rm -rf .pytest_cache
+    fi
+    
+    # Remove .coverage and htmlcov
+    if [ -f ".coverage" ]; then
+        rm -f .coverage
+    fi
+    if [ -d "htmlcov" ]; then
+        rm -rf htmlcov
+    fi
+    
+    cd ..
+    
+    print_status "Backend cleaned successfully!"
+}
+
+# Function to clean all
+clean_all() {
+    print_status "Cleaning all build artifacts..."
+    
+    clean_frontend
+    clean_backend
+    
+    # Remove log files
+    if [ -d "logs" ]; then
+        print_status "Removing logs..."
+        rm -rf logs/*.log
+    fi
+    
+    # Remove PID files
+    rm -f .backend.pid .frontend.pid 2>/dev/null
+    
+    print_status "All build artifacts cleaned successfully!"
+}
+
+# Function to build frontend for production
+build_frontend() {
+    print_status "Building frontend for production..."
+    
+    cd frontend
+    
+    # Check if node_modules exists
+    if [ ! -d "node_modules" ]; then
+        print_warning "node_modules not found. Installing dependencies..."
+        npm install
+    fi
+    
+    npm run build
+    cd ..
+    
+    print_status "Frontend built successfully!"
+    print_status "Output: frontend/dist/"
+}
+
+# Function to rebuild frontend (clean + install)
+rebuild_frontend() {
+    print_status "Rebuilding frontend..."
+    
+    clean_frontend
+    
+    print_status "Installing frontend dependencies..."
+    cd frontend
+    npm install
+    cd ..
+    
+    print_status "Frontend rebuilt successfully!"
+}
+
+# Function to rebuild backend (clean + install)
+rebuild_backend() {
+    print_status "Rebuilding backend..."
+    
+    clean_backend
+    
+    print_status "Installing backend dependencies..."
+    cd backend
+    python3 -m venv venv
+    source venv/bin/activate
+    pip install --upgrade pip
+    pip install -r requirements.txt
+    cd ..
+    
+    print_status "Backend rebuilt successfully!"
+}
+
+# Function to rebuild all (clean + install)
+rebuild_all() {
+    print_status "Rebuilding all services..."
+    
+    # Stop services first
+    stop_all
+    
+    clean_all
+    
+    print_status "Installing all dependencies..."
+    install_deps
+    
+    print_status "All services rebuilt successfully!"
+    print_status "Use './run.sh start' to start the services"
+}
+
 # Function to show help
 show_help() {
     echo -e "${BLUE}Malar Market Digital Ledger - Server Management${NC}"
@@ -297,12 +586,32 @@ show_help() {
     echo "  install         Install all dependencies"
     echo "  migrate        Run database migrations"
     echo "  seed           Seed database with sample data"
+    echo ""
+    echo "Build Commands:"
+    echo "  build           Build frontend for production"
+    echo "  clean           Clean all build artifacts and caches"
+    echo "  clean:frontend  Clean frontend (node_modules, dist, caches)"
+    echo "  clean:backend   Clean backend (venv, __pycache__, .pyc)"
+    echo "  rebuild         Full rebuild (clean all + reinstall)"
+    echo "  rebuild:frontend Rebuild frontend only"
+    echo "  rebuild:backend  Rebuild backend only"
+    echo ""
+    echo "Test Commands:"
+    echo "  test            Run all Playwright tests"
+    echo "  test:api        Run API tests only"
+    echo "  test:ui         Run UI tests only"
+    echo "  test:headed     Run tests in headed mode (visible browser)"
+    echo "  test:runner     Run tests with Playwright UI mode"
+    echo "  test:report     Open Playwright HTML test report"
+    echo "  test:install    Install Playwright browsers"
     echo "  help            Show this help message"
     echo ""
     echo "Examples:"
     echo "  ./run.sh start              # Start all services"
     echo "  ./run.sh logs backend       # Show backend logs"
-    echo "  ./run.sh restart            # Restart all services"
+    echo "  ./run.sh test               # Run all tests"
+    echo "  ./run.sh rebuild            # Clean and reinstall everything"
+    echo "  ./run.sh build              # Build frontend for production"
     echo ""
 }
 
@@ -345,6 +654,48 @@ case "$1" in
         ;;
     seed)
         seed_database
+        ;;
+    test)
+        run_tests
+        ;;
+    test:api)
+        run_api_tests
+        ;;
+    test:ui)
+        run_ui_tests
+        ;;
+    test:headed)
+        run_tests_headed
+        ;;
+    test:runner)
+        run_tests_ui
+        ;;
+    test:report)
+        show_test_report
+        ;;
+    test:install)
+        install_playwright
+        ;;
+    build)
+        build_frontend
+        ;;
+    clean)
+        clean_all
+        ;;
+    clean:frontend)
+        clean_frontend
+        ;;
+    clean:backend)
+        clean_backend
+        ;;
+    rebuild)
+        rebuild_all
+        ;;
+    rebuild:frontend)
+        rebuild_frontend
+        ;;
+    rebuild:backend)
+        rebuild_backend
         ;;
     help|--help|-h)
         show_help
