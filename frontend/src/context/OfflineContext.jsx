@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { isOnline, onOnline, onOffline } from '../utils/offlineUtils';
 import { getSyncQueueCount, initDB, addToSyncQueue as addToQueue } from '../store/offlineStore';
 
@@ -16,12 +16,16 @@ export const OfflineProvider = ({ children }) => {
   const [isOffline, setIsOffline] = useState(!isOnline());
   const [syncQueueCount, setSyncQueueCount] = useState(0);
   const [dbInitialized, setDbInitialized] = useState(false);
+  
+  // Use ref to track initialization state for async operations
+  const dbInitializedRef = useRef(false);
 
   // Initialize IndexedDB on mount
   useEffect(() => {
     const initDatabase = async () => {
       try {
         await initDB();
+        dbInitializedRef.current = true;
         setDbInitialized(true);
       } catch (error) {
         console.error('Failed to initialize IndexedDB:', error);
@@ -36,7 +40,7 @@ export const OfflineProvider = ({ children }) => {
     const handleOnline = () => {
       setIsOffline(false);
       // Trigger sync when coming back online
-      if (dbInitialized) {
+      if (dbInitializedRef.current) {
         syncPendingData();
       }
     };
@@ -52,27 +56,30 @@ export const OfflineProvider = ({ children }) => {
       cleanupOnline();
       cleanupOffline();
     };
-  }, [dbInitialized]);
+  }, []);
 
   // Update sync queue count periodically
   useEffect(() => {
-    if (dbInitialized) {
-      updateSyncQueueCount();
-      const interval = setInterval(updateSyncQueueCount, 30000); // Every 30 seconds
+    if (!dbInitialized) return;
+    
+    updateSyncQueueCount();
+    const interval = setInterval(updateSyncQueueCount, 30000); // Every 30 seconds
 
-      return () => clearInterval(interval);
-    }
+    return () => clearInterval(interval);
   }, [dbInitialized]);
 
-  const updateSyncQueueCount = async () => {
+  const updateSyncQueueCount = useCallback(async () => {
+    // Use ref to check current state instead of closure
+    if (!dbInitializedRef.current) return;
+    
     try {
-      if (!dbInitialized) return;
       const count = await getSyncQueueCount();
       setSyncQueueCount(count);
     } catch (error) {
       console.error('Failed to get sync queue count:', error);
+      // Don't throw - just log the error and keep the current count
     }
-  };
+  }, []);
 
   const syncPendingData = async () => {
     try {
@@ -87,7 +94,7 @@ export const OfflineProvider = ({ children }) => {
   };
 
   const addToSyncQueue = async (item) => {
-    if (!dbInitialized) {
+    if (!dbInitializedRef.current) {
       console.error('Database not initialized');
       return null;
     }
