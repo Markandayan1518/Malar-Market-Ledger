@@ -444,6 +444,8 @@ List all farmers.
       "current_balance": 15000.00,
       "total_advances": 5000.00,
       "total_settlements": 20000.00,
+      "commission_pct": 10.00,
+      "flat_fee_monthly": 0.00,
       "is_active": true,
       "created_at": "2026-02-14T04:00:00Z",
       "updated_at": "2026-02-14T04:00:00Z"
@@ -480,6 +482,8 @@ Get farmer by ID.
     "current_balance": 15000.00,
     "total_advances": 5000.00,
     "total_settlements": 20000.00,
+    "commission_pct": 10.00,
+    "flat_fee_monthly": 0.00,
     "is_active": true,
     "created_at": "2026-02-14T04:00:00Z",
     "updated_at": "2026-02-14T04:00:00Z"
@@ -500,7 +504,9 @@ Create new farmer (Admin only).
   "village": "Dindigul",
   "phone": "+919876543213",
   "whatsapp_number": "+919876543213",
-  "address": "456, Market Road, Dindigul"
+  "address": "456, Market Road, Dindigul",
+  "commission_pct": 10.00,
+  "flat_fee_monthly": 0.00
 }
 ```
 
@@ -519,6 +525,8 @@ Create new farmer (Admin only).
     "current_balance": 0.00,
     "total_advances": 0.00,
     "total_settlements": 0.00,
+    "commission_pct": 10.00,
+    "flat_fee_monthly": 0.00,
     "is_active": true,
     "created_at": "2026-02-14T04:10:00Z",
     "updated_at": "2026-02-14T04:10:00Z"
@@ -541,7 +549,8 @@ Update farmer (Admin only).
 {
   "name": "Updated Name",
   "village": "New Village",
-  "phone": "+919876543214"
+  "phone": "+919876543214",
+  "commission_pct": 12.00
 }
 ```
 
@@ -560,6 +569,8 @@ Update farmer (Admin only).
     "current_balance": 0.00,
     "total_advances": 0.00,
     "total_settlements": 0.00,
+    "commission_pct": 12.00,
+    "flat_fee_monthly": 0.00,
     "is_active": true,
     "created_at": "2026-02-14T04:10:00Z",
     "updated_at": "2026-02-14T04:15:00Z"
@@ -850,6 +861,8 @@ List all daily entries.
       "total_amount": 1575.00,
       "commission_rate": 5.00,
       "commission_amount": 78.75,
+      "manual_adj_amount": 0.00,
+      "adj_reason_code": null,
       "net_amount": 1496.25,
       "notes": null,
       "created_by": "550e8400-e29b-41d4-a716-446655440000",
@@ -906,6 +919,8 @@ Get daily entry by ID.
     "total_amount": 1575.00,
     "commission_rate": 5.00,
     "commission_amount": 78.75,
+    "manual_adj_amount": 0.00,
+    "adj_reason_code": null,
     "net_amount": 1496.25,
     "notes": null,
     "created_by": "550e8400-e29b-41d4-a716-446655440000",
@@ -928,9 +943,21 @@ Create new daily entry.
   "entry_date": "2026-02-14",
   "entry_time": "05:30:00",
   "quantity": 10.50,
-  "notes": "Fresh roses"
+  "notes": "Fresh roses",
+  "manual_adj_amount": -50.00,
+  "adj_reason_code": "WET"
 }
 ```
+
+**Adjustment Reason Codes:**
+
+| Code | Description |
+|------|-------------|
+| LATE | Late delivery adjustment |
+| WET | Wet flowers discount |
+| QUALITY | Quality-based adjustment |
+| BONUS | Bonus payment |
+| OTHER | Other reasons |
 
 **Response:**
 ```json
@@ -948,7 +975,9 @@ Create new daily entry.
     "total_amount": 1575.00,
     "commission_rate": 5.00,
     "commission_amount": 78.75,
-    "net_amount": 1496.25,
+    "manual_adj_amount": -50.00,
+    "adj_reason_code": "WET",
+    "net_amount": 1446.25,
     "notes": "Fresh roses",
     "created_by": "550e8400-e29b-41d4-a716-4466554400",
     "created_at": "2026-02-14T05:30:00Z",
@@ -960,7 +989,7 @@ Create new daily entry.
 
 **Permissions:** Admin, Staff
 
-**Note:** The API automatically determines the time slot based on `entry_time`, applies the appropriate market rate, and calculates totals.
+**Note:** The API automatically determines the time slot based on `entry_time`, applies the appropriate market rate, and calculates totals. The net_amount is calculated as: `net_amount = total_amount - commission_amount + manual_adj_amount`.
 
 **Error Codes:**
 - `400`: Validation error
@@ -975,7 +1004,9 @@ Update daily entry.
 {
   "quantity": 12.00,
   "entry_time": "05:45:00",
-  "notes": "Updated quantity"
+  "notes": "Updated quantity",
+  "manual_adj_amount": 0.00,
+  "adj_reason_code": null
 }
 ```
 
@@ -995,6 +1026,8 @@ Update daily entry.
     "total_amount": 1800.00,
     "commission_rate": 5.00,
     "commission_amount": 90.00,
+    "manual_adj_amount": 0.00,
+    "adj_reason_code": null,
     "net_amount": 1710.00,
     "notes": "Updated quantity",
     "created_by": "550e8400-e29b-41d4-a716-4466554400",
@@ -1611,6 +1644,113 @@ Update system setting (Admin only).
     "updated_at": "2026-02-14T12:00:00Z"
   },
   "message": "System setting updated successfully"
+}
+```
+
+**Permissions:** Admin only
+
+---
+
+### Data Import Module
+
+#### POST /data/import/farmers
+Bulk import farmers from Excel/CSV file.
+
+**Request:** `multipart/form-data`
+- `file`: Excel (.xlsx) or CSV file with farmer data
+
+**Required Columns:**
+| Column | Type | Required | Description |
+|--------|------|----------|-------------|
+| farmer_code | string | Yes | Unique farmer code |
+| name | string | Yes | Farmer name |
+| village | string | No | Village name |
+| phone | string | Yes | Phone number with country code |
+| whatsapp_number | string | No | WhatsApp number (defaults to phone) |
+| address | string | No | Full address |
+| commission_pct | number | No | Commission percentage (default: 10.00) |
+| flat_fee_monthly | number | No | Monthly flat fee (default: 0.00) |
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "total_rows": 50,
+    "imported": 48,
+    "skipped": 2,
+    "errors": [
+      {
+        "row": 15,
+        "field": "farmer_code",
+        "message": "Farmer code already exists"
+      },
+      {
+        "row": 32,
+        "field": "phone",
+        "message": "Invalid phone number format"
+      }
+    ],
+    "imported_ids": [
+      "660e8400-e29b-41d4-a716-446655440001",
+      "660e8400-e29b-41d4-a716-446655440002"
+    ]
+  },
+  "message": "Import completed with 2 errors"
+}
+```
+
+**Permissions:** Admin only
+
+**Error Codes:**
+- `400`: Invalid file format
+- `422`: Validation errors in file data
+
+#### POST /data/import/farmers/template
+Download farmer import template file.
+
+**Response:** Excel file download (`farmer_import_template.xlsx`)
+
+**Permissions:** Admin only
+
+#### GET /data/import/farmers/preview
+Preview import file before committing.
+
+**Query Parameters:**
+- `file_id`: Temporary file ID from upload
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "total_rows": 50,
+    "valid_rows": 48,
+    "invalid_rows": 2,
+    "preview": [
+      {
+        "row": 1,
+        "data": {
+          "farmer_code": "FAR001",
+          "name": "Raj Kumar",
+          "village": "Madurai",
+          "phone": "+919876543211"
+        },
+        "valid": true,
+        "errors": []
+      },
+      {
+        "row": 15,
+        "data": {
+          "farmer_code": "FAR001",
+          "name": "Duplicate",
+          "phone": "+919876543299"
+        },
+        "valid": false,
+        "errors": ["Farmer code already exists"]
+      }
+    ]
+  }
 }
 ```
 
