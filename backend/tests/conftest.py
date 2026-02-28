@@ -2,6 +2,13 @@
 Pytest Configuration and Shared Fixtures for Malar Market Digital Ledger Tests
 
 This module provides shared fixtures for testing the REST API endpoints.
+Uses Pydantic schemas for request/response validation and the APIClient
+utility for HTTP operations.
+
+Directory Structure:
+- tests/schemas/ - Pydantic models for API contract testing
+- tests/utils/ - API client and response validators
+- tests/fixtures/ - Reusable pytest fixtures
 """
 
 import os
@@ -9,6 +16,15 @@ import pytest
 import requests
 from typing import Dict, Any, Optional
 from faker import Faker
+
+# Import new test infrastructure
+from tests.utils.api_client import APIClient, create_api_client, AuthenticationError
+from tests.utils.response_validators import (
+    assert_status_code,
+    validate_success_response,
+    validate_error_response,
+    validate_paginated_response,
+)
 
 # Configuration
 BASE_URL = os.getenv("API_BASE_URL", "http://localhost:8000/api/v1")
@@ -124,6 +140,72 @@ def farmer_auth_header(farmer_token) -> Dict[str, str]:
     if farmer_token:
         return {"Authorization": f"Bearer {farmer_token}"}
     return {}
+
+
+# ==================== New APIClient Fixtures ====================
+
+@pytest.fixture
+def api_client_v2() -> APIClient:
+    """
+    Return a new APIClient instance for making API calls with Pydantic support.
+    
+    This is the recommended fixture for new tests. It provides:
+    - Automatic JWT token management
+    - Pydantic model serialization for requests
+    - Response validation helpers
+    """
+    return create_api_client(base_url=BASE_URL)
+
+
+@pytest.fixture
+def admin_client(api_client_v2: APIClient, admin_credentials: Dict[str, str]) -> APIClient:
+    """
+    Return an authenticated APIClient with admin credentials.
+    
+    The client is automatically logged in and ready to make authenticated requests.
+    """
+    try:
+        api_client_v2.login(
+            email=admin_credentials["email"],
+            password=admin_credentials["password"]
+        )
+    except AuthenticationError:
+        pass  # Tests should handle authentication failures
+    return api_client_v2
+
+
+@pytest.fixture
+def staff_client(api_client_v2: APIClient, staff_credentials: Dict[str, str]) -> APIClient:
+    """
+    Return an authenticated APIClient with staff credentials.
+    
+    The client is automatically logged in and ready to make authenticated requests.
+    """
+    try:
+        api_client_v2.login(
+            email=staff_credentials["email"],
+            password=staff_credentials["password"]
+        )
+    except AuthenticationError:
+        pass
+    return api_client_v2
+
+
+@pytest.fixture
+def farmer_client(api_client_v2: APIClient, farmer_credentials: Dict[str, str]) -> APIClient:
+    """
+    Return an authenticated APIClient with farmer credentials.
+    
+    The client is automatically logged in and ready to make authenticated requests.
+    """
+    try:
+        api_client_v2.login(
+            email=farmer_credentials["email"],
+            password=farmer_credentials["password"]
+        )
+    except AuthenticationError:
+        pass
+    return api_client_v2
 
 
 # ==================== Sample Data Fixtures ====================
