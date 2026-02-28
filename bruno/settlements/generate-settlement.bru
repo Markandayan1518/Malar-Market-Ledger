@@ -1,0 +1,39 @@
+meta {
+  name: Generate Settlement
+  description: Generate a new settlement for a farmer for a specific period
+}
+
+auth: bearer
+
+method POST
+url {{base_url}}/settlements/generate
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{access_token}}
+}
+
+body {
+  {
+    "farmer_id": "{{farmer_id}}",
+    "from_date": "2026-02-01",
+    "to_date": "2026-02-28",
+    "include_pending_advances": true,
+    "notes": "Monthly settlement for February 2026"
+  }
+}
+
+script:post-response {
+  const response = res.getBody();
+  
+  bru.assertion(expect(res.getStatus()).to.equal(201));
+  bru.assertion(expect(response).to.have.property('success'));
+  bru.assertion(expect(response.success).to.equal(true));
+  bru.assertion(expect(response).to.have.property('data'));
+  bru.assertion(expect(response).to.have.property('message'));
+  
+  // Store the created settlement ID for subsequent requests
+  if (response.data && response.data.id) {
+    bru.setEnvVar('settlement_id', response.data.id);
+  }
+}

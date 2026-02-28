@@ -1,0 +1,26 @@
+meta {
+  name: Logout
+  description: Invalidate current session and logout user
+}
+
+auth: bearer
+
+method POST
+url {{base_url}}/auth/logout
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{access_token}}
+}
+
+script:post-response {
+  const response = res.getBody();
+  
+  bru.assertion(expect(res.getStatus()).to.equal(200));
+  bru.assertion(expect(response).to.have.property('success'));
+  bru.assertion(expect(response.success).to.equal(true));
+  
+  // Clear tokens from environment on successful logout
+  bru.setEnvVar('access_token', '');
+  bru.setEnvVar('refresh_token', '');
+}

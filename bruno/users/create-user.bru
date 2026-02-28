@@ -1,0 +1,35 @@
+meta {
+  name: Create User
+  description: Create new user (Admin only)
+}
+
+auth: bearer
+
+method POST
+url {{base_url}}/users
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{access_token}}
+}
+
+body {
+  {
+    "email": "staff@malar.com",
+    "password": "securepassword123",
+    "full_name": "Staff User",
+    "phone": "+919876543211",
+    "role": "staff",
+    "language_preference": "en"
+  }
+}
+
+script:post-response {
+  const response = res.getBody();
+  
+  bru.assertion(expect(res.getStatus()).to.equal(201));
+  bru.assertion(expect(response).to.have.property('success'));
+  bru.assertion(expect(response.success).to.equal(true));
+  bru.assertion(expect(response).to.have.property('data'));
+  bru.assertion(expect(response).to.have.property('message'));
+}

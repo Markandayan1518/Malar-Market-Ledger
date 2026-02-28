@@ -1,0 +1,32 @@
+meta {
+  name: List Notifications
+  description: Get paginated list of notifications for the current user
+}
+
+auth: bearer
+
+method GET
+url {{base_url}}/notifications
+
+headers {
+  Authorization: Bearer {{access_token}}
+}
+
+query {
+  page: 1
+  limit: 20
+  is_read: false
+  sort_by: created_at
+  sort_order: desc
+}
+
+script:post-response {
+  const response = res.getBody();
+  
+  bru.assertion(expect(res.getStatus()).to.equal(200));
+  bru.assertion(expect(response).to.have.property('success'));
+  bru.assertion(expect(response.success).to.equal(true));
+  bru.assertion(expect(response).to.have.property('data'));
+  bru.assertion(expect(response).to.have.property('pagination'));
+  bru.assertion(expect(Array.isArray(response.data)).to.be.true);
+}

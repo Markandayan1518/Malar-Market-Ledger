@@ -1,0 +1,22 @@
+meta {
+  name: Delete Daily Entry
+  description: Soft delete a daily entry
+}
+
+auth: bearer
+
+method DELETE
+url {{base_url}}/daily-entries/{{entry_id}}
+
+headers {
+  Authorization: Bearer {{access_token}}
+}
+
+script:post-response {
+  const response = res.getBody();
+  
+  bru.assertion(expect(res.getStatus()).to.equal(200));
+  bru.assertion(expect(response).to.have.property('success'));
+  bru.assertion(expect(response.success).to.equal(true));
+  bru.assertion(expect(response).to.have.property('message'));
+}

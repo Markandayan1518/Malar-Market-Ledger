@@ -1,0 +1,37 @@
+meta {
+  name: Update Daily Entry
+  description: Update an existing daily entry
+}
+
+auth: bearer
+
+method PUT
+url {{base_url}}/daily-entries/{{entry_id}}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{access_token}}
+}
+
+body {
+  {
+    "farmer_id": "{{farmer_id}}",
+    "flower_type_id": "{{flower_type_id}}",
+    "entry_date": "2026-02-14",
+    "entry_time": "06:00:00",
+    "quantity": 12.00,
+    "notes": "Updated: Fresh roses in excellent condition",
+    "manual_adj_amount": 0.00,
+    "adj_reason_code": null
+  }
+}
+
+script:post-response {
+  const response = res.getBody();
+  
+  bru.assertion(expect(res.getStatus()).to.equal(200));
+  bru.assertion(expect(response).to.have.property('success'));
+  bru.assertion(expect(response.success).to.equal(true));
+  bru.assertion(expect(response).to.have.property('data'));
+  bru.assertion(expect(response).to.have.property('message'));
+}

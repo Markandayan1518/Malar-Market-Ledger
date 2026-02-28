@@ -1,0 +1,33 @@
+meta {
+  name: Mark Settlement Paid
+  description: Mark an approved settlement as paid
+}
+
+auth: bearer
+
+method POST
+url {{base_url}}/settlements/{{settlement_id}}/mark-paid
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{access_token}}
+}
+
+body {
+  {
+    "payment_date": "2026-03-01",
+    "payment_method": "bank_transfer",
+    "payment_reference": "UTR123456789",
+    "payment_notes": "Transferred to farmer's bank account"
+  }
+}
+
+script:post-response {
+  const response = res.getBody();
+  
+  bru.assertion(expect(res.getStatus()).to.equal(200));
+  bru.assertion(expect(response).to.have.property('success'));
+  bru.assertion(expect(response.success).to.equal(true));
+  bru.assertion(expect(response).to.have.property('data'));
+  bru.assertion(expect(response).to.have.property('message'));
+}

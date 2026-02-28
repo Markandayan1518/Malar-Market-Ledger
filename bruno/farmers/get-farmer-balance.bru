@@ -1,0 +1,22 @@
+meta {
+  name: Get Farmer Balance
+  description: Get farmer current balance and financial summary
+}
+
+auth: bearer
+
+method GET
+url {{base_url}}/farmers/{{farmer_id}}/balance
+
+headers {
+  Authorization: Bearer {{access_token}}
+}
+
+script:post-response {
+  const response = res.getBody();
+  
+  bru.assertion(expect(res.getStatus()).to.equal(200));
+  bru.assertion(expect(response).to.have.property('success'));
+  bru.assertion(expect(response.success).to.equal(true));
+  bru.assertion(expect(response).to.have.property('data'));
+}

@@ -1,0 +1,33 @@
+meta {
+  name: Update Farmer
+  description: Update farmer details (Admin only)
+}
+
+auth: bearer
+
+method PUT
+url {{base_url}}/farmers/{{farmer_id}}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{access_token}}
+}
+
+body {
+  {
+    "name": "Updated Name",
+    "village": "New Village",
+    "phone": "+919876543214",
+    "commission_pct": 12.00
+  }
+}
+
+script:post-response {
+  const response = res.getBody();
+  
+  bru.assertion(expect(res.getStatus()).to.equal(200));
+  bru.assertion(expect(response).to.have.property('success'));
+  bru.assertion(expect(response.success).to.equal(true));
+  bru.assertion(expect(response).to.have.property('data'));
+  bru.assertion(expect(response).to.have.property('message'));
+}

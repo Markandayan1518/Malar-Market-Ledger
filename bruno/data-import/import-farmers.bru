@@ -1,0 +1,36 @@
+meta {
+  name: Import Farmers
+  description: Bulk import farmers from uploaded file
+}
+
+auth: bearer
+
+method POST
+url {{base_url}}/data-import/farmers
+
+headers {
+  Content-Type: multipart/form-data
+  Authorization: Bearer {{access_token}}
+}
+
+body {
+  {
+    "file": "(binary file upload)",
+    "skip_duplicates": true,
+    "update_existing": false,
+    "validate_only": false
+  }
+}
+
+script:post-response {
+  const response = res.getBody();
+  
+  bru.assertion(expect(res.getStatus()).to.equal(200));
+  bru.assertion(expect(response).to.have.property('success'));
+  bru.assertion(expect(response.success).to.equal(true));
+  bru.assertion(expect(response).to.have.property('data'));
+  bru.assertion(expect(response).to.have.property('message'));
+  bru.assertion(expect(response.data).to.have.property('imported_count'));
+  bru.assertion(expect(response.data).to.have.property('skipped_count'));
+  bru.assertion(expect(response.data).to.have.property('error_count'));
+}

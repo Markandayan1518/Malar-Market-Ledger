@@ -1,0 +1,35 @@
+meta {
+  name: List Settlements
+  description: Get paginated list of settlements with optional filters
+}
+
+auth: bearer
+
+method GET
+url {{base_url}}/settlements
+
+headers {
+  Authorization: Bearer {{access_token}}
+}
+
+query {
+  page: 1
+  limit: 20
+  farmer_id: {{farmer_id}}
+  status: draft
+  from_date: "2026-02-01"
+  to_date: "2026-02-28"
+  sort_by: created_at
+  sort_order: desc
+}
+
+script:post-response {
+  const response = res.getBody();
+  
+  bru.assertion(expect(res.getStatus()).to.equal(200));
+  bru.assertion(expect(response).to.have.property('success'));
+  bru.assertion(expect(response.success).to.equal(true));
+  bru.assertion(expect(response).to.have.property('data'));
+  bru.assertion(expect(response).to.have.property('pagination'));
+  bru.assertion(expect(Array.isArray(response.data)).to.be.true);
+}

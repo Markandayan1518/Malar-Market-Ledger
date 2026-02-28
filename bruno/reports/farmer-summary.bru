@@ -1,0 +1,30 @@
+meta {
+  name: Farmer Summary Report
+  description: Get comprehensive summary report for a specific farmer
+}
+
+auth: bearer
+
+method GET
+url {{base_url}}/reports/farmer-summary
+
+headers {
+  Authorization: Bearer {{access_token}}
+}
+
+query {
+  farmer_id: {{farmer_id}}
+  from_date: "2026-02-01"
+  to_date: "2026-02-28"
+  include_advances: true
+  include_settlements: true
+}
+
+script:post-response {
+  const response = res.getBody();
+  
+  bru.assertion(expect(res.getStatus()).to.equal(200));
+  bru.assertion(expect(response).to.have.property('success'));
+  bru.assertion(expect(response.success).to.equal(true));
+  bru.assertion(expect(response).to.have.property('data'));
+}

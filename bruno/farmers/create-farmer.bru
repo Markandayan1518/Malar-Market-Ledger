@@ -1,0 +1,42 @@
+meta {
+  name: Create Farmer
+  description: Create new farmer (Admin only)
+}
+
+auth: bearer
+
+method POST
+url {{base_url}}/farmers
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{access_token}}
+}
+
+body {
+  {
+    "farmer_code": "FAR002",
+    "name": "Kumar Raja",
+    "village": "Dindigul",
+    "phone": "+919876543213",
+    "whatsapp_number": "+919876543213",
+    "address": "456, Market Road, Dindigul",
+    "commission_pct": 10.00,
+    "flat_fee_monthly": 0.00
+  }
+}
+
+script:post-response {
+  const response = res.getBody();
+  
+  bru.assertion(expect(res.getStatus()).to.equal(201));
+  bru.assertion(expect(response).to.have.property('success'));
+  bru.assertion(expect(response.success).to.equal(true));
+  bru.assertion(expect(response).to.have.property('data'));
+  bru.assertion(expect(response).to.have.property('message'));
+  
+  // Store the created farmer ID for subsequent requests
+  if (response.data && response.data.id) {
+    bru.setEnvVar('farmer_id', response.data.id);
+  }
+}

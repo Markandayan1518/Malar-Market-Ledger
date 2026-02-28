@@ -1,0 +1,23 @@
+meta {
+  name: Mark Notification Read
+  description: Mark a notification as read
+}
+
+auth: bearer
+
+method PUT
+url {{base_url}}/notifications/{{notification_id}}/read
+
+headers {
+  Authorization: Bearer {{access_token}}
+}
+
+script:post-response {
+  const response = res.getBody();
+  
+  bru.assertion(expect(res.getStatus()).to.equal(200));
+  bru.assertion(expect(response).to.have.property('success'));
+  bru.assertion(expect(response.success).to.equal(true));
+  bru.assertion(expect(response).to.have.property('data'));
+  bru.assertion(expect(response).to.have.property('message'));
+}

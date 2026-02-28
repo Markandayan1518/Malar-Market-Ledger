@@ -1,0 +1,41 @@
+meta {
+  name: Login
+  description: Authenticate user and receive JWT tokens
+}
+
+method POST
+url {{base_url}}/auth/login
+
+headers {
+  Content-Type: application/json
+}
+
+body {
+  {
+    "email": "{{admin_email}}",
+    "password": "{{admin_password}}"
+  }
+}
+
+script:post-response {
+  // Parse response body
+  const response = res.getBody();
+  
+  // Assert response status is 200
+  bru.assertion(expect(res.getStatus()).to.equal(200));
+  
+  // Assert response has success field
+  bru.assertion(expect(response).to.have.property('success'));
+  bru.assertion(expect(response.success).to.equal(true));
+  
+  // Assert response has data field
+  bru.assertion(expect(response).to.have.property('data'));
+  
+  // Extract and store tokens if present
+  if (response.data && response.data.access_token) {
+    bru.setEnvVar('access_token', response.data.access_token);
+  }
+  if (response.data && response.data.refresh_token) {
+    bru.setEnvVar('refresh_token', response.data.refresh_token);
+  }
+}

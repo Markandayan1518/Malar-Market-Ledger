@@ -1,0 +1,28 @@
+meta {
+  name: Daily Summary Report
+  description: Get daily summary report of all entries and transactions
+}
+
+auth: bearer
+
+method GET
+url {{base_url}}/reports/daily-summary
+
+headers {
+  Authorization: Bearer {{access_token}}
+}
+
+query {
+  date: "2026-02-14"
+  farmer_id: {{farmer_id}}
+  flower_type_id: {{flower_type_id}}
+}
+
+script:post-response {
+  const response = res.getBody();
+  
+  bru.assertion(expect(res.getStatus()).to.equal(200));
+  bru.assertion(expect(response).to.have.property('success'));
+  bru.assertion(expect(response.success).to.equal(true));
+  bru.assertion(expect(response).to.have.property('data'));
+}

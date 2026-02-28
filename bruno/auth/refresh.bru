@@ -1,0 +1,34 @@
+meta {
+  name: Refresh Token
+  description: Refresh access token using refresh token
+}
+
+method POST
+url {{base_url}}/auth/refresh
+
+headers {
+  Content-Type: application/json
+}
+
+body {
+  {
+    "refresh_token": "{{refresh_token}}"
+  }
+}
+
+script:post-response {
+  const response = res.getBody();
+  
+  bru.assertion(expect(res.getStatus()).to.equal(200));
+  bru.assertion(expect(response).to.have.property('success'));
+  bru.assertion(expect(response.success).to.equal(true));
+  bru.assertion(expect(response).to.have.property('data'));
+  
+  // Update tokens in environment
+  if (response.data && response.data.access_token) {
+    bru.setEnvVar('access_token', response.data.access_token);
+  }
+  if (response.data && response.data.refresh_token) {
+    bru.setEnvVar('refresh_token', response.data.refresh_token);
+  }
+}

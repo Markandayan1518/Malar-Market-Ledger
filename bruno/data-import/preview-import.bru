@@ -1,0 +1,35 @@
+meta {
+  name: Preview Import
+  description: Preview data from upload file before actual import
+}
+
+auth: bearer
+
+method POST
+url {{base_url}}/data-import/preview
+
+headers {
+  Content-Type: multipart/form-data
+  Authorization: Bearer {{access_token}}
+}
+
+body {
+  {
+    "file": "(binary file upload)",
+    "type": "farmers"
+  }
+}
+
+script:post-response {
+  const response = res.getBody();
+  
+  bru.assertion(expect(res.getStatus()).to.equal(200));
+  bru.assertion(expect(response).to.have.property('success'));
+  bru.assertion(expect(response.success).to.equal(true));
+  bru.assertion(expect(response).to.have.property('data'));
+  bru.assertion(expect(response.data).to.have.property('total_rows'));
+  bru.assertion(expect(response.data).to.have.property('valid_rows'));
+  bru.assertion(expect(response.data).to.have.property('invalid_rows'));
+  bru.assertion(expect(response.data).to.have.property('preview'));
+  bru.assertion(expect(Array.isArray(response.data.preview)).to.be.true);
+}

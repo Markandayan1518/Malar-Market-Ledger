@@ -1,0 +1,40 @@
+meta {
+  name: Create Cash Advance
+  description: Create new cash advance request for a farmer
+}
+
+auth: bearer
+
+method POST
+url {{base_url}}/cash-advances
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{access_token}}
+}
+
+body {
+  {
+    "farmer_id": "{{farmer_id}}",
+    "amount": 5000.00,
+    "reason": "Agricultural inputs purchase",
+    "disbursement_date": "2026-02-15",
+    "repayment_due_date": "2026-03-15",
+    "notes": "Advance for seeds and fertilizers"
+  }
+}
+
+script:post-response {
+  const response = res.getBody();
+  
+  bru.assertion(expect(res.getStatus()).to.equal(201));
+  bru.assertion(expect(response).to.have.property('success'));
+  bru.assertion(expect(response.success).to.equal(true));
+  bru.assertion(expect(response).to.have.property('data'));
+  bru.assertion(expect(response).to.have.property('message'));
+  
+  // Store the created advance ID for subsequent requests
+  if (response.data && response.data.id) {
+    bru.setEnvVar('advance_id', response.data.id);
+  }
+}

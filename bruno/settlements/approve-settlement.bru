@@ -1,0 +1,30 @@
+meta {
+  name: Approve Settlement
+  description: Approve a draft settlement
+}
+
+auth: bearer
+
+method POST
+url {{base_url}}/settlements/{{settlement_id}}/approve
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{access_token}}
+}
+
+body {
+  {
+    "approval_notes": "All entries verified. Settlement approved for payment."
+  }
+}
+
+script:post-response {
+  const response = res.getBody();
+  
+  bru.assertion(expect(res.getStatus()).to.equal(200));
+  bru.assertion(expect(response).to.have.property('success'));
+  bru.assertion(expect(response.success).to.equal(true));
+  bru.assertion(expect(response).to.have.property('data'));
+  bru.assertion(expect(response).to.have.property('message'));
+}

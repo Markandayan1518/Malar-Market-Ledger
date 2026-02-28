@@ -1,0 +1,30 @@
+meta {
+  name: List Daily Entries
+  description: List all daily entries with pagination and filtering
+}
+
+auth: bearer
+
+method GET
+url {{base_url}}/daily-entries
+
+headers {
+  Authorization: Bearer {{access_token}}
+}
+
+query {
+  page: 1
+  page_size: 20
+  sort_by: created_at
+  sort_order: desc
+}
+
+script:post-response {
+  const response = res.getBody();
+  
+  bru.assertion(expect(res.getStatus()).to.equal(200));
+  bru.assertion(expect(response).to.have.property('success'));
+  bru.assertion(expect(response.success).to.equal(true));
+  bru.assertion(expect(response).to.have.property('data'));
+  bru.assertion(expect(response).to.have.property('pagination'));
+}

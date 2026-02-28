@@ -1,0 +1,42 @@
+meta {
+  name: Create Daily Entry
+  description: Create new daily entry for flower submission
+}
+
+auth: bearer
+
+method POST
+url {{base_url}}/daily-entries
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{access_token}}
+}
+
+body {
+  {
+    "farmer_id": "{{farmer_id}}",
+    "flower_type_id": "{{flower_type_id}}",
+    "entry_date": "2026-02-14",
+    "entry_time": "05:30:00",
+    "quantity": 10.50,
+    "notes": "Fresh roses",
+    "manual_adj_amount": -50.00,
+    "adj_reason_code": "WET"
+  }
+}
+
+script:post-response {
+  const response = res.getBody();
+  
+  bru.assertion(expect(res.getStatus()).to.equal(201));
+  bru.assertion(expect(response).to.have.property('success'));
+  bru.assertion(expect(response.success).to.equal(true));
+  bru.assertion(expect(response).to.have.property('data'));
+  bru.assertion(expect(response).to.have.property('message'));
+  
+  // Store the created entry ID for subsequent requests
+  if (response.data && response.data.id) {
+    bru.setEnvVar('entry_id', response.data.id);
+  }
+}

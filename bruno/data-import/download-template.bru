@@ -1,0 +1,25 @@
+meta {
+  name: Download Import Template
+  description: Download template file for farmer import
+}
+
+auth: bearer
+
+method GET
+url {{base_url}}/data-import/template
+
+headers {
+  Authorization: Bearer {{access_token}}
+}
+
+query {
+  type: farmers
+  format: xlsx
+}
+
+script:post-response {
+  const response = res.getBody();
+  
+  bru.assertion(expect(res.getStatus()).to.equal(200));
+  bru.assertion(expect(res.getHeaders()['content-type']).to.include('application'));
+}
