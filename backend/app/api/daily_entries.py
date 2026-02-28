@@ -29,11 +29,28 @@ router = APIRouter(tags=["Daily Entries"])
 
 
 # Helper function to calculate entry amounts
-def calculate_entry_amounts(quantity: float, rate_per_unit: float, commission_rate: float = 5.0):
-    """Calculate total, commission, and net amounts for an entry."""
+def calculate_entry_amounts(
+    quantity: float,
+    rate_per_unit: float,
+    commission_rate: float = 5.0,
+    manual_adj_amount: float = 0.0
+):
+    """
+    Calculate total, commission, and net amounts for an entry.
+    
+    Args:
+        quantity: Quantity of flowers
+        rate_per_unit: Rate per unit
+        commission_rate: Commission percentage (default 5%)
+        manual_adj_amount: Manual adjustment amount (positive or negative)
+    
+    Returns:
+        tuple: (total_amount, commission_amount, net_amount)
+    """
     total_amount = round(quantity * rate_per_unit, 2)
     commission_amount = round(total_amount * (commission_rate / 100), 2)
-    net_amount = round(total_amount - commission_amount, 2)
+    # Apply manual adjustment to net amount
+    net_amount = round(total_amount - commission_amount + manual_adj_amount, 2)
     return total_amount, commission_amount, net_amount
 
 
@@ -116,6 +133,8 @@ def build_entry_response(entry: DailyEntry) -> dict:
         "commission_rate": float(entry.commission_rate),
         "commission_amount": float(entry.commission_amount),
         "net_amount": float(entry.net_amount),
+        "manual_adj_amount": float(entry.manual_adj_amount) if entry.manual_adj_amount else 0.0,
+        "adj_reason_code": entry.adj_reason_code,
         "notes": entry.notes,
         "created_by": entry.created_by,
         "created_at": entry.created_at,
@@ -368,9 +387,13 @@ async def create_daily_entry(
         db, entry_data.flower_type_id, time_slot_id, entry_data.entry_date
     )
     
-    # Calculate amounts
+    # Get adjustment fields from request (default to 0/None if not provided)
+    manual_adj_amount = entry_data.manual_adj_amount if entry_data.manual_adj_amount else 0.0
+    adj_reason_code = entry_data.adj_reason_code
+    
+    # Calculate amounts with adjustment
     total_amount, commission_amount, net_amount = calculate_entry_amounts(
-        entry_data.quantity, rate_per_unit, commission_rate
+        entry_data.quantity, rate_per_unit, commission_rate, manual_adj_amount
     )
     
     # Create entry
@@ -387,6 +410,8 @@ async def create_daily_entry(
         commission_rate=commission_rate,
         commission_amount=commission_amount,
         net_amount=net_amount,
+        manual_adj_amount=manual_adj_amount,
+        adj_reason_code=adj_reason_code,
         notes=entry_data.notes,
         created_by=current_user.id,
     )
@@ -553,16 +578,25 @@ async def update_daily_entry(
     # Update fields
     update_data = entry_data.model_dump(exclude_unset=True)
     
-    # If quantity changed, recalculate amounts
-    if "quantity" in update_data:
-        new_quantity = update_data["quantity"]
+    # Get current or new adjustment amount
+    manual_adj_amount = update_data.get("manual_adj_amount", entry.manual_adj_amount or 0.0)
+    if isinstance(manual_adj_amount, type(None)):
+        manual_adj_amount = 0.0
+    
+    # If quantity or adjustment changed, recalculate amounts
+    if "quantity" in update_data or "manual_adj_amount" in update_data:
+        new_quantity = update_data.get("quantity", entry.quantity)
         total_amount, commission_amount, net_amount = calculate_entry_amounts(
-            new_quantity, float(entry.rate_per_unit), float(entry.commission_rate)
+            new_quantity, float(entry.rate_per_unit), float(entry.commission_rate), float(manual_adj_amount)
         )
         entry.quantity = new_quantity
         entry.total_amount = total_amount
         entry.commission_amount = commission_amount
         entry.net_amount = net_amount
+        entry.manual_adj_amount = manual_adj_amount
+    
+    if "adj_reason_code" in update_data:
+        entry.adj_reason_code = update_data["adj_reason_code"]
     
     if "entry_time" in update_data:
         entry.entry_time = update_data["entry_time"]
