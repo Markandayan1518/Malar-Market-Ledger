@@ -6,6 +6,7 @@ Seed time slots data for Malar Market Digital Ledger
 import asyncio
 import sys
 import os
+import uuid
 from datetime import datetime, time
 
 # Add backend to path
@@ -14,8 +15,6 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), '..'
 from app.database import get_db
 from app.models.time_slot import TimeSlot
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
-from uuid import uuid4
 
 
 async def seed_time_slots():
@@ -25,60 +24,62 @@ async def seed_time_slots():
     # Sample time slots data
     time_slots_data = [
         {
-            "id": str(uuid.uuid4()),
             "name": "Early Morning (4AM - 7AM)",
-            "name_ta": "காகாட் (4AM - 7AM)",
+            "name_ta": "அதிகாலை (4AM - 7AM)",
             "start_time": time(4, 0),
-            "end_time": time(7, 0),
-            "created_at": datetime.utcnow()
+            "end_time": time(7, 0)
         },
         {
-            "id": str(uuid.uuid4()),
             "name": "Morning (7AM - 12PM)",
-            "name_ta": "காகாட் (7AM - 12PM)",
+            "name_ta": "காலை (7AM - 12PM)",
             "start_time": time(7, 0),
-            "end_time": time(12, 0),
-            "created_at": datetime.utcnow()
+            "end_time": time(12, 0)
         },
         {
-            "id": str(uuid.uuid4()),
             "name": "Afternoon (12PM - 4PM)",
-            "name_ta": "மதுவன் (12PM - 4PM)",
+            "name_ta": "மதியம் (12PM - 4PM)",
             "start_time": time(12, 0),
-            "end_time": time(16, 0),
-            "created_at": datetime.utcnow()
+            "end_time": time(16, 0)
         },
         {
-            "id": str(uuid.uuid4()),
             "name": "Evening (4PM - 8PM)",
-            "name_ta": "மால் (4PM - 8PM)",
+            "name_ta": "மாலை (4PM - 8PM)",
             "start_time": time(16, 0),
-            "end_time": time(20, 0),
-            "created_at": datetime.utcnow()
+            "end_time": time(20, 0)
         }
     ]
     
     # Get database session
-    db = next(get_db())
+    db_gen = get_db()
+    db = await db_gen.__anext__()
     
     try:
-        # Insert time slots
+        seeded_count = 0
         for slot_data in time_slots_data:
-            time_slot = TimeSlot(
-                id=slot_data["id"],
-                name=slot_data["name"],
-                name_ta=slot_data["name_ta"],
-                start_time=slot_data["start_time"],
-                end_time=slot_data["end_time"],
-                created_at=slot_data["created_at"]
+            # Check if time slot already exists
+            result = await db.execute(
+                select(TimeSlot).where(TimeSlot.name == slot_data["name"])
             )
-            db.add(time_slot)
+            existing = result.scalar_one_or_none()
+            
+            if not existing:
+                time_slot = TimeSlot(
+                    id=str(uuid.uuid4()),
+                    name=slot_data["name"],
+                    name_ta=slot_data["name_ta"],
+                    start_time=slot_data["start_time"],
+                    end_time=slot_data["end_time"],
+                    created_at=datetime.utcnow()
+                )
+                db.add(time_slot)
+                seeded_count += 1
         
         await db.commit()
-        print(f"✓ Successfully seeded {len(time_slots_data)} time slots")
+        print(f"✓ Successfully seeded {seeded_count} new time slots (skipped existing)")
         
     except Exception as e:
         print(f"✗ Error seeding time slots: {e}")
+        await db.rollback()
         raise e
         
     finally:

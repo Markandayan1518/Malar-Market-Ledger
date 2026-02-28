@@ -29,9 +29,24 @@ is_process_running() {
     return $?
 }
 
+# Python version to use for backend (3.12 required for package compatibility)
+PYTHON_VERSION="python3.12"
+
+# Function to check if Python 3.12 is available
+check_python_version() {
+    if ! command -v python3.12 &> /dev/null; then
+        print_error "Python 3.12 is required but not found."
+        print_error "Please install Python 3.12: brew install python@3.12"
+        exit 1
+    fi
+}
+
 # Function to start backend
 start_backend() {
     print_status "Starting backend server..."
+    
+    # Check Python version
+    check_python_version
     
     # Check if backend is already running
     if is_process_running "uvicorn app.main:app"; then
@@ -41,10 +56,11 @@ start_backend() {
     
     # Check if virtual environment exists
     if [ ! -d "backend/venv" ]; then
-        print_error "Virtual environment not found. Creating one..."
+        print_warning "Virtual environment not found. Creating one with Python 3.12..."
         cd backend
-        python3 -m venv venv
+        $PYTHON_VERSION -m venv venv
         source venv/bin/activate
+        pip install --upgrade pip
         pip install -r requirements.txt
         cd ..
     fi
@@ -230,13 +246,17 @@ show_logs() {
 install_deps() {
     print_status "Installing dependencies..."
     
+    # Check Python version
+    check_python_version
+    
     # Backend dependencies
     print_status "Installing backend dependencies..."
     cd backend
     if [ ! -d "venv" ]; then
-        python3 -m venv venv
+        $PYTHON_VERSION -m venv venv
     fi
     source venv/bin/activate
+    pip install --upgrade pip
     pip install -r requirements.txt
     cd ..
     
@@ -252,6 +272,9 @@ install_deps() {
 # Function to run database migrations
 run_migrations() {
     print_status "Running database migrations..."
+    
+    # Check Python version
+    check_python_version
     
     cd backend
     source venv/bin/activate
@@ -270,12 +293,108 @@ run_migrations() {
 seed_database() {
     print_status "Seeding database with sample data..."
     
+    # Check Python version
+    check_python_version
+    
     cd backend
     source venv/bin/activate
     python ../scripts/seed/run_seed.py
     cd ..
     
     print_status "Database seeded successfully!"
+}
+
+# Function to run backend API tests with pytest
+run_backend_tests() {
+    print_status "Running backend API tests with pytest..."
+    
+    # Check Python version
+    check_python_version
+    
+    # Check if virtual environment exists
+    if [ ! -d "backend/venv" ]; then
+        print_warning "Virtual environment not found. Creating one with Python 3.12..."
+        cd backend
+        $PYTHON_VERSION -m venv venv
+        source venv/bin/activate
+        pip install --upgrade pip
+        pip install -r requirements.txt
+        cd ..
+    fi
+    
+    # Run pytest with activated venv
+    cd backend
+    source venv/bin/activate
+    pytest tests/test_api/*_refactored.py -v
+    cd ..
+    
+    print_status "Backend API tests completed!"
+}
+
+# Function to run backend API tests with coverage
+run_backend_tests_coverage() {
+    print_status "Running backend API tests with coverage..."
+    
+    # Check Python version
+    check_python_version
+    
+    # Check if virtual environment exists
+    if [ ! -d "backend/venv" ]; then
+        print_warning "Virtual environment not found. Creating one with Python 3.12..."
+        cd backend
+        $PYTHON_VERSION -m venv venv
+        source venv/bin/activate
+        pip install --upgrade pip
+        pip install -r requirements.txt
+        cd ..
+    fi
+    
+    # Run pytest with coverage using activated venv
+    cd backend
+    source venv/bin/activate
+    pytest tests/test_api/*_refactored.py -v --cov=tests --cov-report=term-missing --cov-report=html
+    cd ..
+    
+    print_status "Backend API tests with coverage completed!"
+    print_status "Coverage report: backend/htmlcov/index.html"
+}
+
+# Function to run specific backend test module
+run_backend_test_module() {
+    MODULE=$1
+    
+    if [ -z "$MODULE" ]; then
+        print_error "Please specify a test module"
+        echo "Usage: ./run.sh test:backend:module <module_name>"
+        echo "Example: ./run.sh test:backend:module auth"
+        echo ""
+        echo "Available modules: auth, farmers, daily_entries, market_rates, cash_advances, settlements"
+        return 1
+    fi
+    
+    print_status "Running backend test module: $MODULE..."
+    
+    # Check Python version
+    check_python_version
+    
+    # Check if virtual environment exists
+    if [ ! -d "backend/venv" ]; then
+        print_warning "Virtual environment not found. Creating one with Python 3.12..."
+        cd backend
+        $PYTHON_VERSION -m venv venv
+        source venv/bin/activate
+        pip install --upgrade pip
+        pip install -r requirements.txt
+        cd ..
+    fi
+    
+    # Run specific test module using activated venv
+    cd backend
+    source venv/bin/activate
+    pytest "tests/test_api/test_${MODULE}_refactored.py" -v
+    cd ..
+    
+    print_status "Backend test module completed!"
 }
 
 # Function to run all Playwright tests
@@ -538,11 +657,14 @@ rebuild_frontend() {
 rebuild_backend() {
     print_status "Rebuilding backend..."
     
+    # Check Python version
+    check_python_version
+    
     clean_backend
     
     print_status "Installing backend dependencies..."
     cd backend
-    python3 -m venv venv
+    $PYTHON_VERSION -m venv venv
     source venv/bin/activate
     pip install --upgrade pip
     pip install -r requirements.txt
@@ -597,19 +719,29 @@ show_help() {
     echo "  rebuild:backend  Rebuild backend only"
     echo ""
     echo "Test Commands:"
-    echo "  test            Run all Playwright tests"
-    echo "  test:api        Run API tests only"
-    echo "  test:ui         Run UI tests only"
-    echo "  test:headed     Run tests in headed mode (visible browser)"
-    echo "  test:runner     Run tests with Playwright UI mode"
-    echo "  test:report     Open Playwright HTML test report"
-    echo "  test:install    Install Playwright browsers"
-    echo "  help            Show this help message"
+    echo ""
+    echo "  Backend API Tests (pytest + requests):"
+    echo "  test:backend        Run all backend API tests with pytest"
+    echo "  test:backend:cov    Run backend API tests with coverage report"
+    echo "  test:backend:module Run specific backend test module (e.g., test:backend:module auth)"
+    echo ""
+    echo "  Frontend E2E Tests (Playwright):"
+    echo "  test                Run all Playwright tests"
+    echo "  test:api            Run API tests only"
+    echo "  test:ui             Run UI tests only"
+    echo "  test:headed         Run tests in headed mode (visible browser)"
+    echo "  test:runner         Run tests with Playwright UI mode"
+    echo "  test:report         Open Playwright HTML test report"
+    echo "  test:install        Install Playwright browsers"
+    echo "  help                Show this help message"
     echo ""
     echo "Examples:"
     echo "  ./run.sh start              # Start all services"
     echo "  ./run.sh logs backend       # Show backend logs"
-    echo "  ./run.sh test               # Run all tests"
+    echo "  ./run.sh test:backend       # Run backend API tests"
+    echo "  ./run.sh test:backend:cov   # Run backend tests with coverage"
+    echo "  ./run.sh test:backend:module farmers  # Run farmers tests only"
+    echo "  ./run.sh test               # Run Playwright tests"
     echo "  ./run.sh rebuild            # Clean and reinstall everything"
     echo "  ./run.sh build              # Build frontend for production"
     echo ""
@@ -657,6 +789,15 @@ case "$1" in
         ;;
     test)
         run_tests
+        ;;
+    test:backend)
+        run_backend_tests
+        ;;
+    test:backend:cov)
+        run_backend_tests_coverage
+        ;;
+    test:backend:module)
+        run_backend_test_module "$3"
         ;;
     test:api)
         run_api_tests
