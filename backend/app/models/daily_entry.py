@@ -89,6 +89,17 @@ class DailyEntry(Base):
         nullable=True
     )
     
+    manual_adj_amount: Mapped[Optional[float]] = mapped_column(
+        Numeric(10, 2),
+        nullable=True,
+        default=0.00
+    )
+    
+    adj_reason_code: Mapped[Optional[str]] = mapped_column(
+        String(20),
+        nullable=True
+    )
+    
     created_by: Mapped[str] = mapped_column(
         String(36),
         ForeignKey("users.id", ondelete="SET NULL"),

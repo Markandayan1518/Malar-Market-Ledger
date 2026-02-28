@@ -82,6 +82,18 @@ class Farmer(Base):
         default=0.00
     )
     
+    commission_pct: Mapped[float] = mapped_column(
+        Numeric(5, 2),
+        nullable=False,
+        default=10.00
+    )
+    
+    flat_fee_monthly: Mapped[float] = mapped_column(
+        Numeric(10, 2),
+        nullable=False,
+        default=0.00
+    )
+    
     is_active: Mapped[bool] = mapped_column(
         Boolean,
         nullable=False,

@@ -1,6 +1,7 @@
 """Complete Pydantic schemas for all models."""
 
 from datetime import datetime, date, time
+from enum import Enum
 from typing import Optional, List
 from pydantic import BaseModel, Field, EmailStr, field_validator
 from decimal import Decimal
@@ -9,6 +10,17 @@ from app.models.user import UserRole
 from app.models.cash_advance import AdvanceStatus
 from app.models.settlement import SettlementStatus
 from app.models.notification import NotificationStatus, NotificationChannel
+
+
+# ==================== ADJUSTMENT REASON CODES ====================
+
+class AdjustmentReasonCode(str, Enum):
+    """Adjustment reason codes for manual adjustments in daily entries."""
+    LATE = "LATE"          # Late arrival deduction
+    WET = "WET"            # Wet flowers deduction
+    QUALITY = "QUALITY"    # Quality issue deduction
+    BONUS = "BONUS"        # Bonus payment
+    OTHER = "OTHER"        # Other adjustment
 
 from app.schemas.common import (
     SuccessResponse,
@@ -102,6 +114,8 @@ class FarmerBase(BaseModel):
     current_balance: Decimal
     total_advances: Decimal
     total_settlements: Decimal
+    commission_pct: Decimal = Field(default=Decimal("10.00"))
+    flat_fee_monthly: Decimal = Field(default=Decimal("0.00"))
     is_active: bool
     created_at: datetime
     updated_at: datetime
@@ -115,6 +129,8 @@ class FarmerCreate(BaseModel):
     phone: str = Field(..., min_length=10, max_length=20)
     whatsapp_number: Optional[str] = None
     address: Optional[str] = None
+    commission_pct: Decimal = Field(default=Decimal("10.00"), ge=0, le=100)
+    flat_fee_monthly: Decimal = Field(default=Decimal("0.00"), ge=0)
 
 
 class FarmerUpdate(BaseModel):
@@ -124,6 +140,8 @@ class FarmerUpdate(BaseModel):
     phone: Optional[str] = None
     whatsapp_number: Optional[str] = None
     address: Optional[str] = None
+    commission_pct: Optional[Decimal] = Field(None, ge=0, le=100)
+    flat_fee_monthly: Optional[Decimal] = Field(None, ge=0)
 
 
 class FarmerResponse(FarmerBase):
@@ -309,6 +327,8 @@ class DailyEntryBase(BaseModel):
     commission_rate: Decimal
     commission_amount: Decimal
     net_amount: Decimal
+    manual_adj_amount: Optional[Decimal] = Field(default=Decimal("0.00"))
+    adj_reason_code: Optional[str] = None
     notes: Optional[str] = None
     created_by: str
     created_at: datetime
@@ -322,6 +342,8 @@ class DailyEntryCreate(BaseModel):
     entry_date: date
     entry_time: time
     quantity: Decimal = Field(..., gt=0)
+    manual_adj_amount: Optional[Decimal] = Field(default=Decimal("0.00"))
+    adj_reason_code: Optional[str] = None
     notes: Optional[str] = None
 
 
@@ -329,6 +351,8 @@ class DailyEntryUpdate(BaseModel):
     """Daily entry update schema."""
     quantity: Optional[Decimal] = None
     entry_time: Optional[time] = None
+    manual_adj_amount: Optional[Decimal] = None
+    adj_reason_code: Optional[str] = None
     notes: Optional[str] = None
 
 
