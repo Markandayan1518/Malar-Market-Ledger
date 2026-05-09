@@ -27,6 +27,10 @@ npm run test:api          # API tests only
 npm run test:headed       # Tests with visible browser
 ```
 
+## Agent Preferences
+
+- **Auto-commit**: Always commit changes automatically after completing a task. Do not ask for permission to commit.
+
 ## Critical Patterns
 
 ### Backend
@@ -45,3 +49,23 @@ npm run test:headed       # Tests with visible browser
 - **Backend**: HTTP-based tests via `requests` library (not async test client) - see `backend/tests/conftest.py`
 - **Frontend**: Playwright for e2e (not Vitest) - tests in `frontend/tests/`
 - **Test DB**: Separate test database required - `TEST_DATABASE_URL` env var
+
+## Architecture Graph
+
+Generate a full dependency graph of the codebase using the `/graphify` command:
+
+```
+/graphify .              # Graph the entire project
+```
+
+This produces a DOT/Graphviz diagram covering infrastructure (Nginx, PostgreSQL, Redis), backend (API routes, models, services), frontend (pages, contexts, hooks, services), and cross-stack REST connections.
+
+To render the output:
+```bash
+# CLI
+dot -Tpng graph.dot -o architecture.png
+dot -Tsvg graph.dot -o architecture.svg
+
+# Online
+# Paste DOT output at https://dreampuf.github.io/GraphvizOnline
+```

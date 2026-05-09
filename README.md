@@ -121,6 +121,35 @@ malar-market-ledger/
 └── README.md
 ```
 
+## 📊 Architecture Graph
+
+Generate a full dependency graph of the codebase using the `/graphify` slash command in opencode:
+
+```
+/graphify .              # Graph the entire project
+```
+
+This produces a DOT/Graphviz diagram covering:
+- **Infrastructure**: Nginx, PostgreSQL, Redis
+- **Backend**: API routes (17 endpoints), SQLAlchemy models (15), services (9), auth/config/database
+- **Frontend**: Pages (11), React contexts (4), API services (8), custom hooks (7), offline store, i18n
+- **Cross-stack**: Frontend-to-backend REST connections through Nginx
+
+### Rendering the Graph
+
+Save the DOT output to a file and render with Graphviz:
+
+```bash
+# Install Graphviz if needed
+# macOS: brew install graphviz
+# Ubuntu: sudo apt install graphviz
+
+dot -Tpng graph.dot -o architecture.png
+dot -Tsvg graph.dot -o architecture.svg
+```
+
+Or paste the DOT output at [GraphvizOnline](https://dreampuf.github.io/GraphvizOnline) for an interactive view.
+
 ## 🚀 Quick Start
 
 ### Prerequisites
