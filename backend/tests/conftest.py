@@ -16,6 +16,7 @@ import pytest
 import requests
 from typing import Dict, Any, Optional
 from faker import Faker
+from starlette.status import HTTP_403_FORBIDDEN
 
 # Import new test infrastructure
 from tests.utils.api_client import APIClient, create_api_client, AuthenticationError
@@ -56,7 +57,7 @@ def api_client():
 def admin_credentials() -> Dict[str, str]:
     """Return admin user credentials for testing."""
     return {
-        "email": os.getenv("TEST_ADMIN_EMAIL", "admin@malarmarket.com"),
+        "email": os.getenv("TEST_ADMIN_EMAIL", "admin@malar.com"),
         "password": os.getenv("TEST_ADMIN_PASSWORD", "admin123")
     }
 
@@ -65,7 +66,7 @@ def admin_credentials() -> Dict[str, str]:
 def staff_credentials() -> Dict[str, str]:
     """Return staff user credentials for testing."""
     return {
-        "email": os.getenv("TEST_STAFF_EMAIL", "staff@malarmarket.com"),
+        "email": os.getenv("TEST_STAFF_EMAIL", "staff1@malar.com"),
         "password": os.getenv("TEST_STAFF_PASSWORD", "staff123")
     }
 
@@ -74,8 +75,8 @@ def staff_credentials() -> Dict[str, str]:
 def farmer_credentials() -> Dict[str, str]:
     """Return farmer user credentials for testing."""
     return {
-        "email": os.getenv("TEST_FARMER_EMAIL", "farmer1@malarmarket.com"),
-        "password": os.getenv("TEST_FARMER_PASSWORD", "farmer123")
+        "email": os.getenv("TEST_FARMER_EMAIL", "demo_farmer@malar.com"),
+        "password": os.getenv("TEST_FARMER_PASSWORD", "demo123")
     }
 
 
@@ -329,6 +330,10 @@ def make_request(
 
 
 # ==================== Pytest Configuration ====================
+
+# Unauthenticated requests return 403 (not 401) due to auth middleware behavior
+UNAUTH_STATUS = HTTP_403_FORBIDDEN
+
 
 def pytest_configure(config):
     """Configure pytest with custom markers."""

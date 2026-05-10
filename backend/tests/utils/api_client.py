@@ -142,14 +142,20 @@ class APIClient:
         response.raise_for_status()
         
         data = response.json()
-        if not data.get("success"):
-            raise AuthenticationError(data.get("message", "Login failed"))
+        
+        # Handle both wrapped (success/data) and direct response formats
+        if data.get("success") and "data" in data:
+            response_data = data["data"]
+        else:
+            response_data = data
         
         # Store tokens
-        response_data = data.get("data", {})
         self.access_token = response_data.get("access_token")
         self.refresh_token = response_data.get("refresh_token")
         self.user_data = response_data.get("user")
+        
+        if not self.access_token:
+            raise AuthenticationError("No access_token in response")
         
         return data
     
@@ -182,11 +188,14 @@ class APIClient:
         response.raise_for_status()
         
         data = response.json()
-        if not data.get("success"):
-            raise AuthenticationError(data.get("message", "Token refresh failed"))
+        
+        # Handle both wrapped and direct response formats
+        if data.get("success") and "data" in data:
+            response_data = data["data"]
+        else:
+            response_data = data
         
         # Update tokens
-        response_data = data.get("data", {})
         self.access_token = response_data.get("access_token")
         self.refresh_token = response_data.get("refresh_token")
         
@@ -303,6 +312,40 @@ class APIClient:
             json_data = data
         
         response = self.session.put(
+            url,
+            json=json_data,
+            headers=self._get_headers(),
+            timeout=self.timeout,
+            **kwargs,
+        )
+        return response
+    
+    def patch(
+        self,
+        endpoint: str,
+        data: Optional[Union[Dict[str, Any], BaseModel]] = None,
+        **kwargs,
+    ) -> requests.Response:
+        """
+        Make a PATCH request.
+        
+        Args:
+            endpoint: API endpoint
+            data: Request body (dict or Pydantic model)
+            **kwargs: Additional request arguments
+            
+        Returns:
+            Response object
+        """
+        url = self._build_url(endpoint)
+        
+        # Convert Pydantic model to dict
+        if isinstance(data, BaseModel):
+            json_data = data.model_dump(mode="json", by_alias=True)
+        else:
+            json_data = data
+        
+        response = self.session.patch(
             url,
             json=json_data,
             headers=self._get_headers(),

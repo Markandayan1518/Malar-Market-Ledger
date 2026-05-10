@@ -21,15 +21,19 @@ async def list_settings(
     result = await db.execute(select(SystemSetting))
     settings = result.scalars().all()
     
-    return create_success_response([
-        {
-            "key": s.key,
-            "value": s.value,
-            "description": s.description,
-            "updated_at": s.updated_at.isoformat() if s.updated_at else None,
-        }
-        for s in settings
-    ])
+    return {
+        "success": True,
+        "data": [
+            {
+                "key": s.key,
+                "value": s.value,
+                "description": s.description,
+                "updated_at": s.updated_at.isoformat() if s.updated_at else None,
+            }
+            for s in settings
+        ],
+        "message": None
+    }
 
 
 @router.get("/public")

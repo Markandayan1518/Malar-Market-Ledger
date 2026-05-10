@@ -28,7 +28,7 @@ async def list_notifications(
         query = query.where(Notification.is_read == is_read)
     
     if notification_type:
-        query = query.where(Notification.notification_type == notification_type)
+        query = query.where(Notification.type == notification_type)
     
     # Count total
     count_query = select(func.count()).select_from(query.subquery())
@@ -57,7 +57,7 @@ async def list_notifications(
                 "id": n.id,
                 "title": n.title,
                 "message": n.message,
-                "notification_type": n.notification_type,
+                "notification_type": n.type,
                 "is_read": n.is_read,
                 "action_url": n.action_url,
                 "created_at": n.created_at.isoformat() if n.created_at else None,
@@ -132,7 +132,7 @@ async def create_notification(
         user_id=user_id,
         title=title,
         message=message,
-        notification_type=notification_type,
+        type=notification_type,
         action_url=action_url,
         is_read=False,
     )
@@ -187,7 +187,7 @@ async def mark_all_as_read(
     await db.execute(
         update(Notification)
         .where(Notification.user_id == current_user.id)
-        .where(Notification.is_read == False)
+        .where(Notification.is_read != True)
         .values(is_read=True, read_at=datetime.utcnow())
     )
     await db.commit()

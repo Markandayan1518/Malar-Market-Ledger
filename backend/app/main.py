@@ -73,18 +73,22 @@ async def global_exception_handler(request: Request, exc: Exception):
 
 
 # Include all API routers
+# Note: Some routers define their own prefix (auth, users, flower-types, time-slots,
+# notifications, system-settings), so main.py only adds /api/v1.
+# Others (farmers, market_rates, daily_entries, etc.) have no internal prefix,
+# so main.py adds the full /api/v1/<module> prefix.
 app.include_router(auth.router, prefix="/api/v1", tags=["Authentication"])
-app.include_router(users.router, prefix="/api/v1/users", tags=["Users"])
+app.include_router(users.router, prefix="/api/v1", tags=["Users"])
 app.include_router(farmers.router, prefix="/api/v1/farmers", tags=["Farmers"])
-app.include_router(flower_types.router, prefix="/api/v1/flower-types", tags=["Flower Types"])
-app.include_router(time_slots.router, prefix="/api/v1/time-slots", tags=["Time Slots"])
-app.include_router(market_rates.router, prefix="/api/v1/market-rates", tags=["Market Rates"])
+app.include_router(flower_types.router, prefix="/api/v1", tags=["Flower Types"])
+app.include_router(time_slots.router, prefix="/api/v1", tags=["Time Slots"])
+app.include_router(market_rates.router, prefix="/api/v1", tags=["Market Rates"])
 app.include_router(daily_entries.router, prefix="/api/v1/daily-entries", tags=["Daily Entries"])
 app.include_router(cash_advances.router, prefix="/api/v1/cash-advances", tags=["Cash Advances"])
 app.include_router(settlements.router, prefix="/api/v1/settlements", tags=["Settlements"])
 app.include_router(reports.router, prefix="/api/v1/reports", tags=["Reports"])
-app.include_router(notifications.router, prefix="/api/v1/notifications", tags=["Notifications"])
-app.include_router(system_settings.router, prefix="/api/v1/system-settings", tags=["System Settings"])
+app.include_router(notifications.router, prefix="/api/v1", tags=["Notifications"])
+app.include_router(system_settings.router, prefix="/api/v1", tags=["System Settings"])
 app.include_router(invoices.router, prefix="/api/v1", tags=["Invoices"])
 app.include_router(business_profile.router, prefix="/api/v1", tags=["Business Profile"])
 

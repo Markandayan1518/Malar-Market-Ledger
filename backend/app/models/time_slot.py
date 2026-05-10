@@ -61,6 +61,12 @@ class TimeSlot(Base):
         default=datetime.utcnow,
         onupdate=datetime.utcnow
     )
+    
+    deleted_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime,
+        nullable=True,
+        default=None
+    )
 
     # Relationships
     daily_entries = relationship(

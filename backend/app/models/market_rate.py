@@ -71,6 +71,12 @@ class MarketRate(Base):
         default=datetime.utcnow,
         onupdate=datetime.utcnow
     )
+    
+    deleted_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime,
+        nullable=True,
+        default=None
+    )
 
     # Relationships
     flower_type = relationship(

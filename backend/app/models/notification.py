@@ -107,6 +107,24 @@ class Notification(Base):
         nullable=False,
         default=datetime.utcnow
     )
+    
+    is_read: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+        default=False,
+        default_kwarg=None
+    )
+    
+    read_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime,
+        nullable=True,
+        default=None
+    )
+    
+    action_url: Mapped[Optional[str]] = mapped_column(
+        String(500),
+        nullable=True
+    )
 
     # Relationships
     user = relationship(

@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "skills": {
+    "postgresql-code-review": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "skillPath": "skills/postgresql-code-review/SKILL.md",
+      "computedHash": "1167ec9449aa866e16bc7449e05ab4d391cdce95a0b0c5e1155b793160471eb5"
+    },
+    "postgresql-optimization": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "skillPath": "skills/postgresql-optimization/SKILL.md",
+      "computedHash": "8022448de70ba9a485e3b5bce34c5bbc644f93eb39b68431c9f7dabcf03aeb09"
+    },
+    "rest-api-design": {
+      "source": "secondsky/claude-skills",
+      "sourceType": "github",
+      "skillPath": "plugins/rest-api-design/skills/rest-api-design/SKILL.md",
+      "computedHash": "60248d72662c4bc3c9ba68f8703b614507181197c52f529e7d5aeb8db3e6523a"
+    }
+  }
+}
