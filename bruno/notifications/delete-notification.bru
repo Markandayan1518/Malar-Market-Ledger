@@ -1,0 +1,20 @@
+meta {
+  name: Delete Notification
+  description: Delete a notification for current user
+}
+
+auth: bearer
+
+method DELETE
+url {{base_url}}/notifications/{{notification_id}}
+
+headers {
+  Accept: application/json
+  Authorization: Bearer {{access_token}}
+}
+
+script:post-response {
+  const response = res.getBody();
+  bru.assertion(expect(res.getStatus()).to.equal(200));
+  bru.assertion(expect(response).to.have.property('success'));
+}

@@ -1,0 +1,21 @@
+meta {
+  name: Unread Count
+  description: Get count of unread notifications for current user
+}
+
+auth: bearer
+
+method GET
+url {{base_url}}/notifications/unread-count
+
+headers {
+  Accept: application/json
+  Authorization: Bearer {{access_token}}
+}
+
+script:post-response {
+  const response = res.getBody();
+  bru.assertion(expect(res.getStatus()).to.equal(200));
+  bru.assertion(expect(response).to.have.property('success'));
+  bru.assertion(expect(response.data).to.have.property('unread_count'));
+}

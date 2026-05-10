@@ -1,0 +1,35 @@
+meta {
+  name: Update Invoice
+  description: Update an existing invoice (only draft/pending)
+}
+
+auth: bearer
+
+method PUT
+url {{base_url}}/invoices/{{invoice_id}}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{access_token}}
+}
+
+body {
+  {
+    "notes": "Updated invoice notes",
+    "items": [
+      {
+        "description": "Rose - Morning Batch (Updated)",
+        "quantity": 55.00,
+        "unit": "kg",
+        "rate": 160.00,
+        "flower_type_id": "{{flower_type_id}}"
+      }
+    ]
+  }
+}
+
+script:post-response {
+  const response = res.getBody();
+  bru.assertion(expect(res.getStatus()).to.equal(200));
+  bru.assertion(expect(response).to.have.property('id'));
+}

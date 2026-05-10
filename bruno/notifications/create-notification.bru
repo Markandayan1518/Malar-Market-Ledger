@@ -1,0 +1,23 @@
+meta {
+  name: Create Notification
+  description: Create a new notification for a user (Staff/Admin only)
+}
+
+auth: bearer
+
+method POST
+url {{base_url}}/notifications/?user_id={{user_id}}&title=Test%20Notification&message=This%20is%20a%20test%20notification&notification_type=info&action_url=%2Fdashboard
+
+headers {
+  Accept: application/json
+  Authorization: Bearer {{access_token}}
+}
+
+script:post-response {
+  const response = res.getBody();
+  bru.assertion(expect(res.getStatus()).to.equal(201));
+  bru.assertion(expect(response).to.have.property('success'));
+  if (response.data && response.data.id) {
+    bru.setEnvVar('notification_id', response.data.id);
+  }
+}

@@ -1,0 +1,18 @@
+meta {
+  name: Daily Summary Report
+  description: Generate daily summary report for a specific date (PDF/Excel)
+}
+
+auth: bearer
+
+method GET
+url {{base_url}}/reports/daily-summary/2026-02-14?format=pdf
+
+headers {
+  Accept: application/json
+  Authorization: Bearer {{access_token}}
+}
+
+script:post-response {
+  bru.assertion(expect(res.getStatus()).to.equal(200));
+}

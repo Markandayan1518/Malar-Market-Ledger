@@ -1,0 +1,22 @@
+meta {
+  name: Farmer Advance Summary
+  description: Get advance summary for a specific farmer by status
+}
+
+auth: bearer
+
+method GET
+url {{base_url}}/cash-advances/farmer/{{farmer_id}}/summary
+
+headers {
+  Accept: application/json
+  Authorization: Bearer {{access_token}}
+}
+
+script:post-response {
+  const response = res.getBody();
+  bru.assertion(expect(res.getStatus()).to.equal(200));
+  bru.assertion(expect(response).to.have.property('success'));
+  bru.assertion(expect(response.data).to.have.property('pending'));
+  bru.assertion(expect(response.data).to.have.property('approved'));
+}

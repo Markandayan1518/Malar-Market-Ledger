@@ -1,0 +1,54 @@
+meta {
+  name: Create Invoice
+  description: Create a new invoice with items (Staff/Admin only)
+}
+
+auth: bearer
+
+method POST
+url {{base_url}}/invoices/
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{access_token}}
+}
+
+body {
+  {
+    "farmer_id": "{{farmer_id}}",
+    "customer_name": "Ravi Kumar",
+    "customer_phone": "+919876543210",
+    "customer_address": "456, Flower Street, Dindigul",
+    "invoice_date": "2026-02-20",
+    "due_date": "2026-03-20",
+    "tax_rate": 18.00,
+    "discount": 0.00,
+    "notes": "Monthly flower supply invoice",
+    "terms": "Payment due within 30 days",
+    "items": [
+      {
+        "description": "Rose - Morning Batch",
+        "quantity": 50.00,
+        "unit": "kg",
+        "rate": 155.00,
+        "flower_type_id": "{{flower_type_id}}"
+      },
+      {
+        "description": "Rose - Evening Batch",
+        "quantity": 30.00,
+        "unit": "kg",
+        "rate": 145.00,
+        "flower_type_id": "{{flower_type_id}}"
+      }
+    ]
+  }
+}
+
+script:post-response {
+  const response = res.getBody();
+  bru.assertion(expect(res.getStatus()).to.equal(200));
+  bru.assertion(expect(response).to.have.property('id'));
+  if (response.id) {
+    bru.setEnvVar('invoice_id', response.id);
+  }
+}

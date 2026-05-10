@@ -1,0 +1,20 @@
+meta {
+  name: Delete Cash Advance
+  description: Soft delete a cash advance (only pending advances)
+}
+
+auth: bearer
+
+method DELETE
+url {{base_url}}/cash-advances/{{advance_id}}
+
+headers {
+  Accept: application/json
+  Authorization: Bearer {{access_token}}
+}
+
+script:post-response {
+  const response = res.getBody();
+  bru.assertion(expect(res.getStatus()).to.equal(200));
+  bru.assertion(expect(response).to.have.property('success'));
+}

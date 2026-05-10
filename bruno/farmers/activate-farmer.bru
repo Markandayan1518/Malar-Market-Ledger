@@ -1,0 +1,21 @@
+meta {
+  name: Activate Farmer
+  description: Activate a farmer (set is_active to True)
+}
+
+auth: bearer
+
+method PATCH
+url {{base_url}}/farmers/{{farmer_id}}/activate
+
+headers {
+  Accept: application/json
+  Authorization: Bearer {{access_token}}
+}
+
+script:post-response {
+  const response = res.getBody();
+  bru.assertion(expect(res.getStatus()).to.equal(200));
+  bru.assertion(expect(response).to.have.property('success'));
+  bru.assertion(expect(response.success).to.equal(true));
+}

@@ -1,0 +1,18 @@
+meta {
+  name: Farmer Statement
+  description: Generate individual farmer monthly statement (PDF/Excel)
+}
+
+auth: bearer
+
+method GET
+url {{base_url}}/reports/farmer-statement/{{farmer_id}}/2/2026?language=en&format=pdf
+
+headers {
+  Accept: application/json
+  Authorization: Bearer {{access_token}}
+}
+
+script:post-response {
+  bru.assertion(expect(res.getStatus()).to.equal(200));
+}

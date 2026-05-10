@@ -1,0 +1,25 @@
+meta {
+  name: Custom Report
+  description: Generate custom report with filters (PDF/Excel)
+}
+
+auth: bearer
+
+method POST
+url {{base_url}}/reports/custom?format=excel&farmer_id={{farmer_id}}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{access_token}}
+}
+
+body {
+  {
+    "start_date": "2026-01-01",
+    "end_date": "2026-02-28"
+  }
+}
+
+script:post-response {
+  bru.assertion(expect(res.getStatus()).to.equal(200));
+}

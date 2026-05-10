@@ -1,0 +1,18 @@
+meta {
+  name: Health Check
+  description: Check if the API service is healthy
+}
+
+method GET
+url {{base_url}}/../health
+
+headers {
+  Accept: application/json
+}
+
+script:post-response {
+  const response = res.getBody();
+  bru.assertion(expect(res.getStatus()).to.equal(200));
+  bru.assertion(expect(response).to.have.property('status'));
+  bru.assertion(expect(response.status).to.equal('healthy'));
+}

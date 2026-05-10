@@ -1,0 +1,20 @@
+meta {
+  name: Get Setting
+  description: Get a specific system setting by key (Admin only)
+}
+
+auth: bearer
+
+method GET
+url {{base_url}}/system-settings/currency_symbol
+
+headers {
+  Accept: application/json
+  Authorization: Bearer {{access_token}}
+}
+
+script:post-response {
+  const response = res.getBody();
+  bru.assertion(expect(res.getStatus()).to.equal(200));
+  bru.assertion(expect(response).to.have.property('success'));
+}

@@ -1,0 +1,20 @@
+meta {
+  name: Update Flower Type
+  description: Update a flower type (Staff/Admin only)
+}
+
+auth: bearer
+
+method PUT
+url {{base_url}}/flower-types/{{flower_type_id}}?name=Jasmine%20Updated&name_ta=%E0%AE%AE%E0%AE%B2%E0%AF%8D%E0%AE%B2%E0%AE%BF%E0%AE%95%E0%AF%88
+
+headers {
+  Accept: application/json
+  Authorization: Bearer {{access_token}}
+}
+
+script:post-response {
+  const response = res.getBody();
+  bru.assertion(expect(res.getStatus()).to.equal(200));
+  bru.assertion(expect(response).to.have.property('success'));
+}

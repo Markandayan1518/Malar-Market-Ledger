@@ -1,0 +1,20 @@
+meta {
+  name: Public Settings
+  description: Get public system settings (all authenticated users)
+}
+
+auth: bearer
+
+method GET
+url {{base_url}}/system-settings/public
+
+headers {
+  Accept: application/json
+  Authorization: Bearer {{access_token}}
+}
+
+script:post-response {
+  const response = res.getBody();
+  bru.assertion(expect(res.getStatus()).to.equal(200));
+  bru.assertion(expect(response).to.have.property('success'));
+}

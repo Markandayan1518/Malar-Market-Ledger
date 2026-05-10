@@ -1,0 +1,44 @@
+meta {
+  name: Bulk Create Entries
+  description: Create multiple daily entries in bulk (offline sync)
+}
+
+auth: bearer
+
+method POST
+url {{base_url}}/daily-entries/bulk
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{access_token}}
+}
+
+body {
+  {
+    "entries": [
+      {
+        "farmer_id": "{{farmer_id}}",
+        "flower_type_id": "{{flower_type_id}}",
+        "entry_date": "2026-02-15",
+        "entry_time": "06:00:00",
+        "quantity": 15.00,
+        "notes": "Morning batch entry 1"
+      },
+      {
+        "farmer_id": "{{farmer_id}}",
+        "flower_type_id": "{{flower_type_id}}",
+        "entry_date": "2026-02-15",
+        "entry_time": "07:30:00",
+        "quantity": 12.50,
+        "notes": "Morning batch entry 2"
+      }
+    ]
+  }
+}
+
+script:post-response {
+  const response = res.getBody();
+  bru.assertion(expect(res.getStatus()).to.equal(201));
+  bru.assertion(expect(response).to.have.property('success'));
+  bru.assertion(expect(response.data).to.have.property('created_count'));
+}

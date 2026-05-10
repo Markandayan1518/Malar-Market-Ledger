@@ -1,0 +1,21 @@
+meta {
+  name: Get Cash Advance
+  description: Get a single cash advance by ID
+}
+
+auth: bearer
+
+method GET
+url {{base_url}}/cash-advances/{{advance_id}}
+
+headers {
+  Accept: application/json
+  Authorization: Bearer {{access_token}}
+}
+
+script:post-response {
+  const response = res.getBody();
+  bru.assertion(expect(res.getStatus()).to.equal(200));
+  bru.assertion(expect(response).to.have.property('success'));
+  bru.assertion(expect(response).to.have.property('data'));
+}

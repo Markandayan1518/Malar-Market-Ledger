@@ -1,0 +1,20 @@
+meta {
+  name: Clear Read Notifications
+  description: Delete all read notifications for current user
+}
+
+auth: bearer
+
+method DELETE
+url {{base_url}}/notifications/clear-read
+
+headers {
+  Accept: application/json
+  Authorization: Bearer {{access_token}}
+}
+
+script:post-response {
+  const response = res.getBody();
+  bru.assertion(expect(res.getStatus()).to.equal(200));
+  bru.assertion(expect(response).to.have.property('success'));
+}

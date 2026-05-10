@@ -1756,6 +1756,623 @@ Preview import file before committing.
 
 **Permissions:** Admin only
 
+### Invoices Module
+
+#### GET /invoices
+List invoices with filtering and pagination (Staff/Admin only).
+
+**Query Parameters:**
+- `page`, `page_size` (pagination)
+- `status`: Filter by status (draft, pending, paid, cancelled)
+- `farmer_id`: Filter by farmer
+- `start_date`, `end_date`: Filter by date range
+- `search`: Search by invoice number, customer name, or phone
+
+**Permissions:** Staff, Admin
+
+#### GET /invoices/{invoice_id}
+Get invoice by ID with items.
+
+**Permissions:** Staff, Admin
+
+#### POST /invoices
+Create new invoice.
+
+**Request Body:**
+```json
+{
+  "farmer_id": "string",
+  "customer_name": "string",
+  "customer_phone": "string",
+  "customer_address": "string",
+  "invoice_date": "2026-02-20",
+  "due_date": "2026-03-20",
+  "tax_rate": 18.00,
+  "discount": 0.00,
+  "notes": "string",
+  "terms": "string",
+  "settlement_id": "string (optional)",
+  "items": [
+    {
+      "description": "string",
+      "quantity": 50.00,
+      "unit": "kg",
+      "rate": 155.00,
+      "flower_type_id": "string",
+      "daily_entry_id": "string (optional)"
+    }
+  ]
+}
+```
+
+**Permissions:** Staff, Admin
+
+#### PUT /invoices/{invoice_id}
+Update invoice (only draft/pending status).
+
+**Permissions:** Staff, Admin
+
+#### POST /invoices/{invoice_id}/send
+Send invoice (change status from draft to pending).
+
+**Permissions:** Staff, Admin
+
+#### POST /invoices/{invoice_id}/payment
+Record payment for invoice.
+
+**Request Body:**
+```json
+{
+  "amount": 5000.00,
+  "notes": "Payment via UPI"
+}
+```
+
+**Permissions:** Staff, Admin
+
+#### POST /invoices/{invoice_id}/cancel
+Cancel invoice with reason.
+
+**Request Body:**
+```json
+{
+  "reason": "Order cancelled by customer"
+}
+```
+
+**Permissions:** Staff, Admin
+
+#### DELETE /invoices/{invoice_id}
+Soft delete invoice (Admin only).
+
+**Permissions:** Admin
+
+#### GET /invoices/{invoice_id}/pdf
+Generate PDF for invoice.
+
+**Query Parameters:**
+- `language`: Output language (`en` or `ta`, default: `en`)
+
+**Response:** PDF file download
+
+**Permissions:** Staff, Admin
+
+---
+
+### Business Profile Module
+
+#### GET /business-profile
+Get active business profile (public endpoint, no auth required).
+
+**Permissions:** Public
+
+#### GET /business-profile/all
+List all business profiles (Admin only).
+
+**Permissions:** Admin
+
+#### POST /business-profile
+Create new business profile (Admin only, deactivates existing active profile).
+
+**Request Body:**
+```json
+{
+  "shop_name": "Malar Flower Market",
+  "owner_name": "string",
+  "address_line1": "string",
+  "address_line2": "string",
+  "city": "string",
+  "state": "string",
+  "pincode": "string",
+  "phone": "string",
+  "alternate_phone": "string",
+  "email": "string",
+  "gst_number": "string",
+  "pan_number": "string",
+  "bank_name": "string",
+  "bank_account_number": "string",
+  "bank_ifsc_code": "string",
+  "bank_branch": "string",
+  "upi_id": "string",
+  "logo_url": "string",
+  "invoice_prefix": "MLR",
+  "invoice_notes": "string",
+  "invoice_terms": "string"
+}
+```
+
+**Permissions:** Admin
+
+#### PUT /business-profile/{profile_id}
+Update business profile (Admin only).
+
+**Permissions:** Admin
+
+#### POST /business-profile/{profile_id}/activate
+Activate profile and deactivate all others (Admin only).
+
+**Permissions:** Admin
+
+#### DELETE /business-profile/{profile_id}
+Delete business profile (Admin only, cannot delete active profile).
+
+**Permissions:** Admin
+
+---
+
+## Additional Endpoints
+
+### Health Check
+
+#### GET /health
+Check API service health (no authentication required).
+
+**Response:**
+```json
+{
+  "status": "healthy",
+  "service": "malar-market-ledger"
+}
+```
+
+### User Profile Endpoints
+
+#### GET /users/me
+Get current authenticated user info.
+
+**Permissions:** Any authenticated user
+
+#### PUT /users/me
+Update current user profile.
+
+**Query Parameters:**
+- `full_name`: Full name
+- `language_preference`: `en` or `ta`
+- `theme_preference`: `arctic` or `warm`
+
+**Permissions:** Any authenticated user
+
+#### PUT /users/me/password
+Change current user password.
+
+**Query Parameters:**
+- `current_password`: Current password (min 6 chars)
+- `new_password`: New password (min 6 chars)
+
+**Permissions:** Any authenticated user
+
+#### GET /users/me/preferences
+Get current user preferences (language, theme, notifications).
+
+**Permissions:** Any authenticated user
+
+#### PUT /users/me/preferences
+Update current user preferences.
+
+**Query Parameters:**
+- `language`: `en` or `ta`
+- `theme`: `arctic` or `warm`
+- `notifications_enabled`: boolean
+
+**Permissions:** Any authenticated user
+
+#### POST /users/{user_id}/reset-password
+Admin resets a user's password.
+
+**Query Parameters:**
+- `new_password`: New password (min 6 chars)
+
+**Permissions:** Admin
+
+### Farmer Extended Endpoints
+
+#### GET /farmers/search
+Quick search for autocomplete (returns simplified list).
+
+**Query Parameters:**
+- `q`: Search query (required, min 1 char)
+- `limit`: Max results (1-50, default 10)
+
+**Permissions:** Staff, Admin
+
+#### DELETE /farmers/{farmer_id}
+Soft delete farmer (fails if farmer has existing entries).
+
+**Permissions:** Staff, Admin
+
+#### PATCH /farmers/{farmer_id}/deactivate
+Deactivate farmer.
+
+**Permissions:** Staff, Admin
+
+#### PATCH /farmers/{farmer_id}/activate
+Activate farmer.
+
+**Permissions:** Staff, Admin
+
+#### GET /farmers/{farmer_id}/products
+Get flower types linked to a farmer with entry counts.
+
+**Permissions:** Staff, Admin
+
+#### POST /farmers/{farmer_id}/products
+Add flower types to farmer profile.
+
+**Request Body:**
+```json
+{
+  "flower_type_ids": ["uuid1", "uuid2"]
+}
+```
+
+**Permissions:** Staff, Admin
+
+#### DELETE /farmers/{farmer_id}/products/{product_id}
+Remove flower type from farmer profile (soft delete).
+
+**Permissions:** Staff, Admin
+
+#### GET /farmers/{farmer_id}/suggested-flower
+Get suggested flower type based on farmer history.
+
+**Permissions:** Staff, Admin
+
+### Flower Type Extended Endpoints
+
+#### GET /flower-types/active
+List all active flower types for dropdowns.
+
+**Permissions:** Any authenticated user
+
+#### POST /flower-types
+Create new flower type.
+
+**Query Parameters:**
+- `name`: Name (required)
+- `name_ta`: Tamil name (required)
+- `unit`: Unit (default: kg)
+
+**Permissions:** Staff, Admin
+
+#### PUT /flower-types/{flower_type_id}
+Update flower type.
+
+**Permissions:** Staff, Admin
+
+#### DELETE /flower-types/{flower_type_id}
+Soft delete flower type.
+
+**Permissions:** Admin
+
+#### PATCH /flower-types/{flower_type_id}/deactivate
+Deactivate flower type.
+
+**Permissions:** Staff, Admin
+
+#### PATCH /flower-types/{flower_type_id}/activate
+Activate flower type.
+
+**Permissions:** Staff, Admin
+
+### Time Slot Extended Endpoints
+
+#### GET /time-slots/active
+List all active time slots for dropdowns.
+
+**Permissions:** Any authenticated user
+
+#### POST /time-slots
+Create new time slot.
+
+**Query Parameters:**
+- `name`: Name (required)
+- `name_ta`: Tamil name (required)
+- `start_time`: Start time in HH:MM (required)
+- `end_time`: End time in HH:MM (required)
+
+**Permissions:** Staff, Admin
+
+#### PUT /time-slots/{time_slot_id}
+Update time slot.
+
+**Permissions:** Staff, Admin
+
+#### DELETE /time-slots/{time_slot_id}
+Soft delete time slot.
+
+**Permissions:** Admin
+
+#### PATCH /time-slots/{time_slot_id}/deactivate | /activate
+Deactivate or activate time slot.
+
+**Permissions:** Staff, Admin
+
+### Market Rate Extended Endpoints
+
+#### GET /market-rates/{rate_id}
+Get market rate by ID.
+
+**Permissions:** Any authenticated user
+
+#### POST /market-rates/bulk
+Create multiple market rates at once.
+
+**Request Body:** Array of rate objects with `flower_type_id`, `time_slot_id`, `rate_per_unit`, `effective_date`.
+
+**Permissions:** Staff, Admin
+
+#### PUT /market-rates/{rate_id}
+Update market rate.
+
+**Permissions:** Staff, Admin
+
+#### DELETE /market-rates/{rate_id}
+Soft delete market rate.
+
+**Permissions:** Admin
+
+#### GET /market-rates/history/{flower_type_id}
+Get rate history for a flower type.
+
+**Query Parameters:**
+- `days`: Number of days (1-365, default 30)
+- `time_slot_id`: Optional filter by time slot
+
+**Permissions:** Any authenticated user
+
+### Daily Entry Extended Endpoints
+
+#### GET /daily-entries/summary
+Get daily summary statistics for a date.
+
+**Query Parameters:**
+- `entry_date`: Required date (YYYY-MM-DD)
+
+**Response includes:** total_entries, total_quantity, gross_amount, total_commission, net_amount, unique_farmers, flower_type_breakdown
+
+**Permissions:** Staff, Admin
+
+#### POST /daily-entries/bulk
+Create multiple entries in bulk (for offline sync).
+
+**Request Body:**
+```json
+{
+  "entries": [
+    {
+      "farmer_id": "string",
+      "flower_type_id": "string",
+      "entry_date": "2026-02-15",
+      "entry_time": "06:00:00",
+      "quantity": 15.00,
+      "notes": "string"
+    }
+  ]
+}
+```
+
+**Permissions:** Staff, Admin
+
+### Cash Advance Extended Endpoints
+
+#### GET /cash-advances/{advance_id}
+Get single cash advance by ID.
+
+**Permissions:** Staff, Admin
+
+#### PUT /cash-advances/{advance_id}
+Update cash advance notes (only pending advances).
+
+**Permissions:** Staff, Admin
+
+#### DELETE /cash-advances/{advance_id}
+Soft delete cash advance (only pending advances).
+
+**Permissions:** Staff, Admin
+
+#### GET /cash-advances/farmer/{farmer_id}/summary
+Get advance summary for a specific farmer by status.
+
+**Permissions:** Staff, Admin
+
+### Settlement Extended Endpoints
+
+#### DELETE /settlements/{settlement_id}
+Soft delete settlement (only draft settlements).
+
+**Permissions:** Staff, Admin
+
+### Reports Extended Endpoints
+
+#### GET /reports/market-analytics
+Market analytics data (avg/min/max weight, adjustment stats).
+
+**Query Parameters:** `start_date`, `end_date`
+
+**Permissions:** Any authenticated user
+
+#### GET /reports/settlements
+Settlements report data as JSON.
+
+**Query Parameters:** `start_date`, `end_date`
+
+**Permissions:** Any authenticated user
+
+#### GET /reports/cash-advances
+Cash advances report data as JSON.
+
+**Query Parameters:** `start_date`, `end_date`
+
+**Permissions:** Any authenticated user
+
+#### GET /reports/farmer-statement/{farmer_id}/{month}/{year}
+Generate farmer monthly statement (PDF/Excel).
+
+**Query Parameters:**
+- `language`: `en` or `ta` (default: `en`)
+- `format`: `pdf` or `excel` (default: `pdf`)
+
+**Response:** File download
+
+**Permissions:** Any authenticated user
+
+#### GET /reports/monthly-report/{month}/{year}
+Master monthly report for all farmers.
+
+**Query Parameters:**
+- `format`: `pdf` or `excel` (default: `excel`)
+- `flower_type_id`: Optional filter
+- `village`: Optional filter
+
+**Response:** File download
+
+**Permissions:** Any authenticated user
+
+#### GET /reports/daily-summary/{report_date}
+Daily summary report file (PDF/Excel).
+
+**Query Parameters:**
+- `format`: `pdf` or `excel` (default: `excel`)
+
+**Response:** File download
+
+**Permissions:** Any authenticated user
+
+#### GET /reports/settlement-report/{settlement_id}
+Settlement report PDF.
+
+**Query Parameters:**
+- `format`: `pdf` (default)
+
+**Response:** PDF file download
+
+**Permissions:** Any authenticated user
+
+#### POST /reports/custom
+Custom report with filters.
+
+**Request Body:**
+```json
+{
+  "start_date": "2026-01-01",
+  "end_date": "2026-02-28"
+}
+```
+
+**Query Parameters:**
+- `format`: `pdf` or `excel`
+- `farmer_id`, `flower_type_id`, `village`: Optional filters
+
+**Response:** File download
+
+**Permissions:** Any authenticated user
+
+#### GET /reports/font-info
+Available font information for reports.
+
+**Permissions:** Any authenticated user
+
+### Notification Extended Endpoints
+
+#### GET /notifications/unread-count
+Get count of unread notifications.
+
+**Permissions:** Any authenticated user
+
+#### GET /notifications/{notification_id}
+Get notification by ID.
+
+**Permissions:** Any authenticated user
+
+#### POST /notifications
+Create notification for a user.
+
+**Query Parameters:**
+- `user_id`: Target user ID (required)
+- `title`: Title (required)
+- `message`: Message (required)
+- `notification_type`: Type (default: `info`)
+- `action_url`: Optional action URL
+
+**Permissions:** Staff, Admin
+
+#### PUT /notifications/read-all
+Mark all notifications as read.
+
+**Permissions:** Any authenticated user
+
+#### DELETE /notifications/{notification_id}
+Delete a notification.
+
+**Permissions:** Any authenticated user
+
+#### DELETE /notifications/clear-all
+Delete all notifications for current user.
+
+**Permissions:** Any authenticated user
+
+#### DELETE /notifications/clear-read
+Delete all read notifications for current user.
+
+**Permissions:** Any authenticated user
+
+### System Settings Extended Endpoints
+
+#### GET /system-settings/public
+Get public system settings (business_name, address, phone, currency, language, theme).
+
+**Permissions:** Any authenticated user
+
+#### GET /system-settings/{key}
+Get setting by key.
+
+**Permissions:** Admin
+
+#### DELETE /system-settings/{key}
+Delete a system setting.
+
+**Permissions:** Admin
+
+#### POST /system-settings/bulk
+Update multiple settings at once.
+
+**Request Body:** JSON object with key-value pairs.
+
+**Permissions:** Admin
+
+#### GET /system-settings/business/profile
+Get business profile from system settings.
+
+**Permissions:** Any authenticated user
+
+#### PUT /system-settings/business/profile
+Update business profile settings.
+
+**Query Parameters:**
+- `business_name`, `business_address`, `business_phone`, `business_email`, `business_gst`, `currency_symbol`
+
+**Permissions:** Staff, Admin
+
 ---
 
 ## Error Handling
@@ -1924,6 +2541,6 @@ The API uses URL path versioning: `/api/v1/`
 
 ---
 
-**Document Version**: 1.0
-**Last Updated**: 2026-02-14
+**Document Version**: 2.0
+**Last Updated**: 2026-05-10
 **Author**: API Team

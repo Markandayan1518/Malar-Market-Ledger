@@ -1,0 +1,22 @@
+meta {
+  name: Daily Entry Summary
+  description: Get daily summary statistics for a specific date
+}
+
+auth: bearer
+
+method GET
+url {{base_url}}/daily-entries/summary?entry_date=2026-02-14
+
+headers {
+  Accept: application/json
+  Authorization: Bearer {{access_token}}
+}
+
+script:post-response {
+  const response = res.getBody();
+  bru.assertion(expect(res.getStatus()).to.equal(200));
+  bru.assertion(expect(response).to.have.property('success'));
+  bru.assertion(expect(response.data).to.have.property('total_entries'));
+  bru.assertion(expect(response.data).to.have.property('gross_amount'));
+}

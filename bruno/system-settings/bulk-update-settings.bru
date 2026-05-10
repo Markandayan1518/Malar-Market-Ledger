@@ -1,0 +1,28 @@
+meta {
+  name: Bulk Update Settings
+  description: Update multiple system settings at once (Admin only)
+}
+
+auth: bearer
+
+method POST
+url {{base_url}}/system-settings/bulk
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{access_token}}
+}
+
+body {
+  {
+    "business_name": "Malar Flower Market",
+    "currency_symbol": "₹",
+    "default_language": "ta"
+  }
+}
+
+script:post-response {
+  const response = res.getBody();
+  bru.assertion(expect(res.getStatus()).to.equal(200));
+  bru.assertion(expect(response).to.have.property('success'));
+}

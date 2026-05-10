@@ -1,0 +1,20 @@
+meta {
+  name: Rate History
+  description: Get rate history for a flower type over a period
+}
+
+auth: bearer
+
+method GET
+url {{base_url}}/market-rates/history/{{flower_type_id}}?days=30
+
+headers {
+  Accept: application/json
+  Authorization: Bearer {{access_token}}
+}
+
+script:post-response {
+  const response = res.getBody();
+  bru.assertion(expect(res.getStatus()).to.equal(200));
+  bru.assertion(expect(response).to.have.property('success'));
+}

@@ -1,0 +1,27 @@
+meta {
+  name: Update Business Profile
+  description: Update a business profile (Admin only)
+}
+
+auth: bearer
+
+method PUT
+url {{base_url}}/business-profile/{{profile_id}}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{access_token}}
+}
+
+body {
+  {
+    "shop_name": "Malar Flower Market Updated",
+    "phone": "+919876543210",
+    "email": "malar.updated@flowers.com"
+  }
+}
+
+script:post-response {
+  const response = res.getBody();
+  bru.assertion(expect(res.getStatus()).to.equal(200));
+}

@@ -1,0 +1,23 @@
+meta {
+  name: Create Time Slot
+  description: Create a new time slot (Staff/Admin only)
+}
+
+auth: bearer
+
+method POST
+url {{base_url}}/time-slots/?name=Morning&name_ta=%E0%AE%95%E0%AE%BE%E0%AE%B2%E0%AF%88&start_time=05:00&end_time=10:00
+
+headers {
+  Accept: application/json
+  Authorization: Bearer {{access_token}}
+}
+
+script:post-response {
+  const response = res.getBody();
+  bru.assertion(expect(res.getStatus()).to.equal(201));
+  bru.assertion(expect(response).to.have.property('success'));
+  if (response.data && response.data.id) {
+    bru.setEnvVar('time_slot_id', response.data.id);
+  }
+}

@@ -1,0 +1,26 @@
+meta {
+  name: Update Cash Advance
+  description: Update cash advance notes (only pending advances)
+}
+
+auth: bearer
+
+method PUT
+url {{base_url}}/cash-advances/{{advance_id}}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{access_token}}
+}
+
+body {
+  {
+    "notes": "Updated notes for the advance"
+  }
+}
+
+script:post-response {
+  const response = res.getBody();
+  bru.assertion(expect(res.getStatus()).to.equal(200));
+  bru.assertion(expect(response).to.have.property('success'));
+}

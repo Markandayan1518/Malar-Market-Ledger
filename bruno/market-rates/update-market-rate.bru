@@ -1,0 +1,20 @@
+meta {
+  name: Update Market Rate
+  description: Update a market rate (Staff/Admin only)
+}
+
+auth: bearer
+
+method PUT
+url {{base_url}}/market-rates/{{rate_id}}?rate_per_unit=175.00&effective_date=2026-02-20
+
+headers {
+  Accept: application/json
+  Authorization: Bearer {{access_token}}
+}
+
+script:post-response {
+  const response = res.getBody();
+  bru.assertion(expect(res.getStatus()).to.equal(200));
+  bru.assertion(expect(response).to.have.property('success'));
+}

@@ -1,0 +1,19 @@
+meta {
+  name: Settlements Report
+  description: Get settlements report data as JSON
+}
+
+auth: bearer
+
+method GET
+url {{base_url}}/reports/settlements?start_date=2026-01-01&end_date=2026-02-28
+
+headers {
+  Accept: application/json
+  Authorization: Bearer {{access_token}}
+}
+
+script:post-response {
+  const response = res.getBody();
+  bru.assertion(expect(res.getStatus()).to.equal(200));
+}

@@ -1,0 +1,20 @@
+meta {
+  name: Get Market Rate
+  description: Get market rate by ID
+}
+
+auth: bearer
+
+method GET
+url {{base_url}}/market-rates/{{rate_id}}
+
+headers {
+  Accept: application/json
+  Authorization: Bearer {{access_token}}
+}
+
+script:post-response {
+  const response = res.getBody();
+  bru.assertion(expect(res.getStatus()).to.equal(200));
+  bru.assertion(expect(response).to.have.property('success'));
+}

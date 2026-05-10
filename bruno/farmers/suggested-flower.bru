@@ -1,0 +1,21 @@
+meta {
+  name: Suggested Flower
+  description: Get suggested flower type for a farmer based on history
+}
+
+auth: bearer
+
+method GET
+url {{base_url}}/farmers/{{farmer_id}}/suggested-flower
+
+headers {
+  Accept: application/json
+  Authorization: Bearer {{access_token}}
+}
+
+script:post-response {
+  const response = res.getBody();
+  bru.assertion(expect(res.getStatus()).to.equal(200));
+  bru.assertion(expect(response).to.have.property('success'));
+  bru.assertion(expect(response.success).to.equal(true));
+}

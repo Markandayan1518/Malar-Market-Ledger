@@ -1,0 +1,18 @@
+meta {
+  name: Font Info
+  description: Get information about available fonts for reports
+}
+
+auth: bearer
+
+method GET
+url {{base_url}}/reports/font-info
+
+headers {
+  Accept: application/json
+  Authorization: Bearer {{access_token}}
+}
+
+script:post-response {
+  bru.assertion(expect(res.getStatus()).to.equal(200));
+}

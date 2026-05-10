@@ -1,0 +1,21 @@
+meta {
+  name: Get Invoice
+  description: Get a single invoice by ID with items
+}
+
+auth: bearer
+
+method GET
+url {{base_url}}/invoices/{{invoice_id}}
+
+headers {
+  Accept: application/json
+  Authorization: Bearer {{access_token}}
+}
+
+script:post-response {
+  const response = res.getBody();
+  bru.assertion(expect(res.getStatus()).to.equal(200));
+  bru.assertion(expect(response).to.have.property('id'));
+  bru.assertion(expect(response).to.have.property('items'));
+}

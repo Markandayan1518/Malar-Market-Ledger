@@ -1,0 +1,47 @@
+meta {
+  name: Create Business Profile
+  description: Create a new business profile (Admin only)
+}
+
+auth: bearer
+
+method POST
+url {{base_url}}/business-profile/
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{access_token}}
+}
+
+body {
+  {
+    "shop_name": "Malar Flower Market",
+    "owner_name": "Malar Owner",
+    "address_line1": "123, Market Road",
+    "address_line2": "Near Bus Stand",
+    "city": "Dindigul",
+    "state": "Tamil Nadu",
+    "pincode": "624001",
+    "phone": "+919876543210",
+    "alternate_phone": "+919876543211",
+    "email": "malar@flowers.com",
+    "gst_number": "33AAAAA0000A1Z5",
+    "pan_number": "AAAAA0000A",
+    "bank_name": "State Bank of India",
+    "bank_account_number": "12345678901234",
+    "bank_ifsc_code": "SBIN0001234",
+    "bank_branch": "Dindigul Main",
+    "upi_id": "malar@upi",
+    "invoice_prefix": "MLR",
+    "invoice_notes": "Thank you for your business!",
+    "invoice_terms": "Payment due within 30 days"
+  }
+}
+
+script:post-response {
+  const response = res.getBody();
+  bru.assertion(expect(res.getStatus()).to.equal(200));
+  if (response.id) {
+    bru.setEnvVar('profile_id', response.id);
+  }
+}

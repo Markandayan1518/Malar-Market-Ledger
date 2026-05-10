@@ -1,0 +1,22 @@
+meta {
+  name: Get Current User
+  description: Get current authenticated user information
+}
+
+auth: bearer
+
+method GET
+url {{base_url}}/users/me
+
+headers {
+  Accept: application/json
+  Authorization: Bearer {{access_token}}
+}
+
+script:post-response {
+  const response = res.getBody();
+  bru.assertion(expect(res.getStatus()).to.equal(200));
+  bru.assertion(expect(response).to.have.property('success'));
+  bru.assertion(expect(response.success).to.equal(true));
+  bru.assertion(expect(response).to.have.property('data'));
+}

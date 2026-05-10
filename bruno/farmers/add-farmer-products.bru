@@ -1,0 +1,27 @@
+meta {
+  name: Add Farmer Products
+  description: Link multiple flower types to a farmer's profile
+}
+
+auth: bearer
+
+method POST
+url {{base_url}}/farmers/{{farmer_id}}/products
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{access_token}}
+}
+
+body {
+  {
+    "flower_type_ids": ["{{flower_type_id}}"]
+  }
+}
+
+script:post-response {
+  const response = res.getBody();
+  bru.assertion(expect(res.getStatus()).to.equal(201));
+  bru.assertion(expect(response).to.have.property('success'));
+  bru.assertion(expect(response.success).to.equal(true));
+}

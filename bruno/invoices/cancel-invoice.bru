@@ -1,0 +1,26 @@
+meta {
+  name: Cancel Invoice
+  description: Cancel an invoice with a reason
+}
+
+auth: bearer
+
+method POST
+url {{base_url}}/invoices/{{invoice_id}}/cancel
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{access_token}}
+}
+
+body {
+  {
+    "reason": "Order cancelled by customer"
+  }
+}
+
+script:post-response {
+  const response = res.getBody();
+  bru.assertion(expect(res.getStatus()).to.equal(200));
+  bru.assertion(expect(response).to.have.property('success'));
+}

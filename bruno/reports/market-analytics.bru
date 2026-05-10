@@ -1,0 +1,20 @@
+meta {
+  name: Market Analytics
+  description: Get market analytics data (avg/min/max weight, adjustments)
+}
+
+auth: bearer
+
+method GET
+url {{base_url}}/reports/market-analytics?start_date=2026-01-01&end_date=2026-02-28
+
+headers {
+  Accept: application/json
+  Authorization: Bearer {{access_token}}
+}
+
+script:post-response {
+  const response = res.getBody();
+  bru.assertion(expect(res.getStatus()).to.equal(200));
+  bru.assertion(expect(response).to.have.property('avgWeight'));
+}

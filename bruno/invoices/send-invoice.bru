@@ -1,0 +1,20 @@
+meta {
+  name: Send Invoice
+  description: Send invoice (change status from draft to pending)
+}
+
+auth: bearer
+
+method POST
+url {{base_url}}/invoices/{{invoice_id}}/send
+
+headers {
+  Accept: application/json
+  Authorization: Bearer {{access_token}}
+}
+
+script:post-response {
+  const response = res.getBody();
+  bru.assertion(expect(res.getStatus()).to.equal(200));
+  bru.assertion(expect(response).to.have.property('success'));
+}

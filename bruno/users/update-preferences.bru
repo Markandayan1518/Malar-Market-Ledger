@@ -1,0 +1,21 @@
+meta {
+  name: Update Preferences
+  description: Update current user preferences (language, theme, notifications)
+}
+
+auth: bearer
+
+method PUT
+url {{base_url}}/users/me/preferences?language=en&theme=arctic&notifications_enabled=true
+
+headers {
+  Accept: application/json
+  Authorization: Bearer {{access_token}}
+}
+
+script:post-response {
+  const response = res.getBody();
+  bru.assertion(expect(res.getStatus()).to.equal(200));
+  bru.assertion(expect(response).to.have.property('success'));
+  bru.assertion(expect(response.success).to.equal(true));
+}
